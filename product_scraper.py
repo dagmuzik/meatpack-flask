@@ -1,5 +1,19 @@
 import requests
 
+KNOWN_BRANDS = [
+    "Nike", "Adidas", "Puma", "New Balance", "Vans", "Reebok",
+    "Converse", "Under Armour", "Asics", "Saucony", "Salomon",
+    "Jordan", "Mizuno", "Fila", "Hoka", "On"
+]
+
+def detectar_marca(nombre):
+    nombre_lower = nombre.lower()
+    for marca in KNOWN_BRANDS:
+        if marca.lower() in nombre_lower:
+            return marca
+    return nombre.split()[0]
+
+
 def get_meatpack_products(talla_busqueda="9.5"):
     URL = "https://meatpack.com/collections/special-price/products.json"
     response = requests.get(URL)
@@ -11,7 +25,7 @@ def get_meatpack_products(talla_busqueda="9.5"):
         handle = producto["handle"]
         url = f"https://meatpack.com/products/{handle}"
         tienda = "Meatpack"
-        marca = nombre.split()[0] if nombre else "Desconocida"
+        marca = detectar_marca(nombre)
 
         for variante in producto.get("variants", []):
             talla = variante["option1"]
@@ -58,7 +72,7 @@ def get_lagrieta_products(talla_busqueda="9.5"):
         nombre = producto["title"]
         handle = producto["handle"]
         url = f"https://lagrieta.gt/products/{handle}"
-        marca = nombre.split()[0] if nombre else "Desconocida"
+        marca = detectar_marca(nombre)
 
         for variante in producto["variants"]:
             talla = variante["title"]
