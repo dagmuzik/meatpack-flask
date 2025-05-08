@@ -100,72 +100,10 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
-def get_kicks_products(talla_busqueda, min_price, max_price):
-    url = "https://www.kicks.com.gt/sale-tienda"
-    headers = { "User-Agent": "Mozilla/5.0" }
-    productos = []
-    tienda = "KICKS"
-
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.content, "html.parser")
-        items = soup.select(".product-item-info")
-
-        for item in items:
-            try:
-                nombre = item.select_one(".product-item-name").text.strip()
-                url_producto = item.select_one("a")["href"]
-                url_completa = "https://www.kicks.com.gt" + url_producto
-                imagen = item.select_one("img")["src"] if item.select_one("img") else ""
-                precio_final_tag = item.select_one(".special-price .price") or item.select_one(".price")
-                precio_original_tag = item.select_one(".old-price .price")
-
-                try:
-                    precio_final = float(precio_final_tag.text.replace("Q", "").replace(",", "").strip())
-                except:
-                    continue
-
-                if precio_original_tag:
-                    try:
-                        precio_original = float(precio_original_tag.text.replace("Q", "").replace(",", "").strip())
-                    except:
-                        precio_original = precio_final
-                else:
-                    precio_original = precio_final
-
-                if not (min_price <= precio_final <= max_price):
-                    continue
-
-                r_detalle = requests.get(url_completa, headers=headers, timeout=10)
-                detalle = BeautifulSoup(r_detalle.content, "html.parser")
-                talla_labels = detalle.select("div.swatch-option.text")
-                tallas_disponibles = [label.text.strip().replace("½", ".5") for label in talla_labels]
-
-                if talla_busqueda in tallas_disponibles:
-                    productos.append({
-                        "marca": detectar_marca(nombre),
-                        "nombre": nombre,
-                        "precio_final": precio_final,
-                        "precio_original": precio_original,
-                        "descuento": f"-{round((1 - (precio_final / precio_original)) * 100)}%" if precio_original > precio_final else "",
-                        "talla": talla_busqueda,
-                        "tienda": tienda,
-                        "url": url_completa,
-                        "imagen": imagen
-                    })
-
-            except Exception as e:
-                logging.warning(f"[KICKS] Producto con error: {e}")
-                continue
-
-    except Exception as e:
-        logging.error(f"[KICKS] Error general: {e}")
-
-    return productos
-
 def get_all_products(talla="9.5", min_price=0, max_price=99999):
     return {
         "Meatpack": get_meatpack_products(talla, min_price, max_price),
         "La Grieta": get_lagrieta_products(talla, min_price, max_price),
         "KICKS": get_kicks_products(talla, min_price, max_price)
+        # "Bitterheads": get_bitterheads_products(talla, min_price, max_price),  # se puede reactivar cuando esté listo
     }
