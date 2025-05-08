@@ -99,7 +99,7 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
     return sorted(productos, key=lambda x: x["precio_final"])
 
 def get_bitterheads_products(talla_busqueda, min_price, max_price):
-    url = "https://bitterheads.com/collections/sneakers"
+    url = "https://www.bitterheads.com/collections/sneakers"
     productos = []
     tienda = "Bitterheads"
 
