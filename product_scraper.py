@@ -102,7 +102,7 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
-def get_kicks_products():
+def get_kicks_products(talla_busqueda, min_price, max_price):
     base_url = "https://www.kicks.com.gt"
     listing_url = f"{base_url}/collections/sale?page=1"
     response = requests.get(listing_url)
