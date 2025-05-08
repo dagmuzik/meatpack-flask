@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    talla = request.values.get("talla", "9.5")
+    talla = request.values.get("talla", "")
     try:
         min_price = float(request.values.get("min_price") or 0)
     except ValueError:
@@ -22,16 +22,17 @@ def index():
     for tienda, lista in productos_por_tienda.items():
         for p in lista:
             p["tienda"] = tienda
+            if "precio_final" not in p:
+                # Si no tiene precio_final, lo descartamos de la lista
+                continue
             productos_totales.append(p)
 
-    # 🔽 Ordenamos por precio final solo si está presente
-    productos_ordenados = sorted(
-        [p for p in productos_totales if isinstance(p.get("precio_final"), (int, float))],
-        key=lambda x: x["precio_final"]
-    )
+    # 🔽 Ordenamos por precio final si está presente
+    productos_ordenados = sorted(productos_totales, key=lambda x: x.get("precio_final", 99999))
 
     return render_template("index.html",
                            productos=productos_ordenados,
                            talla=talla,
                            min_price=min_price,
                            max_price=max_price)
+
