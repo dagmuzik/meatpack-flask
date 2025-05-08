@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-import logging
+import re
+import json
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -100,74 +102,62 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
-def get_kicks_products(talla_busqueda, min_price, max_price):
-    url = "https://www.kicks.com.gt/sale-tienda"
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+def get_kicks_products():
+    base_url = "https://www.kicks.com.gt"
+    listing_url = f"{base_url}/collections/sale?page=1"
+    response = requests.get(listing_url)
+    soup = BeautifulSoup(response.text, "html.parser")
 
-    productos = []
-    tienda = "KICKS"
+    products = []
+    product_links = list(set(a["href"] for a in soup.select("a.product-item-link") if a.get("href")))
 
-    try:
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            logging.warning(f"❌ KICKS no respondió correctamente: {response.status_code}")
-            return []
+    for link in product_links:
+        full_url = base_url + link if link.startswith("/") else link
+        res = requests.get(full_url)
+        prod_soup = BeautifulSoup(res.text, "html.parser")
+        script_tag = prod_soup.find("script", type="text/x-magento-init")
 
-        soup = BeautifulSoup(response.text, "html.parser")
-        items = soup.select(".product-item-info")
+        title = prod_soup.find("h1", class_="page-title").get_text(strip=True) if prod_soup.find("h1", class_="page-title") else "No Title"
+        price = prod_soup.select_one("span.price")
+        price = price.get_text(strip=True) if price else "N/A"
+        image_tag = prod_soup.select_one("img.fotorama__img")
+        image_url = image_tag["src"] if image_tag else ""
 
-        for item in items:
-            nombre = item.select_one(".product-item-name").text.strip() if item.select_one(".product-item-name") else "Sin nombre"
-            href = item.select_one("a")["href"]
-            url_producto = href if href.startswith("http") else f"https://www.kicks.com.gt{href}"
-            imagen = item.select_one("img")["src"] if item.select_one("img") else ""
-            precio_final_tag = item.select_one(".special-price .price") or item.select_one(".price")
-            precio_original_tag = item.select_one(".old-price .price")
-
+        tallas_disponibles = []
+        if script_tag:
             try:
-                precio_final = float(precio_final_tag.text.replace("Q", "").replace(",", "").strip())
-            except:
-                precio_final = 0.0
+                match = re.search(r'"jsonConfig"\s*:\s*({.*?"attributes".*?})\s*,\s*"template"', script_tag.text, re.DOTALL)
+                match_simple = re.search(r'window.simpleProducts\s*=\s*({.*?});', res.text, re.DOTALL)
 
-            if precio_original_tag:
-                try:
-                    precio_original = float(precio_original_tag.text.replace("Q", "").replace(",", "").strip())
-                except:
-                    precio_original = precio_final
-            else:
-                precio_original = precio_final
+                if match:
+                    config_json = match.group(1)
+                    config = json.loads(config_json)
 
-            if not (min_price <= precio_final <= max_price):
-                continue
+                    disponibles = set()
+                    if match_simple:
+                        data = json.loads(match_simple.group(1))
+                        disponibles = {str(item["id"]) for item in data.get("lines", [])}
 
-            # Filtro simple por talla (presente en nombre o URL)
-            if talla_busqueda and talla_busqueda not in nombre and talla_busqueda not in url_producto:
-                continue
+                    for attr in config["attributes"].values():
+                        for option in attr["options"]:
+                            talla = option["label"]
+                            ids = option.get("products", [])
+                            disponible = any(pid in disponibles for pid in ids)
+                            if disponible:
+                                tallas_disponibles.append(talla)
+            except Exception as e:
+                print(f"⚠️ Error al procesar tallas en {full_url}: {e}")
 
-            descuento = ""
-            if precio_original > precio_final:
-                descuento = f"-{round((1 - (precio_final / precio_original)) * 100)}%"
+        products.append({
+            "title": title,
+            "price": price,
+            "url": full_url,
+            "image": image_url,
+            "tallas_disponibles": tallas_disponibles,
+            "fecha": datetime.now().strftime("%Y-%m-%d")
+        })
 
-            productos.append({
-                "marca": detectar_marca(nombre),
-                "nombre": nombre,
-                "precio_final": precio_final,
-                "precio_original": precio_original,
-                "descuento": descuento,
-                "talla": talla_busqueda,
-                "tienda": tienda,
-                "url": url_producto,
-                "imagen": imagen
-            })
-
-        logging.info(f"🟢 KICKS productos encontrados: {len(productos)}")
-        return productos
-
-    except Exception as e:
-        logging.error(f"💥 Error en get_kicks_products: {e}")
-        return []
+    return products
 
 def get_all_products(talla="9.5", min_price=0, max_price=99999):
     return {
