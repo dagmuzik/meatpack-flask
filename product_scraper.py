@@ -137,9 +137,11 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
         except:
             continue
 
-        tallas = [t.strip() for t in talla_tag.get_text(strip=True).lower().replace("talla:", "").replace("|", "/").split("/")]
+        # Normalizar tallas
+        tallas = [t.strip().replace("½", ".5").replace(" ", "") for t in talla_tag.get_text(strip=True).lower().replace("talla:", "").replace("|", "/").split("/") if t.strip()]
+        talla_input_normalizada = talla_busqueda.strip().replace(".", "").replace(" ", "")
 
-        if talla_busqueda.lower() in tallas and min_price <= precio <= max_price:
+        if any(t.replace(".", "") == talla_input_normalizada for t in tallas) and min_price <= precio <= max_price:
             productos.append({
                 "marca": nombre.split()[0],
                 "nombre": nombre,
