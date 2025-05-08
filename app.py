@@ -24,12 +24,14 @@ def index():
             p["tienda"] = tienda
             productos_totales.append(p)
 
-    # 🔽 Ordenamos por precio final
-    productos_ordenados = sorted(productos_totales, key=lambda x: x["precio_final"])
+    # 🔽 Ordenamos por precio final solo si está presente
+    productos_ordenados = sorted(
+        [p for p in productos_totales if "precio_final" in p],
+        key=lambda x: x["precio_final"]
+    )
 
     return render_template("index.html",
                            productos=productos_ordenados,
                            talla=talla,
                            min_price=min_price,
                            max_price=max_price)
-
