@@ -26,7 +26,7 @@ def index():
 
     # 🔽 Ordenamos por precio final solo si está presente
     productos_ordenados = sorted(
-        [p for p in productos_totales if "precio_final" in p],
+        [p for p in productos_totales if isinstance(p.get("precio_final"), (int, float))],
         key=lambda x: x["precio_final"]
     )
 
