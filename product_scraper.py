@@ -1,8 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import time
-import logging
-logging.basicConfig(level=logging.INFO)
 
 KNOWN_BRANDS = [
     "Nike", "Adidas", "Puma", "New Balance", "Vans", "Reebok",
@@ -100,6 +98,9 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 def get_bitterheads_products(talla_busqueda, min_price, max_price):
     url = "https://www.bitterheads.com/collections/sneakers"
     productos = []
@@ -126,10 +127,6 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
         precio_tag = item.select_one(".price__current")
         talla_tag = item.select_one(".productitem--variants")
         imagen_tag = item.select_one("img")
-       logging.info(f"➡️ Producto: {nombre}")
-        logging.info(f"➡️ Tallas crudas: {talla_tag.get_text(strip=True)}")
-        logging.info(f"➡️ URL: {link}")
-
 
         if not all([nombre_tag, url_tag, precio_tag, talla_tag]):
             continue
@@ -137,17 +134,16 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
         nombre = nombre_tag.get_text(strip=True)
         link = "https://www.bitterheads.com" + url_tag["href"]
         imagen = imagen_tag["src"] if imagen_tag else ""
-logging.info(f"➡️ Producto: {nombre}")
-logging.info(f"➡️ Tallas crudas: {talla_tag.get_text(strip=True)}")
-logging.info(f"➡️ URL: {link}")
 
+        logging.info(f"➡️ Producto: {nombre}")
+        logging.info(f"➡️ Tallas crudas: {talla_tag.get_text(strip=True)}")
+        logging.info(f"➡️ URL: {link}")
 
         try:
             precio = float(precio_tag.get_text(strip=True).replace("Q", "").replace(",", ""))
         except:
             continue
 
-        # Normalizar tallas
         tallas = [
             t.strip().replace("½", ".5").replace(" ", "")
             for t in talla_tag.get_text(strip=True).lower().replace("talla:", "").replace("|", "/").split("/")
