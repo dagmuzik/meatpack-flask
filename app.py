@@ -16,8 +16,20 @@ def index():
         max_price = 99999
 
     productos_por_tienda = get_all_products(talla, min_price, max_price)
-    return render_template("index.html", productos_por_tienda=productos_por_tienda, talla=talla, min_price=min_price, max_price=max_price)
 
+    # 🔁 Unificamos todos los productos en una lista y agregamos la tienda a cada uno
+    productos_totales = []
+    for tienda, lista in productos_por_tienda.items():
+        for p in lista:
+            p["tienda"] = tienda
+            productos_totales.append(p)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    # 🔽 Ordenamos por precio final
+    productos_ordenados = sorted(productos_totales, key=lambda x: x["precio_final"])
+
+    return render_template("index.html",
+                           productos=productos_ordenados,
+                           talla=talla,
+                           min_price=min_price,
+                           max_price=max_price)
+
