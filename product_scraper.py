@@ -1,7 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import time
 
 KNOWN_BRANDS = [
@@ -105,18 +103,16 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
     productos = []
     tienda = "Bitterheads"
 
-    chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(url)
-    time.sleep(3)
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        return []
 
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    driver.quit()
-
+    soup = BeautifulSoup(response.text, "html.parser")
     items = soup.select(".productgrid--item")
+
     for item in items:
         nombre_tag = item.select_one(".productitem--title")
         url_tag = item.select_one("a")
@@ -128,7 +124,6 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
             continue
 
         nombre = nombre_tag.get_text(strip=True)
-        marca = detectar_marca(nombre)
         link = "https://bitterheads.com" + url_tag["href"]
         imagen = imagen_tag["src"] if imagen_tag else ""
 
@@ -141,7 +136,7 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
 
         if talla_busqueda.lower() in tallas and min_price <= precio <= max_price:
             productos.append({
-                "marca": marca,
+                "marca": nombre.split()[0],
                 "nombre": nombre,
                 "precio_final": precio,
                 "precio_original": None,
