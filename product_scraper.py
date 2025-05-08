@@ -111,9 +111,9 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                 match = re.search(r"(\d+\.\d+)", precio_texto.replace(",", ""))
                 if not match:
                     raise ValueError(f"No se pudo extraer precio de: {precio_texto}")
-                precio = float(match.group(1))
+                precio_final = float(match.group(1))
 
-                if not (min_price <= precio <= max_price):
+                if not (min_price <= precio_final <= max_price):
                     continue
 
                 detalle = requests.get(url_producto, headers=headers)
@@ -121,22 +121,26 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                 tallas_tags = detalle_soup.select(".swatch-option.text")
 
                 tallas_disponibles = [
-                    t.get_text(strip=True).replace("½", ".5")
-                    for t in tallas_tags
-                    if "disabled" not in t.get("class", [])
+                    t.get_text(strip=True).replace("½", ".5") for t in tallas_tags if "disabled" not in t.get("class", [])
                 ]
 
                 if talla_filtrada and talla_filtrada not in tallas_disponibles:
                     continue
 
+                # Detección simple de marca desde el nombre
+                marcas_posibles = ["Nike", "Jordan", "adidas", "Puma", "Reebok", "New Balance", "Vans", "Converse"]
+                marca_detectada = next((m for m in marcas_posibles if m.lower() in nombre.lower()), "Otra")
+
                 productos.append({
+                    "marca": marca_detectada,
                     "nombre": nombre,
-                    "precio_final": precio,
+                    "precio_final": precio_final,
                     "precio_original": None,
                     "descuento": None,
-                    "url": url_producto,
-                    "imagen": imagen,
                     "talla": talla_filtrada,
+                    "tienda": "KICKS",
+                    "url": url_producto,
+                    "imagen": imagen
                 })
 
             except Exception as e:
