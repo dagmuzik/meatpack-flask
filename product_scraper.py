@@ -99,7 +99,68 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
                 })
 
     return sorted(productos, key=lambda x: x["precio_final"])
+def get_kicks_products(talla="9.5", min_price=0, max_price=99999):
+    print("🔄 Obteniendo productos de KICKS...")
+    url = "https://www.kicks.com.gt/sale-tienda"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
 
+    productos = []
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        items = soup.find_all("li", class_="item product product-item")
+        for item in items:
+            try:
+                nombre_tag = item.find("strong", class_="product name product-item-name")
+                link_tag = nombre_tag.find("a")
+                nombre = nombre_tag.get_text(strip=True)
+                link = link_tag["href"]
+
+                if not link.startswith("http"):
+                    url_producto = f"https://www.kicks.com.gt{link}"
+                else:
+                    url_producto = link
+
+                # Obtener detalle del producto
+                detalle_response = requests.get(url_producto, headers=headers, timeout=10)
+                detalle_response.raise_for_status()
+                detalle_soup = BeautifulSoup(detalle_response.text, "html.parser")
+
+                script_tag = detalle_soup.find("script", text=lambda t: t and "var spConfig" in t)
+                if not script_tag:
+                    continue
+
+                tallas_text = detalle_soup.get_text().lower()
+                if talla.replace(".", "") not in tallas_text.replace(".", ""):
+                    continue
+
+                precio_tag = item.find("span", class_="price-wrapper")
+                if precio_tag:
+                    precio_text = precio_tag.get("data-price-amount")
+                    precio = float(precio_text)
+                else:
+                    continue
+
+                if min_price <= precio <= max_price:
+                    imagen_tag = item.find("img")
+                    imagen = imagen_tag["src"] if imagen_tag else ""
+
+                    productos.append({
+                        "nombre": nombre,
+                        "precio": precio,
+                        "url": url_producto,
+                        "imagen": imagen
+                    })
+            except Exception as e:
+                logging.warning(f"[KICKS] Producto con error: {e}")
+    except Exception as e:
+        logging.error(f"[KICKS] Error general: {e}")
+    return productos
+    
 def get_all_products(talla="9.5", min_price=0, max_price=99999):
     return {
         "Meatpack": get_meatpack_products(talla, min_price, max_price),
