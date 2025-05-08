@@ -8,6 +8,8 @@
     <h2>¿Qué talla te interesa buscar en oferta en Guatemala?</h2>
     <form method="post">
         <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla }}">
+        <input type="number" name="min_price" placeholder="Precio mínimo" step="0.01" value="{{ min_price }}">
+        <input type="number" name="max_price" placeholder="Precio máximo" step="0.01" value="{{ max_price }}">
         <button type="submit">Buscar</button>
     </form>
 
@@ -41,8 +43,9 @@
                 </tbody>
             </table>
         {% else %}
-            <p>No se encontraron productos con talla {{ talla }} en {{ tienda }}.</p>
+            <p>No se encontraron productos con talla {{ talla }} y ese rango de precio en {{ tienda }}.</p>
         {% endif %}
     {% endfor %}
 </body>
 </html>
+
