@@ -1,15 +1,39 @@
+
 import requests
 from bs4 import BeautifulSoup
-import json
 import logging
 import re
 
 logging.basicConfig(level=logging.INFO)
 
-def get_meatpack_products(talla="9.5", min_price=0, max_price=99999):
+def detectar_marca(nombre):
+    nombre_lower = nombre.lower()
+    if "adidas" in nombre_lower:
+        return "adidas"
+    elif "nike" in nombre_lower:
+        return "nike"
+    elif "puma" in nombre_lower:
+        return "puma"
+    elif "reebok" in nombre_lower:
+        return "reebok"
+    elif "new balance" in nombre_lower or "nb" in nombre_lower:
+        return "new balance"
+    elif "salomon" in nombre_lower:
+        return "salomon"
+    elif "converse" in nombre_lower:
+        return "converse"
+    elif "vans" in nombre_lower:
+        return "vans"
+    elif "jordan" in nombre_lower:
+        return "jordan"
+    else:
+        return "otro"
+
+def get_meatpack_products(talla_busqueda="9.5", min_price=0, max_price=99999):
     logging.info("🔄 Obteniendo productos de MEATPACK...")
     url = "https://meatpack.com/collections/special-price/products.json"
     productos = []
+
     try:
         response = requests.get(url)
         data = response.json()
@@ -27,63 +51,84 @@ def get_meatpack_products(talla="9.5", min_price=0, max_price=99999):
                 if precio > 1000:
                     precio = precio / 100
 
-                if talla and disponible and min_price <= precio <= max_price and talla == talla:
+                if talla == talla_busqueda and disponible and min_price <= precio <= max_price:
                     productos.append({
+                        "marca": detectar_marca(nombre),
                         "nombre": nombre,
-                        "precio": precio,
+                        "precio_final": precio,
+                        "precio_original": None,
+                        "descuento": None,
                         "talla": talla,
+                        "tienda": "MEATPACK",
                         "url": url_producto,
                         "imagen": imagen
                     })
     except Exception as e:
-        logging.warning(f"[MEATPACK] Error al obtener productos: {e}")
+        logging.warning(f"[MEATPACK] Error: {e}")
+
     return productos
 
-def get_lagrieta_products(talla="9.5", min_price=0, max_price=99999):
+def get_lagrieta_products(talla_busqueda="9.5", min_price=0, max_price=99999):
     logging.info("🔄 Obteniendo productos de LA GRIETA...")
     url = "https://lagrieta.gt/collections/ultimas-tallas"
     productos = []
+
     try:
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
         items = soup.select("li.grid__item")
 
         for item in items:
-            nombre = item.select_one("a.full-unstyled-link").text.strip()
-            url_producto = "https://lagrieta.gt" + item.select_one("a.full-unstyled-link")["href"]
-            imagen = item.select_one("img.motion-reduce")["src"].replace("{width}", "800")
-            precio_texto = item.select_one(".price").text.strip().replace("Q", "").replace(",", "")
+            nombre_tag = item.select_one("a.full-unstyled-link")
+            if not nombre_tag:
+                continue
+
+            nombre = nombre_tag.text.strip()
+            url_producto = "https://lagrieta.gt" + nombre_tag["href"]
+            imagen_tag = item.select_one("img.motion-reduce")
+            imagen = imagen_tag["src"].replace("{width}", "800") if imagen_tag else ""
+            precio_tag = item.select_one(".price")
+            if not precio_tag:
+                continue
+
             try:
-                precio = float(precio_texto)
+                precio = float(precio_tag.text.strip().replace("Q", "").replace(",", ""))
             except:
-                precio = 0
+                continue
 
             if not (min_price <= precio <= max_price):
                 continue
 
             detalle = requests.get(url_producto)
             soup_detalle = BeautifulSoup(detalle.content, "html.parser")
-            tallas = [t.get_text(strip=True).replace("½", ".5").replace(" ", "") for t in soup_detalle.select("fieldset input + label")]
+            tallas = [
+                t.get_text(strip=True).replace("½", ".5").replace(" ", "")
+                for t in soup_detalle.select("fieldset input + label")
+            ]
 
-            if talla in tallas:
+            if talla_busqueda in tallas:
                 productos.append({
+                    "marca": detectar_marca(nombre),
                     "nombre": nombre,
-                    "precio": precio,
-                    "talla": talla,
+                    "precio_final": precio,
+                    "precio_original": None,
+                    "descuento": None,
+                    "talla": talla_busqueda,
+                    "tienda": "LA GRIETA",
                     "url": url_producto,
                     "imagen": "https:" + imagen if imagen.startswith("//") else imagen
                 })
     except Exception as e:
-        logging.warning(f"[LA GRIETA] Error al obtener productos: {e}")
+        logging.warning(f"[LA GRIETA] Error: {e}")
+
     return productos
 
-def get_kicks_products(talla_filtrada, min_price, max_price):
-    print("🔄 Obteniendo productos de KICKS...")
+def get_kicks_products(talla_filtrada="9.5", min_price=0, max_price=99999):
+    logging.info("🔄 Obteniendo productos de KICKS...")
     url = "https://www.kicks.com.gt/sale-tienda"
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
-
     productos = []
 
     try:
@@ -111,15 +156,14 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                 match = re.search(r"(\d+\.\d+)", precio_texto.replace(",", ""))
                 if not match:
                     raise ValueError(f"No se pudo extraer precio de: {precio_texto}")
-                precio_final = float(match.group(1))
+                precio = float(match.group(1))
 
-                if not (min_price <= precio_final <= max_price):
+                if not (min_price <= precio <= max_price):
                     continue
 
                 detalle = requests.get(url_producto, headers=headers)
                 detalle_soup = BeautifulSoup(detalle.text, "html.parser")
                 tallas_tags = detalle_soup.select(".swatch-option.text")
-
                 tallas_disponibles = [
                     t.get_text(strip=True).replace("½", ".5") for t in tallas_tags if "disabled" not in t.get("class", [])
                 ]
@@ -127,14 +171,10 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                 if talla_filtrada and talla_filtrada not in tallas_disponibles:
                     continue
 
-                # Detección simple de marca desde el nombre
-                marcas_posibles = ["Nike", "Jordan", "adidas", "Puma", "Reebok", "New Balance", "Vans", "Converse"]
-                marca_detectada = next((m for m in marcas_posibles if m.lower() in nombre.lower()), "Otra")
-
                 productos.append({
-                    "marca": marca_detectada,
+                    "marca": detectar_marca(nombre),
                     "nombre": nombre,
-                    "precio_final": precio_final,
+                    "precio_final": precio,
                     "precio_original": None,
                     "descuento": None,
                     "talla": talla_filtrada,
@@ -151,10 +191,9 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
 
     return productos
 
-def get_all_products(talla="9.5", min_price=0, max_price=99999):
+def get_all_products(talla, min_price, max_price):
     return {
-        "Meatpack": get_meatpack_products(talla, min_price, max_price),
-        "La Grieta": get_lagrieta_products(talla, min_price, max_price),
-        "KICKS": get_kicks_products(talla, min_price, max_price),
-        # "Bitterheads": get_bitterheads_products(talla, min_price, max_price)
+        "MEATPACK": get_meatpack_products(talla, min_price, max_price),
+        "LA GRIETA": get_lagrieta_products(talla, min_price, max_price),
+        "KICKS": get_kicks_products(talla, min_price, max_price)
     }
