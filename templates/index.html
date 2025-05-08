@@ -70,41 +70,45 @@
         <button type="submit">Buscar</button>
     </form>
 
-    {% for tienda, productos in productos_por_tienda.items() %}
-        <h3>{{ tienda }}</h3>
-        {% if productos %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Imagen</th>
-                        <th>Marca</th>
-                        <th>Producto</th>
-                        <th>Precio</th>
-                        <th>Antes</th>
-                        <th>Descuento</th>
-                        <th>Talla</th>
-                        <th>Link</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in productos %}
-                    <tr>
-                        <td><img src="{{ p.imagen }}" alt="Imagen del producto"></td>
-                        <td>{{ p.marca }}</td>
-                        <td>{{ p.nombre }}</td>
-                        <td>Q{{ '%.2f' | format(p.precio_final) }}</td>
-                        <td>{% if p.precio_original %}Q{{ '%.2f' | format(p.precio_original) }}{% endif %}</td>
-                        <td>{{ p.descuento }}</td>
-                        <td>{{ p.talla }}</td>
-                        <td><a href="{{ p.url }}" target="_blank">Ver</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+{% for tienda, productos in productos_por_tienda.items() %}
+    <h3>{{ tienda }}</h3>
+    {% if productos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Marca</th>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Antes</th>
+                    <th>Descuento</th>
+                    <th>Talla</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in productos %}
+                <tr>
+                    <td><img src="{{ p.imagen }}" alt="Imagen del producto"></td>
+                    <td>{{ p.marca }}</td>
+                    <td>{{ p.nombre }}</td>
+                    <td>Q{{ '%.2f' | format(p.precio_final) }}</td>
+                    <td>{% if p.precio_original %}Q{{ '%.2f' | format(p.precio_original) }}{% endif %}</td>
+                    <td>{{ p.descuento }}</td>
+                    <td>{{ p.talla }}</td>
+                    <td><a href="{{ p.url }}" target="_blank">Ver</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {% if tienda == "Bitterstore" %}
+            <p>Actualmente estamos trabajando en mejorar la conexión con esta tienda. 🛠️</p>
         {% else %}
             <p>No se encontraron productos con talla {{ talla }} y ese rango de precio en {{ tienda }}.</p>
         {% endif %}
-    {% endfor %}
+    {% endif %}
+{% endfor %}
 </body>
 </html>
 
