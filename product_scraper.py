@@ -145,8 +145,9 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
             if precio_original > precio_final:
                 descuento = f"-{round((1 - (precio_final / precio_original)) * 100)}%"
 
-            if talla_busqueda and talla_busqueda not in nombre and talla_busqueda not in url_producto:
-                continue
+            if talla_busqueda and talla_busqueda not in nombre.lower():
+               continue
+
 
             productos.append({
                 "marca": detectar_marca(nombre),
