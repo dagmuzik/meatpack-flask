@@ -124,6 +124,9 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
         precio_tag = item.select_one(".price__current")
         talla_tag = item.select_one(".productitem--variants")
         imagen_tag = item.select_one("img")
+        print("➡️ Producto:", nombre)
+        print("➡️ Tallas crudas:", talla_tag.get_text(strip=True))
+        print("➡️ URL:", link)
 
         if not all([nombre_tag, url_tag, precio_tag, talla_tag]):
             continue
