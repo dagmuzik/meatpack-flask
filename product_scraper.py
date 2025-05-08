@@ -60,9 +60,7 @@ def get_lagrieta_products(talla_busqueda="9.5"):
     productos = []
     tienda = "La Grieta"
 
-    items = soup.select(".productgrid--item")
-
-    for producto in items:
+    for producto in soup.select(".productgrid--item"):
         nombre_tag = producto.select_one(".productitem--title")
         url_tag = producto.select_one("a[href]")
         precio_tag = producto.select_one(".price__current")
@@ -75,15 +73,18 @@ def get_lagrieta_products(talla_busqueda="9.5"):
         url = "https://lagrieta.gt" + url_tag["href"]
         marca = nombre.split()[0]
 
+        # Extraer precio
         precio_texto = precio_tag.get_text(strip=True).replace("Q", "").replace(",", "")
         try:
             precio = float(precio_texto)
         except:
             continue
 
-        tallas = [t.strip() for t in tallas_tag.get_text(strip=True).split("/")]
+        # Extraer y limpiar tallas
+        tallas_texto = tallas_tag.get_text(strip=True).lower()
+        tallas = [t.strip() for t in tallas_texto.replace("talla:", "").replace("|", "/").split("/") if t.strip()]
 
-        if talla_busqueda in tallas:
+        if talla_busqueda.lower() in tallas:
             productos.append({
                 "marca": marca,
                 "nombre": nombre,
@@ -97,7 +98,6 @@ def get_lagrieta_products(talla_busqueda="9.5"):
 
     print(f"La Grieta: {len(productos)} productos encontrados con talla {talla_busqueda}")
     return sorted(productos, key=lambda x: x["precio_final"])
-
 
 def get_all_products(talla="9.5"):
     return {
