@@ -240,5 +240,6 @@ def get_all_products(talla="9.5", min_price=0, max_price=99999):
     return {
         "Meatpack": get_meatpack_products(talla, min_price, max_price),
         "La Grieta": get_lagrieta_products(talla, min_price, max_price),
-        "Bitterheads": get_bitterheads_products(talla, min_price, max_price)
+        "Bitterheads": get_bitterheads_products(talla, min_price, max_price),
+        "KICKS": get_kicks_products(talla, min_price, max_price)
     }
