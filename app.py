@@ -6,7 +6,14 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     talla = "9.5"
+try:
+    min_price = float(request.form.get("min_price") or 0)
+except ValueError:
     min_price = 0
+
+try:
+    max_price = float(request.form.get("max_price") or 99999)
+except ValueError:
     max_price = 99999
     productos_por_tienda = {}
 
