@@ -1,4 +1,8 @@
 import requests
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import time
 
 KNOWN_BRANDS = [
     "Nike", "Adidas", "Puma", "New Balance", "Vans", "Reebok",
@@ -96,8 +100,63 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
+def get_bitterheads_products(talla_busqueda, min_price, max_price):
+    url = "https://bitterheads.com/collections/sneakers"
+    productos = []
+    tienda = "Bitterheads"
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(url)
+    time.sleep(3)
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    driver.quit()
+
+    items = soup.select(".productgrid--item")
+    for item in items:
+        nombre_tag = item.select_one(".productitem--title")
+        url_tag = item.select_one("a")
+        precio_tag = item.select_one(".price__current")
+        talla_tag = item.select_one(".productitem--variants")
+        imagen_tag = item.select_one("img")
+
+        if not all([nombre_tag, url_tag, precio_tag, talla_tag]):
+            continue
+
+        nombre = nombre_tag.get_text(strip=True)
+        marca = detectar_marca(nombre)
+        link = "https://bitterheads.com" + url_tag["href"]
+        imagen = imagen_tag["src"] if imagen_tag else ""
+
+        try:
+            precio = float(precio_tag.get_text(strip=True).replace("Q", "").replace(",", ""))
+        except:
+            continue
+
+        tallas = [t.strip() for t in talla_tag.get_text(strip=True).lower().replace("talla:", "").replace("|", "/").split("/")]
+
+        if talla_busqueda.lower() in tallas and min_price <= precio <= max_price:
+            productos.append({
+                "marca": marca,
+                "nombre": nombre,
+                "precio_final": precio,
+                "precio_original": None,
+                "descuento": "",
+                "talla": talla_busqueda,
+                "tienda": tienda,
+                "url": link,
+                "imagen": imagen
+            })
+
+    return sorted(productos, key=lambda x: x["precio_final"])
+
 def get_all_products(talla="9.5", min_price=0, max_price=99999):
     return {
         "Meatpack": get_meatpack_products(talla, min_price, max_price),
-        "La Grieta": get_lagrieta_products(talla, min_price, max_price)
+        "La Grieta": get_lagrieta_products(talla, min_price, max_price),
+        "Bitterheads": get_bitterheads_products(talla, min_price, max_price)
     }
