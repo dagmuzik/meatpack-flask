@@ -119,6 +119,7 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
 
     soup = BeautifulSoup(response.text, "html.parser")
     items = soup.select(".productgrid--item")
+    logging.info(f"🧪 Bitterheads: productos encontrados = {len(items)}")
 
     for item in items:
         nombre_tag = item.select_one(".productitem--title")
