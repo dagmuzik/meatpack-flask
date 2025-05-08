@@ -101,28 +101,28 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
     return sorted(productos, key=lambda x: x["precio_final"])
 
 def get_product_details(url_producto):
-    """Scrapea la página del producto individual para extraer tallas disponibles."""
+    """Scrapea la página del producto individual de KICKS para extraer tallas disponibles."""
     headers = {"User-Agent": "Mozilla/5.0"}
     try:
-        response = requests.get(url_producto, headers=headers)
+        response = requests.get(url_producto, headers=headers, timeout=10)
         if response.status_code != 200:
+            logging.warning(f"⚠️ Producto no disponible: {url_producto}")
             return []
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Asumimos que las tallas están en botones o listas con clase específica
         tallas = []
         talla_tags = soup.select(".swatch-attribute.size .swatch-option.text")
-        #talla_tags = soup.select(".swatch-option.text")  # clase común en Magento y Shopify
 
         for tag in talla_tags:
-            if "disabled" not in tag.get("class", []):  # descartamos tallas agotadas
-                tallas.append(tag.text.strip())
+            if tag.get("aria-disabled") != "true":
+                tallas.append(tag.get("option-label") or tag.text.strip())
 
+        logging.info(f"🔎 Tallas extraídas de {url_producto}: {tallas}")
         return tallas
 
     except Exception as e:
-        logging.warning(f"⚠️ Error en get_product_details: {e}")
+        logging.error(f"💥 Error en get_product_details({url_producto}): {e}")
         return []
 
 def get_kicks_products(talla_busqueda, min_price, max_price):
