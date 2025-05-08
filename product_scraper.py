@@ -100,31 +100,6 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
-def get_product_details(url_producto):
-    """Scrapea la página del producto individual de KICKS para extraer tallas disponibles."""
-    headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        response = requests.get(url_producto, headers=headers, timeout=10)
-        if response.status_code != 200:
-            logging.warning(f"⚠️ Producto no disponible: {url_producto}")
-            return []
-
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        tallas = []
-        talla_tags = soup.select(".swatch-attribute.size .swatch-option.text")
-
-        for tag in talla_tags:
-            if tag.get("aria-disabled") != "true":
-                tallas.append(tag.get("option-label") or tag.text.strip())
-
-        logging.info(f"🔎 Tallas extraídas de {url_producto}: {tallas}")
-        return tallas
-
-    except Exception as e:
-        logging.error(f"💥 Error en get_product_details({url_producto}): {e}")
-        return []
-
 def get_kicks_products(talla_busqueda, min_price, max_price):
     url = "https://www.kicks.com.gt/sale-tienda"
     headers = {
@@ -167,9 +142,8 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
             if not (min_price <= precio_final <= max_price):
                 continue
 
-            tallas_disponibles = get_product_details(url_producto)
-
-            if talla_busqueda not in tallas_disponibles:
+            # Filtro simple por talla (presente en nombre o URL)
+            if talla_busqueda and talla_busqueda not in nombre and talla_busqueda not in url_producto:
                 continue
 
             descuento = ""
@@ -200,5 +174,4 @@ def get_all_products(talla="9.5", min_price=0, max_price=99999):
         "Meatpack": get_meatpack_products(talla, min_price, max_price),
         "La Grieta": get_lagrieta_products(talla, min_price, max_price),
         "KICKS": get_kicks_products(talla, min_price, max_price)
-        # "Bitterheads": get_bitterheads_products(talla, min_price, max_price),  # se puede reactivar cuando esté listo
     }
