@@ -108,7 +108,6 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                 imagen = imagen_tag["src"] if imagen_tag else ""
                 precio_texto = precio_tag.get_text(strip=True)
 
-                # Extraer el primer número decimal que aparece como precio
                 match = re.search(r"(\d+\.\d+)", precio_texto.replace(",", ""))
                 if not match:
                     raise ValueError(f"No se pudo extraer precio de: {precio_texto}")
@@ -122,7 +121,9 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                 tallas_tags = detalle_soup.select(".swatch-option.text")
 
                 tallas_disponibles = [
-                    t.get_text(strip=True).replace("½", ".5") for t in tallas_tags if "disabled" not in t.get("class", [])
+                    t.get_text(strip=True).replace("½", ".5")
+                    for t in tallas_tags
+                    if "disabled" not in t.get("class", [])
                 ]
 
                 if talla_filtrada and talla_filtrada not in tallas_disponibles:
@@ -130,10 +131,12 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
 
                 productos.append({
                     "nombre": nombre,
-                    "precio": precio,
-                    "link": url_producto,
+                    "precio_final": precio,
+                    "precio_original": None,
+                    "descuento": None,
+                    "url": url_producto,
                     "imagen": imagen,
-                    "tallas": tallas_disponibles
+                    "talla": talla_filtrada,
                 })
 
             except Exception as e:
