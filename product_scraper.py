@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-import time
+import logging
+
+# Configurar logging para Render
+logging.basicConfig(level=logging.INFO)
 
 KNOWN_BRANDS = [
     "Nike", "Adidas", "Puma", "New Balance", "Vans", "Reebok",
@@ -98,9 +101,6 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
-import logging
-logging.basicConfig(level=logging.INFO)
-
 def get_bitterheads_products(talla_busqueda, min_price, max_price):
     url = "https://www.bitterheads.com/collections/sneakers"
     productos = []
@@ -117,7 +117,6 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
     except:
         return []
 
-    from bs4 import BeautifulSoup
     soup = BeautifulSoup(response.text, "html.parser")
     items = soup.select(".productgrid--item")
 
