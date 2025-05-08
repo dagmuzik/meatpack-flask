@@ -123,12 +123,14 @@ def get_lagrieta_products(talla_busqueda="9.5", min_price=0, max_price=99999):
 
     return productos
 
-def get_kicks_products(talla_filtrada="9.5", min_price=0, max_price=99999):
-    logging.info("🔄 Obteniendo productos de KICKS...")
+def get_kicks_products(talla_filtrada, min_price, max_price):
+    import re
+    print("🔄 Obteniendo productos de KICKS...")
     url = "https://www.kicks.com.gt/sale-tienda"
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
+
     productos = []
 
     try:
@@ -153,14 +155,16 @@ def get_kicks_products(talla_filtrada="9.5", min_price=0, max_price=99999):
                 imagen = imagen_tag["src"] if imagen_tag else ""
                 precio_texto = precio_tag.get_text(strip=True)
 
+                # Extraer precio actual
                 match = re.search(r"(\d+\.\d+)", precio_texto.replace(",", ""))
                 if not match:
                     raise ValueError(f"No se pudo extraer precio de: {precio_texto}")
-                precio = float(match.group(1))
+                precio_final = float(match.group(1))
 
-                if not (min_price <= precio <= max_price):
+                if not (min_price <= precio_final <= max_price):
                     continue
 
+                # Obtener página de producto para tallas
                 detalle = requests.get(url_producto, headers=headers)
                 detalle_soup = BeautifulSoup(detalle.text, "html.parser")
                 tallas_tags = detalle_soup.select(".swatch-option.text")
@@ -174,7 +178,7 @@ def get_kicks_products(talla_filtrada="9.5", min_price=0, max_price=99999):
                 productos.append({
                     "marca": detectar_marca(nombre),
                     "nombre": nombre,
-                    "precio_final": precio,
+                    "precio_final": precio_final,
                     "precio_original": None,
                     "descuento": None,
                     "talla": talla_filtrada,
