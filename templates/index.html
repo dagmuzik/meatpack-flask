@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scraper de Ofertas</title>
+</head>
+<body>
+  <h2>¿Qué talla te interesa buscar en oferta en Guatemala?</h2>
+  <form method="post">
+    <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla }}">
+    <button type="submit">Buscar</button>
+  </form>
+
+  {% if productos %}
+  <h3>Resultados para talla {{ talla }}</h3>
+  <table border="1">
+    <tr>
+      <th>Marca</th><th>Producto</th><th>Precio</th><th>Antes</th><th>Descuento</th><th>Talla</th><th>Tienda</th><th>Link</th>
+    </tr>
+    {% for p in productos %}
+    <tr>
+      <td>{{ p.marca }}</td>
+      <td>{{ p.nombre }}</td>
+      <td>{{ p.precio_final }}</td>
+      <td>{{ p.precio_original }}</td>
+      <td>{{ p.descuento }}</td>
+      <td>{{ p.talla }}</td>
+      <td>{{ p.tienda }}</td>
+      <td><a href="{{ p.url }}" target="_blank">Ver</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</body>
+</html>
