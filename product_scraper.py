@@ -1,4 +1,3 @@
-
 import requests
 from bs4 import BeautifulSoup
 import logging
@@ -123,9 +122,8 @@ def get_lagrieta_products(talla_busqueda="9.5", min_price=0, max_price=99999):
 
     return productos
 
-def get_kicks_products(talla_filtrada, min_price, max_price):
-    import re
-    print("🔄 Obteniendo productos de KICKS...")
+def get_kicks_products(talla_busqueda="9.5", min_price=0, max_price=99999):
+    logging.info("🔄 Obteniendo productos de KICKS...")
     url = "https://www.kicks.com.gt/sale-tienda"
     headers = {
         "User-Agent": "Mozilla/5.0"
@@ -155,16 +153,14 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                 imagen = imagen_tag["src"] if imagen_tag else ""
                 precio_texto = precio_tag.get_text(strip=True)
 
-                # Extraer precio actual
                 match = re.search(r"(\d+\.\d+)", precio_texto.replace(",", ""))
                 if not match:
                     raise ValueError(f"No se pudo extraer precio de: {precio_texto}")
-                precio_final = float(match.group(1))
+                precio = float(match.group(1))
 
-                if not (min_price <= precio_final <= max_price):
+                if not (min_price <= precio <= max_price):
                     continue
 
-                # Obtener página de producto para tallas
                 detalle = requests.get(url_producto, headers=headers)
                 detalle_soup = BeautifulSoup(detalle.text, "html.parser")
                 tallas_tags = detalle_soup.select(".swatch-option.text")
@@ -172,16 +168,16 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
                     t.get_text(strip=True).replace("½", ".5") for t in tallas_tags if "disabled" not in t.get("class", [])
                 ]
 
-                if talla_filtrada and talla_filtrada not in tallas_disponibles:
+                if talla_busqueda and talla_busqueda not in tallas_disponibles:
                     continue
 
                 productos.append({
                     "marca": detectar_marca(nombre),
                     "nombre": nombre,
-                    "precio_final": precio_final,
+                    "precio_final": precio,
                     "precio_original": None,
                     "descuento": None,
-                    "talla": talla_filtrada,
+                    "talla": talla_busqueda,
                     "tienda": "KICKS",
                     "url": url_producto,
                     "imagen": imagen
@@ -189,7 +185,6 @@ def get_kicks_products(talla_filtrada, min_price, max_price):
 
             except Exception as e:
                 logging.warning(f"[KICKS] Producto con error: {e}")
-
     except Exception as e:
         logging.error(f"[KICKS] Error general: {e}")
 
