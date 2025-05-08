@@ -1,1 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Scraper de Ofertas</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+        label { font-weight: bold; }
+        input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; min-width: 100px; }
+        button { padding: 7px 12px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; }
+        th { background-color: #f4f4f4; }
+        img { max-width: 80px; max-height: 80px; object-fit: contain; }
+    </style>
+</head>
+<body>
+    <h2>¿Qué talla te interesa buscar en oferta en Guatemala?</h2>
+    <form method="post">
+        <label for="talla">Talla:</label>
+        <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla }}">
+
+        <label for="min_price">Precio mínimo:</label>
+        <input type="number" name="min_price" placeholder="Ej. 300" step="0.01" value="{{ min_price }}">
+
+        <label for="max_price">Precio máximo:</label>
+        <input type="number" name="max_price" placeholder="Ej. 1000" step="0.01" value="{{ max_price }}">
+
+        <button type="submit">Buscar</button>
+    </form>
+
+    {% for tienda, productos in productos_por_tienda.items() %}
+        <h3>{{ tienda }}</h3>
+        {% if productos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Marca</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Antes</th>
+                        <th>Descuento</th>
+                        <th>Talla</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td><img src="{{ p.imagen }}" alt="Imagen del producto"></td>
+                        <td>{{ p.marca }}</td>
+                        <td>{{ p.nombre }}</td>
+                        <td>Q{{ '%.2f' | format(p.precio_final) }}</td>
+                        <td>{% if p.precio_original %}Q{{ '%.2f' | format(p.precio_original) }}{% endif %}</td>
+                        <td>{{ p.descuento }}</td>
+                        <td>{{ p.talla }}</td>
+                        <td><a href="{{ p.url }}" target="_blank">Ver</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No se encontraron productos con talla {{ talla }} y ese rango de precio en {{ tienda }}.</p>
+        {% endif %}
+    {% endfor %}
+</body>
+</html>
 
