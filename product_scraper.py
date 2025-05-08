@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import time
+import logging
+logging.basicConfig(level=logging.INFO)
 
 KNOWN_BRANDS = [
     "Nike", "Adidas", "Puma", "New Balance", "Vans", "Reebok",
@@ -124,9 +126,10 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
         precio_tag = item.select_one(".price__current")
         talla_tag = item.select_one(".productitem--variants")
         imagen_tag = item.select_one("img")
-        print("➡️ Producto:", nombre)
-        print("➡️ Tallas crudas:", talla_tag.get_text(strip=True))
-        print("➡️ URL:", link)
+       logging.info(f"➡️ Producto: {nombre}")
+        logging.info(f"➡️ Tallas crudas: {talla_tag.get_text(strip=True)}")
+        logging.info(f"➡️ URL: {link}")
+
 
         if not all([nombre_tag, url_tag, precio_tag, talla_tag]):
             continue
@@ -134,9 +137,10 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
         nombre = nombre_tag.get_text(strip=True)
         link = "https://www.bitterheads.com" + url_tag["href"]
         imagen = imagen_tag["src"] if imagen_tag else ""
-print("➡️ Producto:", nombre, flush=True)
-print("➡️ Tallas crudas:", talla_tag.get_text(strip=True), flush=True)
-print("➡️ URL:", link, flush=True)
+logging.info(f"➡️ Producto: {nombre}")
+logging.info(f"➡️ Tallas crudas: {talla_tag.get_text(strip=True)}")
+logging.info(f"➡️ URL: {link}")
+
 
         try:
             precio = float(precio_tag.get_text(strip=True).replace("Q", "").replace(",", ""))
