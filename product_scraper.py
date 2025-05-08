@@ -17,15 +17,15 @@ def get_meatpack_products(talla_busqueda="9.5"):
         for variante in producto.get("variants", []):
             talla = variante["option1"]
             disponible = variante["available"]
-            precio = float(variante["price"])
-            if precio > 1000:
-                precio = precio / 100
 
-            compare_at = variante["compare_at_price"]
-            if compare_at:
-                compare_at = float(compare_at)
-                if compare_at > 1000:
-                    compare_at = compare_at / 100
+            # Corrección de precio por centavos o no
+            precio_raw = float(variante["price"])
+            precio = precio_raw / 100 if precio_raw % 100 == 0 else precio_raw
+
+            compare_at_raw = variante.get("compare_at_price")
+            if compare_at_raw:
+                compare_at_raw = float(compare_at_raw)
+                compare_at = compare_at_raw / 100 if compare_at_raw % 100 == 0 else compare_at_raw
             else:
                 compare_at = None
 
@@ -46,7 +46,6 @@ def get_meatpack_products(talla_busqueda="9.5"):
                 })
 
     return sorted(productos, key=lambda x: x["precio_final"])
-
 
 def get_lagrieta_products(talla_busqueda="9.5"):
     URL = "https://lagrieta.gt/collections/ultimas-tallas"
