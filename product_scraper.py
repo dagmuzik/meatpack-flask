@@ -104,12 +104,17 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
     tienda = "Bitterheads"
 
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     }
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
+
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code != 200:
+            return []
+    except:
         return []
 
+    from bs4 import BeautifulSoup
     soup = BeautifulSoup(response.text, "html.parser")
     items = soup.select(".productgrid--item")
 
@@ -124,7 +129,7 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
             continue
 
         nombre = nombre_tag.get_text(strip=True)
-        link = "https://bitterheads.com" + url_tag["href"]
+        link = "https://www.bitterheads.com" + url_tag["href"]
         imagen = imagen_tag["src"] if imagen_tag else ""
 
         try:
