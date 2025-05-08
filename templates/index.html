@@ -3,13 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <title>Scraper de Ofertas</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-width: 100px;
+        }
+
+        button {
+            padding: 7px 12px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
 </head>
 <body>
     <h2>¿Qué talla te interesa buscar en oferta en Guatemala?</h2>
     <form method="post">
+        <label for="talla">Talla:</label>
         <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla }}">
-        <input type="number" name="min_price" placeholder="Precio mínimo" step="0.01" value="{{ min_price }}">
-        <input type="number" name="max_price" placeholder="Precio máximo" step="0.01" value="{{ max_price }}">
+
+        <label for="min_price">Precio mínimo:</label>
+        <input type="number" name="min_price" placeholder="Ej. 300" step="0.01" value="{{ min_price }}">
+
+        <label for="max_price">Precio máximo:</label>
+        <input type="number" name="max_price" placeholder="Ej. 1000" step="0.01" value="{{ max_price }}">
+
         <button type="submit">Buscar</button>
     </form>
 
