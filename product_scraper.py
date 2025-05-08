@@ -112,7 +112,8 @@ def get_product_details(url_producto):
 
         # Asumimos que las tallas están en botones o listas con clase específica
         tallas = []
-        talla_tags = soup.select(".swatch-option.text")  # clase común en Magento y Shopify
+        talla_tags = soup.select(".swatch-attribute.size .swatch-option.text")
+        #talla_tags = soup.select(".swatch-option.text")  # clase común en Magento y Shopify
 
         for tag in talla_tags:
             if "disabled" not in tag.get("class", []):  # descartamos tallas agotadas
