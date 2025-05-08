@@ -6,10 +6,14 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     talla = "9.5"
+    min_price = 0
+    max_price = 99999
     productos_por_tienda = {}
+
     if request.method == "POST":
         talla = request.form.get("talla", "9.5")
-    
-    productos_por_tienda = get_all_products(talla)
-    return render_template("index.html", productos_por_tienda=productos_por_tienda, talla=talla)
+        min_price = float(request.form.get("min_price", 0))
+        max_price = float(request.form.get("max_price", 99999))
 
+    productos_por_tienda = get_all_products(talla, min_price, max_price)
+    return render_template("index.html", productos_por_tienda=productos_por_tienda, talla=talla, min_price=min_price, max_price=max_price)
