@@ -136,6 +136,8 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
             precio = float(precio_tag.get_text(strip=True).replace("Q", "").replace(",", ""))
         except:
             continue
+print("Producto:", nombre)
+print("Tallas crudas:", talla_tag.get_text(strip=True))
 
         # Normalizar tallas
         tallas = [t.strip().replace("½", ".5").replace(" ", "") for t in talla_tag.get_text(strip=True).lower().replace("talla:", "").replace("|", "/").split("/") if t.strip()]
