@@ -1,34 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Scraper de Ofertas</title>
+    <meta charset="UTF-8">
+    <title>Scraper de Ofertas</title>
 </head>
 <body>
-  <h2>¿Qué talla te interesa buscar en oferta en Guatemala?</h2>
-  <form method="post">
-    <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla }}">
-    <button type="submit">Buscar</button>
-  </form>
+    <h2>¿Qué talla te interesa buscar en oferta en Guatemala?</h2>
+    <form method="post">
+        <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla }}">
+        <button type="submit">Buscar</button>
+    </form>
 
-  {% if productos %}
-  <h3>Resultados para talla {{ talla }}</h3>
-  <table border="1">
-    <tr>
-      <th>Marca</th><th>Producto</th><th>Precio</th><th>Antes</th><th>Descuento</th><th>Talla</th><th>Tienda</th><th>Link</th>
-    </tr>
-    {% for p in productos %}
-    <tr>
-      <td>{{ p.marca }}</td>
-      <td>{{ p.nombre }}</td>
-      <td>{{ p.precio_final }}</td>
-      <td>{{ p.precio_original }}</td>
-      <td>{{ p.descuento }}</td>
-      <td>{{ p.talla }}</td>
-      <td>{{ p.tienda }}</td>
-      <td><a href="{{ p.url }}" target="_blank">Ver</a></td>
-    </tr>
+    {% for tienda, productos in productos_por_tienda.items() %}
+        <h3>{{ tienda }}</h3>
+        {% if productos %}
+            <table border="1" cellpadding="6" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Marca</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Antes</th>
+                        <th>Descuento</th>
+                        <th>Talla</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td>{{ p.marca }}</td>
+                        <td>{{ p.nombre }}</td>
+                        <td>Q{{ '%.2f' | format(p.precio_final) }}</td>
+                        <td>{% if p.precio_original %}Q{{ '%.2f' | format(p.precio_original) }}{% endif %}</td>
+                        <td>{{ p.descuento }}</td>
+                        <td>{{ p.talla }}</td>
+                        <td><a href="{{ p.url }}" target="_blank">Ver</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No se encontraron productos con talla {{ talla }} en {{ tienda }}.</p>
+        {% endif %}
     {% endfor %}
-  </table>
-  {% endif %}
 </body>
 </html>
