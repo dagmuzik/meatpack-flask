@@ -4,158 +4,93 @@
   <meta charset="UTF-8">
   <title>SneakerHunter</title>
   <style>
-    body {
-      background-color: #ffffff;
-      font-family: sans-serif;
-      padding: 20px;
+    body { font-family: sans-serif; padding: 20px; background: #fff; }
+    form, .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    label { font-weight: bold; }
+    input, button { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+    button { background: black; color: white; border: none; cursor: pointer; }
+    button:hover { background: #333; }
+    .btn-tab { margin-bottom: 20px; }
+    .card-container { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 40px; }
+    .card { width: 220px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+    .card img { width: 100%; height: 200px; object-fit: cover; }
+    .card-body { padding: 10px; font-size: 14px; }
+    .card-body h4 { margin: 0 0 6px; }
+    .card-body .original { text-decoration: line-through; color: #888; }
+    .card-body .descuento { color: red; font-weight: bold; }
+    .card-body .btn, .favorito-btn {
+      margin-top: 8px; display: inline-block; padding: 6px 12px; border-radius: 4px; text-align: center;
+      text-decoration: none; background: black; color: white;
     }
-
-    form {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 30px;
-    }
-
-    label {
-      font-weight: bold;
-    }
-
-    input {
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      min-width: 100px;
-    }
-
-    button {
-      padding: 7px 12px;
-      background-color: black;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #333;
-    }
-
-    .card-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 40px;
-    }
-
-    .card {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      width: 220px;
-      overflow: hidden;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .card-body {
-      padding: 10px;
-      font-size: 14px;
-    }
-
-    .card-body h4 {
-      margin: 0 0 6px;
-    }
-
-    .card-body .original {
-      text-decoration: line-through;
-      color: #888;
-    }
-
-    .card-body .descuento {
-      color: red;
-      font-weight: bold;
-    }
-
-    .card-body .btn {
-      display: inline-block;
-      margin-top: 10px;
-      background-color: #000;
-      color: #fff;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      text-align: center;
-    }
-
-    .favorito-btn {
-      margin-top: 6px;
-      background: gold;
-      border: none;
-      padding: 4px 8px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
+    .favorito-btn { background: gold; color: black; border: none; cursor: pointer; }
     @media (max-width: 768px) {
-      form {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      input, button {
-        width: 100%;
-        margin-top: 8px;
-      }
-
-      .card-container {
-        justify-content: center;
-      }
-
-      .card {
-        width: 100%;
-        max-width: 300px;
-      }
+      .card-container { justify-content: center; }
+      .card { width: 100%; max-width: 300px; }
     }
   </style>
+
   <script>
     function guardarFavorito(url) {
-      let favoritos = JSON.parse(localStorage.getItem('favoritos')) || [];
+      let favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
       if (!favoritos.includes(url)) {
         favoritos.push(url);
         localStorage.setItem('favoritos', JSON.stringify(favoritos));
-        alert('Producto guardado como favorito');
+        alert("Producto guardado como favorito");
       } else {
-        alert('Ya está guardado');
+        alert("Ya está en favoritos");
       }
+    }
+
+    function mostrarFavoritos() {
+      let favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+      if (!favoritos.length) {
+        alert("No tenés productos guardados.");
+        return;
+      }
+
+      document.getElementById("resultados").style.display = "none";
+      document.getElementById("favoritos").style.display = "block";
+
+      let contenedor = document.getElementById("cards-favoritos");
+      contenedor.innerHTML = favoritos.map(url => `
+        <div class="card">
+          <img src="https://via.placeholder.com/220x200?text=Sneaker" alt="Favorito">
+          <div class="card-body">
+            <h4>Favorito</h4>
+            <p><a href="${url}" target="_blank" class="btn">Ver producto</a></p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function volverABusqueda() {
+      document.getElementById("favoritos").style.display = "none";
+      document.getElementById("resultados").style.display = "block";
     }
   </script>
 </head>
 <body>
 
 <div style="text-align: center; margin-bottom: 30px;">
-  <img src="static/img/sneakerhunter_logo_only.png" alt="SneakerHunter Logo" style="width: 240px; height: auto; border-radius: 10px;">
-  <h1 style="margin: 10px 0 5px; font-size: 2em;">SneakerHunter</h1>
-  <p style="font-size: 1.1em; color: #555;">El radar que te muestra las mejores opciones en Guatemala</p>
-  <p style="font-size: 0.9em; color: #777;">Explorá, compará y cazá tu próximo par</p>
+  <img src="static/img/sneakerhunter_logo_only.png" alt="SneakerHunter Logo" style="width: 240px; border-radius: 10px;">
+  <h1>SneakerHunter</h1>
+  <p style="color: #555;">El radar que te muestra las mejores opciones en Guatemala</p>
 </div>
 
-<h3>Filtros rápidos</h3>
-<div style="margin-bottom: 15px;">
+<!-- Botones de navegación -->
+<div class="btn-tab">
+  <button onclick="mostrarFavoritos()">🧡 Ver favoritos</button>
+  <button onclick="volverABusqueda()">🔍 Volver a búsqueda</button>
+</div>
+
+<!-- Filtros rápidos -->
+<div class="filters">
   <strong>Talla:</strong>
   {% for t in ["7", "8", "9", "9.5", "10", "10.5", "11"] %}
-    <a href="?talla={{ t }}" style="margin-right: 5px;">[{{ t }}]</a>
+    <a href="?talla={{ t }}" style="margin-right:5px;">[{{ t }}]</a>
   {% endfor %}
 </div>
-<div style="margin-bottom: 25px;">
+<div class="filters">
   <strong>Precio:</strong>
   <a href="?min_price=0&max_price=399">[< Q400]</a>
   <a href="?min_price=400&max_price=700">[Q400–700]</a>
@@ -163,52 +98,61 @@
   <a href="?min_price=1001&max_price=9999">[> Q1000]</a>
 </div>
 
-<h2>¿Qué talla te interesa buscar en oferta en Guatemala?</h2>
+<!-- Formulario -->
+<h2>¿Qué querés buscar hoy?</h2>
 <form method="post">
   <label for="talla">Talla:</label>
-  <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla }}">
-
+  <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
   <label for="min_price">Precio mínimo:</label>
-  <input type="number" name="min_price" placeholder="Ej. 300" step="0.01" value="{{ min_price }}">
-
+  <input type="number" name="min_price" step="0.01" value="{{ min_price or '' }}">
   <label for="max_price">Precio máximo:</label>
-  <input type="number" name="max_price" placeholder="Ej. 1000" step="0.01" value="{{ max_price }}">
-
+  <input type="number" name="max_price" step="0.01" value="{{ max_price or '' }}">
   <button type="submit">Buscar</button>
 </form>
 
-{% for tienda, productos in productos_por_tienda.items() %}
-  <h2>{{ tienda }}</h2>
-  {% if productos %}
-    <div class="card-container">
-      {% for p in productos %}
-        <div class="card">
-          <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
-          <div class="card-body">
-            <h4>{{ p.marca }}</h4>
-            <p>{{ p.nombre }}</p>
-            <p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
-            {% if p.precio_original %}
-              <p class="original">Antes: Q{{ '%.2f' | format(p.precio_original) }}</p>
-            {% endif %}
-            {% if p.descuento %}
-              <p class="descuento">{{ p.descuento }} OFF</p>
-            {% endif %}
-            <p>Talla: {{ p.talla }}</p>
-            <a href="{{ p.url }}" target="_blank" class="btn">Ver producto</a>
-            <button onclick="guardarFavorito('{{ p.url }}')" class="favorito-btn">⭐ Guardar</button>
+<!-- RESULTADOS BUSQUEDA -->
+<div id="resultados">
+  {% for tienda, productos in productos_por_tienda.items() %}
+    <h2>{{ tienda }}</h2>
+    {% if productos %}
+      <div class="card-container">
+        {% for p in productos %}
+          <div class="card">
+            <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
+            <div class="card-body">
+              <h4>{{ p.marca }}</h4>
+              <p>{{ p.nombre }}</p>
+              <p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
+              {% if p.precio_original %}
+                <p class="original">Antes: Q{{ '%.2f' | format(p.precio_original) }}</p>
+              {% endif %}
+              {% if p.descuento %}
+                <p class="descuento">{{ p.descuento }} OFF</p>
+              {% endif %}
+              <p>Talla: {{ p.talla }}</p>
+              <a href="{{ p.url }}" target="_blank" class="btn">Ver producto</a>
+              <button class="favorito-btn" onclick="guardarFavorito('{{ p.url }}')">⭐ Guardar</button>
+            </div>
           </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    {% if tienda == "Bitterheads" %}
-      <p>Actualmente estamos trabajando en mejorar la conexión con esta tienda. 🛠️</p>
+        {% endfor %}
+      </div>
     {% else %}
-      <p>No se encontraron productos con talla {{ talla }} y ese rango de precio en {{ tienda }}.</p>
+      {% if tienda == "Bitterheads" %}
+        <p>Actualmente estamos trabajando en mejorar la conexión con esta tienda. 🛠️</p>
+      {% else %}
+        <p>No se encontraron productos con esos filtros en {{ tienda }}.</p>
+      {% endif %}
     {% endif %}
-  {% endif %}
-{% endfor %}
+  {% endfor %}
+</div>
+
+<!-- FAVORITOS -->
+<div id="favoritos" style="display: none;">
+  <h2>Mis favoritos</h2>
+  <div class="card-container" id="cards-favoritos">
+    <!-- Se llenará dinámicamente -->
+  </div>
+</div>
 
 </body>
 </html>
