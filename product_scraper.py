@@ -50,24 +50,32 @@ def get_meatpack_products(talla_busqueda="9.5"):
 
 def get_lagrieta_products(talla_busqueda="9.5"):
     URL = "https://lagrieta.gt/collections/ultimas-tallas"
-    response = requests.get(URL)
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(URL, headers=headers)
+    
+    if response.status_code != 200:
+        print(f"La Grieta error {response.status_code}")
+        return []
+
     soup = BeautifulSoup(response.text, "html.parser")
     productos = []
-
     tienda = "La Grieta"
 
-    for producto in soup.select(".productgrid--item"):
+    items = soup.select(".productgrid--item")
+
+    for producto in items:
         nombre_tag = producto.select_one(".productitem--title")
-        url_tag = producto.select_one("a")
+        url_tag = producto.select_one("a[href]")
         precio_tag = producto.select_one(".price__current")
         tallas_tag = producto.select_one(".productitem--variants")
 
-        if not (nombre_tag and url_tag and precio_tag and tallas_tag):
+        if not all([nombre_tag, url_tag, precio_tag, tallas_tag]):
             continue
 
         nombre = nombre_tag.get_text(strip=True)
         url = "https://lagrieta.gt" + url_tag["href"]
         marca = nombre.split()[0]
+
         precio_texto = precio_tag.get_text(strip=True).replace("Q", "").replace(",", "")
         try:
             precio = float(precio_texto)
@@ -75,6 +83,7 @@ def get_lagrieta_products(talla_busqueda="9.5"):
             continue
 
         tallas = [t.strip() for t in tallas_tag.get_text(strip=True).split("/")]
+
         if talla_busqueda in tallas:
             productos.append({
                 "marca": marca,
@@ -87,6 +96,7 @@ def get_lagrieta_products(talla_busqueda="9.5"):
                 "url": url
             })
 
+    print(f"La Grieta: {len(productos)} productos encontrados con talla {talla_busqueda}")
     return sorted(productos, key=lambda x: x["precio_final"])
 
 
