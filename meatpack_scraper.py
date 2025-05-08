@@ -17,10 +17,21 @@ def get_products(talla_busqueda="9.5"):
         for variante in producto.get("variants", []):
             talla = variante["option1"]
             disponible = variante["available"]
-            precio = float(variante["price"]) / 100
-            compare_at = variante["compare_at_price"]
-            compare_at = float(compare_at) / 100 if compare_at else None
+            
+            # Formateo del precio
+            precio = float(variante["price"])
+            if precio > 1000:
+                precio = precio / 100
 
+            compare_at = variante["compare_at_price"]
+            if compare_at:
+                compare_at = float(compare_at)
+                if compare_at > 1000:
+                    compare_at = compare_at / 100
+            else:
+                compare_at = None
+
+            # Filtrado por talla
             if talla_busqueda in talla and disponible:
                 descuento = ""
                 if compare_at and compare_at > precio:
