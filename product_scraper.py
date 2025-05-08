@@ -134,6 +134,9 @@ def get_bitterheads_products(talla_busqueda, min_price, max_price):
         nombre = nombre_tag.get_text(strip=True)
         link = "https://www.bitterheads.com" + url_tag["href"]
         imagen = imagen_tag["src"] if imagen_tag else ""
+print("➡️ Producto:", nombre, flush=True)
+print("➡️ Tallas crudas:", talla_tag.get_text(strip=True), flush=True)
+print("➡️ URL:", link, flush=True)
 
         try:
             precio = float(precio_tag.get_text(strip=True).replace("Q", "").replace(",", ""))
