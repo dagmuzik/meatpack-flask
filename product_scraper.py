@@ -100,6 +100,30 @@ def get_lagrieta_products(talla_busqueda, min_price, max_price):
 
     return sorted(productos, key=lambda x: x["precio_final"])
 
+def get_product_details(url_producto):
+    """Scrapea la página del producto individual para extraer tallas disponibles."""
+    headers = {"User-Agent": "Mozilla/5.0"}
+    try:
+        response = requests.get(url_producto, headers=headers)
+        if response.status_code != 200:
+            return []
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Asumimos que las tallas están en botones o listas con clase específica
+        tallas = []
+        talla_tags = soup.select(".swatch-option.text")  # clase común en Magento y Shopify
+
+        for tag in talla_tags:
+            if "disabled" not in tag.get("class", []):  # descartamos tallas agotadas
+                tallas.append(tag.text.strip())
+
+        return tallas
+
+    except Exception as e:
+        logging.warning(f"⚠️ Error en get_product_details: {e}")
+        return []
+
 def get_kicks_products(talla_busqueda, min_price, max_price):
     url = "https://www.kicks.com.gt/sale-tienda"
     headers = {
@@ -120,7 +144,8 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
 
         for item in items:
             nombre = item.select_one(".product-item-name").text.strip() if item.select_one(".product-item-name") else "Sin nombre"
-            url_producto = item.select_one("a")["href"]
+            href = item.select_one("a")["href"]
+            url_producto = href if href.startswith("http") else f"https://www.kicks.com.gt{href}"
             imagen = item.select_one("img")["src"] if item.select_one("img") else ""
             precio_final_tag = item.select_one(".special-price .price") or item.select_one(".price")
             precio_original_tag = item.select_one(".old-price .price")
@@ -141,13 +166,14 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
             if not (min_price <= precio_final <= max_price):
                 continue
 
+            tallas_disponibles = get_product_details(url_producto)
+
+            if talla_busqueda not in tallas_disponibles:
+                continue
+
             descuento = ""
             if precio_original > precio_final:
                 descuento = f"-{round((1 - (precio_final / precio_original)) * 100)}%"
-
-            if talla_busqueda and talla_busqueda not in nombre.lower():
-               continue
-
 
             productos.append({
                 "marca": detectar_marca(nombre),
