@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 from datetime import datetime
-
+import logging
 logging.basicConfig(level=logging.INFO)
 
 KNOWN_BRANDS = [
