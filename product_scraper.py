@@ -1,6 +1,4 @@
 # product_scraper.py
-chrome_path = "/opt/render/project/.chromium-browser/bin/chromium-browser"
-options.binary_location = chrome_path
 
 import time
 import re
@@ -14,6 +12,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def get_kicks_products(talla_busqueda, min_price, max_price):
     options = uc.ChromeOptions()
+    chrome_path = "/opt/render/project/.chromium-browser/bin/chromium-browser"
+    options.binary_location = chrome_path
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
