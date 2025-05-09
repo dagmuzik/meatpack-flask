@@ -25,6 +25,10 @@
   <button type="submit">Buscar</button>
 </form>
 
+{% if productos|length == 0 %}
+  <p><strong>No se encontraron productos disponibles con esos filtros.</strong></p>
+{% endif %}
+
 <div class="card-container">
   {% for p in productos %}
     <div class="card">
