@@ -29,16 +29,16 @@ def scrape_kicks_product(url_producto, talla_busqueda="9.5"):
         precio_tag = soup.select_one(".special-price .price") or soup.select_one(".price")
         precio = float(precio_tag.text.replace("Q", "").replace(",", "").strip()) if precio_tag else 0.0
 
-        # 🆕 Tallas extraídas de manera robusta (usa data-option-label, aria-label o texto)
         tallas_disponibles = []
         for tag in soup.select(".swatch-option.text"):
             talla = (tag.get("data-option-label") or tag.get("aria-label") or tag.text).strip()
             if talla:
                 tallas_disponibles.append(talla)
 
-       if talla_busqueda.strip() not in [t.strip() for t in tallas_disponibles]:
-    print(f"❌ Talla {talla_busqueda} no disponible.")
-    return None
+        # ✅ Comparación corregida con indentación estándar
+        if talla_busqueda.strip() not in [t.strip() for t in tallas_disponibles]:
+            print(f"❌ Talla {talla_busqueda} no disponible.")
+            return None
 
         return {
             "nombre": nombre,
