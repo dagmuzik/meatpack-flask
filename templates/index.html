@@ -17,9 +17,10 @@
         {% for p in productos %}
             <div class="producto">
                 <a href="{{ p.url }}" target="_blank">
+                    <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
                     <h3>{{ p.nombre }}</h3>
                 </a>
-                <p><strong>{{ p.precio }}</strong></p>
+                <p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
             </div>
         {% endfor %}
     {% else %}
