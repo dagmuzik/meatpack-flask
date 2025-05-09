@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Productos en Talla 9.5 - Kicks</title>
+    <title>Productos en Talla {{ talla }} - Kicks</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #fdfcf7; margin: 20px; }
         .producto { border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px; display: inline-block; width: 220px; vertical-align: top; background: white; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
@@ -17,11 +17,9 @@
         {% for p in productos %}
             <div class="producto">
                 <a href="{{ p.url }}" target="_blank">
-                    <img src="{{ p.imagen }}" alt="imagen de {{ p.nombre }}">
                     <h3>{{ p.nombre }}</h3>
                 </a>
                 <p><strong>{{ p.precio }}</strong></p>
-                <p>Tienda: {{ p.tienda }}</p>
             </div>
         {% endfor %}
     {% else %}
@@ -29,4 +27,3 @@
     {% endif %}
 </body>
 </html>
-
