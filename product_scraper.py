@@ -44,3 +44,11 @@ def scrape_kicks_product(url_producto, talla_busqueda="9.5"):
             "marca": detectar_marca(nombre),
             "precio": precio,
             "imagen": imagen,
+            "talla_disponible": talla_busqueda,
+            "url": url_producto,
+            "tallas_visibles": tallas_disponibles
+        }
+
+    except Exception as e:
+        print(f"💥 Error: {e}")
+        return None
