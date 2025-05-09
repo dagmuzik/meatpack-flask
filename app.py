@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 @app.route("/", methods=["GET"])
 def index():
-    talla = request.args.get("talla", "9.5")
+    talla = request.args.get("talla", "9")
     try:
         min_price = float(request.args.get("min_price", 0))
         max_price = float(request.args.get("max_price", 99999))
