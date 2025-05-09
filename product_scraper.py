@@ -1,15 +1,15 @@
-def get_kicks_products(talla_busqueda, min_price, max_price):
-    import time
-    import re
-    import json
-    from datetime import datetime
-    from bs4 import BeautifulSoup
-    import undetected_chromedriver as uc
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    import logging
+# product_scraper.py
+import time
+import re
+import json
+import logging
+from bs4 import BeautifulSoup
+import undetected_chromedriver as uc
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
+def get_kicks_products(talla_busqueda, min_price, max_price):
     options = uc.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
@@ -21,8 +21,7 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
 
     logging.info(f"🌐 Accediendo a: {listing_url}")
     driver.get(listing_url)
-
-    time.sleep(4)  # Esperar carga de JS
+    time.sleep(4)
     soup = BeautifulSoup(driver.page_source, "html.parser")
     products = []
 
@@ -68,14 +67,20 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
 
             if tallas_disponibles and price is not None and min_price <= price <= max_price:
                 products.append({
-                        "marca": title.split()[0],
-                        "nombre": title,
-                        "precio_final": price,
-                        "precio_original": None,
-                        "descuento": "",
-                        "tallas_disponibles": tallas_disponibles,
-                        "tienda": "KICKS",
-                        "url": full_url,
-                        "imagen": image_url
-})
+                    "marca": title.split()[0],
+                    "nombre": title,
+                    "precio_final": price,
+                    "precio_original": None,
+                    "descuento": "",
+                    "tallas_disponibles": tallas_disponibles,
+                    "tienda": "KICKS",
+                    "url": full_url,
+                    "imagen": image_url
+                })
 
+        except Exception as e:
+            logging.warning(f"⚠️ Error al procesar {full_url}: {e}")
+            continue
+
+    driver.quit()
+    return products
