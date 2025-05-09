@@ -68,5 +68,14 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
 
             if tallas_disponibles and price is not None and min_price <= price <= max_price:
                 products.append({
-                    "marca": title.split()[0],
-                    "nombre": title,
+                        "marca": title.split()[0],
+                        "nombre": title,
+                        "precio_final": price,
+                        "precio_original": None,
+                        "descuento": "",
+                        "tallas_disponibles": tallas_disponibles,
+                        "tienda": "KICKS",
+                        "url": full_url,
+                        "imagen": image_url
+})
+
