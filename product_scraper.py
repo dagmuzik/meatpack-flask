@@ -35,8 +35,12 @@ def scrape_kicks_product(url_producto, talla_busqueda="9.5"):
             if talla:
                 tallas_disponibles.append(talla)
 
-        # ✅ Comparación corregida con indentación estándar
-        if talla_busqueda.strip() not in [t.strip() for t in tallas_disponibles]:
+        # 🛠 Imprimimos tallas detectadas y la comparación
+        tallas_normalizadas = [t.strip() for t in tallas_disponibles]
+        print(f"🔍 Tallas encontradas: {tallas_normalizadas}")
+        print(f"🔎 Comparando contra: '{talla_busqueda.strip()}'")
+
+        if talla_busqueda.strip() not in tallas_normalizadas:
             print(f"❌ Talla {talla_busqueda} no disponible.")
             return None
 
