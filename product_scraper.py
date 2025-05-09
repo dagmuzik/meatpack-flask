@@ -11,14 +11,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 def get_kicks_products(talla_busqueda, min_price, max_price):
-    options = uc.ChromeOptions()
-    chrome_path = "/usr/bin/chromium"
-    options.binary_location = chrome_path
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+options = uc.ChromeOptions()
+chrome_path = "/usr/bin/chromium"
+options.binary_location = chrome_path
+options.add_argument("--headless=new")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
 
-    driver = uc.Chrome(options=options, browser_executable_path=chrome_path)
+driver = uc.Chrome(options=options, browser_executable_path=chrome_path)
+
     base_url = "https://www.kicks.com.gt"
     listing_url = f"{base_url}/sale-tienda"
 
