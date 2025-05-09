@@ -1,13 +1,13 @@
-# product_scraper.py
-import requests
-from bs4 import BeautifulSoup
-import re
-import json
-from datetime import datetime
-
 def get_kicks_products(talla_busqueda, min_price, max_price):
-    base_url = "https://www.kicks.com.gt/sale-tienda"
-    listing_url = f"{base_url}/collections/sale?page=1"
+    import requests
+    from bs4 import BeautifulSoup
+    import re
+    import json
+    from datetime import datetime
+    import logging
+
+    base_url = "https://www.kicks.com.gt"
+    listing_url = f"{base_url}/sale-tienda"
     response = requests.get(listing_url)
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -50,7 +50,7 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
                             if disponible:
                                 tallas_disponibles.append(talla)
             except Exception as e:
-                print(f"⚠️ Error al procesar tallas en {full_url}: {e}")
+                logging.warning(f"⚠️ Error al procesar tallas en {full_url}: {e}")
 
         if tallas_disponibles and price is not None and min_price <= price <= max_price:
             products.append({
