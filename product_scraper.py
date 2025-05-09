@@ -1,61 +1,75 @@
+# product_scraper.py
+import logging
+from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
-import datetime
 
-def get_kicks_products(talla_filtro="9", min_price=0, max_price=99999):
-    url_base = "https://www.kicks.com.gt/collections/sale"
-    productos_filtrados = []
+# Configurar logger
+logger = logging.getLogger('kicks_scraper')
+logger.setLevel(logging.DEBUG)
 
-    page = 1
-    while True:
-        url = f"{url_base}?page={page}"
-        response = requests.get(url)
-        if response.status_code != 200:
-            break
+# Handlers: consola + archivo
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-        soup = BeautifulSoup(response.content, "html.parser")
-        productos = soup.select("li.grid__item")
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
 
-        if not productos:
-            break
+file_handler = logging.FileHandler(f'kicks_scraper_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log', encoding='utf-8')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
-        for producto in productos:
-            nombre_elem = producto.select_one(".card__heading a")
-            precio_elem = producto.select_one(".price__sale span, .price__regular span")
-            url_producto = nombre_elem["href"] if nombre_elem else None
-            nombre = nombre_elem.text.strip() if nombre_elem else "Sin nombre"
-            precio = float(precio_elem.text.strip().replace("Q", "").replace(",", "")) if precio_elem else 0
+def get_kicks_products(talla_deseada="9.5"):
+    logger.info("Iniciando scraping de Kicks")
+    base_url = "https://www.kicks.com.gt"
+    collection_url = f"{base_url}/calzado.html?p={{}}"
 
-            if not (min_price <= precio <= max_price):
-                continue
+    productos = []
 
-            if not url_producto.startswith("http"):
-                url_producto = "https://www.kicks.com.gt" + url_producto
+    for page in range(1, 4):
+        url = collection_url.format(page)
+        logger.info(f"Procesando página {page}: {url}")
 
-            producto_detalle = requests.get(url_producto)
-            detalle_soup = BeautifulSoup(producto_detalle.content, "html.parser")
-            tallas = detalle_soup.select("div[data-option-label]")
+        try:
+            r = requests.get(url, timeout=10)
+            r.raise_for_status()
+        except Exception as e:
+            logger.error(f"Error cargando {url}: {e}")
+            continue
 
-            disponible = False
-            for talla_div in tallas:
-                talla = talla_div.get("data-option-label", "").strip()
-                aria_checked = talla_div.get("aria-checked", "")
-                if talla == talla_filtro and aria_checked != "false":
-                    disponible = True
-                    break
+        soup = BeautifulSoup(r.text, "html.parser")
+        enlaces = soup.select(".product-item-info a.product.photo")
 
-            if disponible:
-                imagen_elem = producto.select_one("img.motion-reduce")
-                imagen_url = "https:" + imagen_elem["src"] if imagen_elem else None
-                productos_filtrados.append({
-                    "nombre": nombre,
-                    "precio": f"Q{precio:.2f}",
-                    "url": url_producto,
-                    "imagen": imagen_url,
-                    "tienda": "Kicks",
-                    "fecha": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                })
+        logger.info(f"{len(enlaces)} productos encontrados en la página.")
 
-        page += 1
+        for enlace in enlaces:
+            product_url = enlace.get("href")
+            logger.debug(f"Consultando producto: {product_url}")
+            try:
+                pr = requests.get(product_url, timeout=10)
+                pr.raise_for_status()
+                psoup = BeautifulSoup(pr.text, "html.parser")
 
-    return productos_filtrados
+                tallas = [div.get("aria-label") for div in psoup.select(".swatch-option") if div.get("aria-label")]
+
+                logger.debug(f"Tallas encontradas: {tallas}")
+
+                if talla_deseada in tallas:
+                    nombre = psoup.select_one("h1.page-title span").text.strip()
+                    precio = psoup.select_one("span.price").text.strip()
+                    productos.append({
+                        "nombre": nombre,
+                        "precio": precio,
+                        "url": product_url
+                    })
+                    logger.info(f"✅ Producto encontrado: {nombre} - {precio}")
+            except Exception as e:
+                logger.error(f"Error procesando {product_url}: {e}")
+
+    return productos
+
+if __name__ == "__main__":
+    resultados = get_kicks_products("9.5")
+    print("\n🎯 Productos encontrados:")
+    for p in resultados:
+        print(f"- {p['nombre']} ({p['precio']}) - {p['url']}")
