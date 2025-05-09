@@ -47,7 +47,7 @@ def get_kicks_products(talla_busqueda, min_price, max_price):
                             talla = option["label"]
                             ids = option.get("products", [])
                             disponible = any(pid in disponibles for pid in ids)
-                            if disponible and talla_busqueda in talla:
+                            if disponible:
                                 tallas_disponibles.append(talla)
             except Exception as e:
                 print(f"⚠️ Error al procesar tallas en {full_url}: {e}")
