@@ -16,7 +16,7 @@ def index():
         max_price = 99999
 
     logging.info(f"📥 Filtros recibidos - Talla: {talla}, Precio: Q{min_price} - Q{max_price}")
-    productos = get_kicks_products(talla_filtro=talla, min_price=min_price, max_price=max_price)
+    productos = get_kicks_products(talla=talla, min_precio=min_price, max_precio=max_price)
     
     return render_template("index.html", productos=productos, talla=talla, min_price=min_price, max_price=max_price)
 
