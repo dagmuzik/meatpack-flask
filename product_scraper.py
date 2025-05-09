@@ -1,4 +1,7 @@
 # product_scraper.py
+chrome_path = "/opt/render/project/.chromium-browser/bin/chromium-browser"
+options.binary_location = chrome_path
+
 import time
 import re
 import json
