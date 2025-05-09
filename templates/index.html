@@ -2,29 +2,51 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Productos en Talla {{ talla }} - Kicks</title>
+    <title>Buscar producto por URL - SneakerHunter</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #fdfcf7; margin: 20px; }
+        h1 { color: #333; }
+        form { margin-bottom: 30px; }
+        input[type="text"] { width: 400px; padding: 8px; }
+        input[type="submit"] { padding: 8px 16px; background-color: black; color: white; border: none; cursor: pointer; }
         .producto { border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px; display: inline-block; width: 220px; vertical-align: top; background: white; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
         .producto img { width: 100%; height: auto; border-radius: 8px; }
         .producto h3 { font-size: 16px; margin: 5px 0; }
         .producto p { margin: 5px 0; color: #444; }
+        .mensaje { color: #a00; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>Productos disponibles en talla {{ talla }}</h1>
-    {% if productos %}
-        {% for p in productos %}
-            <div class="producto">
-                <a href="{{ p.url }}" target="_blank">
-                    <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
-                    <h3>{{ p.nombre }}</h3>
-                </a>
-                <p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No se encontraron productos disponibles en talla {{ talla }} dentro del rango de precio indicado.</p>
-    {% endif %}
+
+<h1>Buscar producto por URL de KICKS</h1>
+
+<form method="post">
+    <label>URL del producto:</label><br>
+    <input type="text" name="url" placeholder="https://www.kicks.com.gt/..." required><br><br>
+
+    <label>Talla deseada:</label><br>
+    <input type="text" name="talla" placeholder="Ej: 9.5" required><br><br>
+
+    <input type="submit" value="Buscar producto">
+</form>
+
+{% if mensaje %}
+    <div class="mensaje">{{ mensaje }}</div>
+{% endif %}
+
+{% if productos %}
+    {% for p in productos %}
+        <div class="producto">
+            <a href="{{ p.url }}" target="_blank">
+                <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
+                <h3>{{ p.nombre }}</h3>
+            </a>
+            <p><strong>Q{{ '%.2f' | format(p.precio) }}</strong></p>
+            <p>Marca: {{ p.marca }}</p>
+            <p>Talla: {{ p.talla_disponible }}</p>
+        </div>
+    {% endfor %}
+{% endif %}
+
 </body>
 </html>
