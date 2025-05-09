@@ -1,5 +1,6 @@
+# app.py
 from flask import Flask, render_template, request
-from product_scraper import get_all_products
+from product_scraper import get_kicks_products
 
 app = Flask(__name__)
 
@@ -15,24 +16,11 @@ def index():
     except ValueError:
         max_price = 99999
 
-    productos_por_tienda = get_all_products(talla, min_price, max_price)
+    productos = get_kicks_products(talla, min_price, max_price)
+    productos = [p for p in productos if "precio_final" in p and p["precio_final"] is not None]
+    productos_ordenados = sorted(productos, key=lambda x: x["precio_final"])
 
-    # 🔁 Unificamos todos los productos en una lista y agregamos la tienda a cada uno
-    productos_totales = []
-    for tienda, lista in productos_por_tienda.items():
-        for p in lista:
-            p["tienda"] = tienda
-            productos_totales.append(p)
+    return render_template("index.html", productos=productos_ordenados, talla=talla, min_price=min_price, max_price=max_price)
 
-    # 🔽 Ordenamos por precio final
-        productos_ordenados = sorted(
-        [p for p in productos_totales if "precio_final" in p and p["precio_final"] is not None],
-        key=lambda x: x["precio_final"]
-    )
-
-    return render_template("index.html",
-                           productos=productos_ordenados,
-                           talla=talla,
-                           min_price=min_price,
-                           max_price=max_price)
-
+if __name__ == "__main__":
+    app.run(debug=True)
