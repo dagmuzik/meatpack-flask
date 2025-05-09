@@ -9,8 +9,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
-        logging.StreamHandler(),                   # Consola
-        logging.FileHandler('kicks_scraper.log')   # Archivo
+        logging.StreamHandler(),
+        logging.FileHandler('kicks_scraper.log')
     ]
 )
 
