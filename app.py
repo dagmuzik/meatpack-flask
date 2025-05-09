@@ -25,7 +25,10 @@ def index():
             productos_totales.append(p)
 
     # 🔽 Ordenamos por precio final
-    productos_ordenados = sorted(productos_totales, key=lambda x: x["precio_final"])
+        productos_ordenados = sorted(
+        [p for p in productos_totales if "precio_final" in p and p["precio_final"] is not None],
+        key=lambda x: x["precio_final"]
+    )
 
     return render_template("index.html",
                            productos=productos_ordenados,
