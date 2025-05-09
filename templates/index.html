@@ -1,48 +1,32 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>KICKS - Sneaker Finder</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background: #fff; }
-    form { margin-bottom: 20px; }
-    input, button { padding: 6px; margin-right: 10px; }
-    .card-container { display: flex; flex-wrap: wrap; gap: 16px; }
-    .card { width: 220px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; box-shadow: 2px 2px 6px rgba(0,0,0,0.1); }
-    .card img { width: 100%; height: auto; max-height: 200px; object-fit: contain; }
-    .card h4 { margin: 10px 0 5px; font-size: 16px; }
-    .card p { margin: 4px 0; font-size: 14px; }
-    .card a { display: inline-block; margin-top: 10px; background: black; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Productos en Talla 9.5 - Kicks</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fdfcf7; margin: 20px; }
+        .producto { border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px; display: inline-block; width: 220px; vertical-align: top; background: white; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .producto img { width: 100%; height: auto; border-radius: 8px; }
+        .producto h3 { font-size: 16px; margin: 5px 0; }
+        .producto p { margin: 5px 0; color: #444; }
+    </style>
 </head>
 <body>
-<h1>Productos disponibles en KICKS</h1>
-<form method="post">
-  <input type="text" name="talla" placeholder="Talla (ej. 9.5)" value="{{ talla }}">
-  <input type="number" name="min_price" step="0.01" placeholder="Precio mínimo" value="{{ min_price }}">
-  <input type="number" name="max_price" step="0.01" placeholder="Precio máximo" value="{{ max_price }}">
-  <button type="submit">Buscar</button>
-</form>
-
-{% if productos|length == 0 %}
-  <p><strong>No se encontraron productos disponibles con esos filtros.</strong></p>
-{% endif %}
-
-<div class="card-container">
-  {% for p in productos %}
-    <div class="card">
-      <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
-      <h4>{{ p.marca }}</h4>
-      <p>{{ p.nombre }}</p>
-      <p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
-      {% if p.tallas_disponibles %}
-        <p>Tallas: {{ p.tallas_disponibles | join(', ') }}</p>
-      {% endif %}
-      <a href="{{ p.url }}" target="_blank">Ver producto</a>
-    </div>
-  {% endfor %}
-</div>
-
+    <h1>Productos disponibles en talla {{ talla }}</h1>
+    {% if productos %}
+        {% for p in productos %}
+            <div class="producto">
+                <a href="{{ p.url }}" target="_blank">
+                    <img src="{{ p.imagen }}" alt="imagen de {{ p.nombre }}">
+                    <h3>{{ p.nombre }}</h3>
+                </a>
+                <p><strong>{{ p.precio }}</strong></p>
+                <p>Tienda: {{ p.tienda }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No se encontraron productos disponibles en talla {{ talla }} dentro del rango de precio indicado.</p>
+    {% endif %}
 </body>
 </html>
+
