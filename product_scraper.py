@@ -1,75 +1,61 @@
-# product_scraper.py
-
-import time
-import re
-import json
-import logging
-import tempfile
+import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import datetime
 
-def get_kicks_products(talla_busqueda, min_price, max_price):
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument(f"--user-data-dir={tempfile.mkdtemp()}")  # Evita colisión de sesiones
+def get_kicks_products(talla_filtro="9.5", min_price=0, max_price=99999):
+    url_base = "https://www.kicks.com.gt/collections/sale"
+    productos_filtrados = []
 
-    driver = webdriver.Chrome(options=options)
-    base_url = "https://www.kicks.com.gt"
-    listing_url = f"{base_url}/sale-tienda"
+    page = 1
+    while True:
+        url = f"{url_base}?page={page}"
+        response = requests.get(url)
+        if response.status_code != 200:
+            break
 
-    logging.info(f"🌐 Accediendo a: {listing_url}")
-    driver.get(listing_url)
-    time.sleep(4)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    products = []
+        soup = BeautifulSoup(response.content, "html.parser")
+        productos = soup.select("li.grid__item")
 
-    product_links = list(set(a["href"] for a in soup.select("a.product-item-link") if a.get("href")))
+        if not productos:
+            break
 
-    for link in product_links:
-        full_url = base_url + link if link.startswith("/") else link
-        try:
-            driver.get(full_url)
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1.page-title")))
-            prod_soup = BeautifulSoup(driver.page_source, "html.parser")
+        for producto in productos:
+            nombre_elem = producto.select_one(".card__heading a")
+            precio_elem = producto.select_one(".price__sale span, .price__regular span")
+            url_producto = nombre_elem["href"] if nombre_elem else None
+            nombre = nombre_elem.text.strip() if nombre_elem else "Sin nombre"
+            precio = float(precio_elem.text.strip().replace("Q", "").replace(",", "")) if precio_elem else 0
 
-            title = prod_soup.find("h1", class_="page-title").get_text(strip=True)
-            price_tag = prod_soup.select_one("span.price")
-            price = price_tag.get_text(strip=True).replace("Q", "") if price_tag else None
-            price = float(price) if price and price.replace('.', '', 1).isdigit() else None
-            image_tag = prod_soup.select_one("img.fotorama__img")
-            image_url = image_tag["src"] if image_tag else ""
+            if not (min_price <= precio <= max_price):
+                continue
 
-            tallas_disponibles = []
-            buttons = prod_soup.select("div.swatch-option.text")
+            if not url_producto.startswith("http"):
+                url_producto = "https://www.kicks.com.gt" + url_producto
 
-            for btn in buttons:
-                label = btn.get("aria-label", "").strip()
-                aria_checked = btn.get("aria-checked", "")
-                if talla_busqueda in label and aria_checked == "false":
-                    tallas_disponibles.append(label)
+            producto_detalle = requests.get(url_producto)
+            detalle_soup = BeautifulSoup(producto_detalle.content, "html.parser")
+            tallas = detalle_soup.select("div[data-option-label]")
 
-            if tallas_disponibles and price is not None and min_price <= price <= max_price:
-                products.append({
-                    "marca": title.split()[0],
-                    "nombre": title,
-                    "precio_final": price,
-                    "precio_original": None,
-                    "descuento": "",
-                    "tallas_disponibles": tallas_disponibles,
-                    "tienda": "KICKS",
-                    "url": full_url,
-                    "imagen": image_url
+            disponible = False
+            for talla_div in tallas:
+                talla = talla_div.get("data-option-label", "").strip()
+                aria_checked = talla_div.get("aria-checked", "")
+                if talla == talla_filtro and aria_checked != "false":
+                    disponible = True
+                    break
+
+            if disponible:
+                imagen_elem = producto.select_one("img.motion-reduce")
+                imagen_url = "https:" + imagen_elem["src"] if imagen_elem else None
+                productos_filtrados.append({
+                    "nombre": nombre,
+                    "precio": f"Q{precio:.2f}",
+                    "url": url_producto,
+                    "imagen": imagen_url,
+                    "tienda": "Kicks",
+                    "fecha": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
 
-        except Exception as e:
-            logging.warning(f"⚠️ Error al procesar {full_url}: {e}")
-            continue
+        page += 1
 
-    driver.quit()
-    return products
+    return productos_filtrados
