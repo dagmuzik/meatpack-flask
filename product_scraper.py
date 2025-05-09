@@ -36,9 +36,9 @@ def scrape_kicks_product(url_producto, talla_busqueda="9.5"):
             if talla:
                 tallas_disponibles.append(talla)
 
-        if talla_busqueda not in tallas_disponibles:
-            print(f"❌ Talla {talla_busqueda} no disponible.")
-            return None
+       if talla_busqueda.strip() not in [t.strip() for t in tallas_disponibles]:
+    print(f"❌ Talla {talla_busqueda} no disponible.")
+    return None
 
         return {
             "nombre": nombre,
