@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 def get_kicks_products(talla_busqueda, min_price, max_price):
-    base_url = "https://www.kicks.com.gt"
+    base_url = "https://www.kicks.com.gt/sale-tienda"
     listing_url = f"{base_url}/collections/sale?page=1"
     response = requests.get(listing_url)
     soup = BeautifulSoup(response.text, "html.parser")
