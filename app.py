@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request
 from product_scraper import get_all_products
 
@@ -33,9 +34,3 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
-    return render_template("index.html", productos=productos_filtrados, talla=talla)
-
-if __name__ == "__main__":
-    app.run(debug=True, port=8080)
-
