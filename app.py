@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    talla = request.values.get("talla", "9.5")
+    talla = request.values.get("talla", "9")
     try:
         min_price = float(request.values.get("min_price") or 0)
     except ValueError:
