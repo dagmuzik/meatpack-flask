@@ -75,14 +75,20 @@
         <div class="card-body">
           <h4>{{ p.marca }}</h4>
           <p>{{ p.nombre }}</p>
-          <p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
+          {% if p.precio_final is defined %}
+            <p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
+          {% endif %}
           {% if p.precio_original %}
             <p class="original">Antes: Q{{ '%.2f' | format(p.precio_original) }}</p>
           {% endif %}
           {% if p.descuento %}
             <p class="descuento">{{ p.descuento }} OFF</p>
           {% endif %}
-          <p>Talla: {{ p.talla }}</p>
+          {% if p.talla %}
+            <p>Talla: {{ p.talla }}</p>
+          {% elif p.tallas_disponibles %}
+            <p>Tallas: {{ p.tallas_disponibles | join(", ") }}</p>
+          {% endif %}
           <p>Tienda: {{ p.tienda }}</p>
           <a href="{{ p.url }}" target="_blank" class="btn">Ver producto</a>
           <button class="favorito-btn" onclick="guardarFavorito('{{ p.url }}')">⭐ Guardar</button>
