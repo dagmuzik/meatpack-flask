@@ -43,7 +43,7 @@ def get_product_details(url_producto):
         return []
 
 def get_kicks_products(talla_busqueda, min_price, max_price):
-    url = "https://www.kicks.com.gt/sale-tienda"
+    url = "https://www.kicks.com.gt/zapatillas-nike-air-dunk-low-jumbo-masculino-fj4192-001-casual-10262935.html"
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
