@@ -2,3 +2,5 @@ flask
 requests
 beautifulsoup4
 gunicorn
+selenium
+undetected-chromedriver
