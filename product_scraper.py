@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import datetime
 
-def get_kicks_products(talla_filtro="9.5", min_price=0, max_price=99999):
+def get_kicks_products(talla_filtro="9", min_price=0, max_price=99999):
     url_base = "https://www.kicks.com.gt/collections/sale"
     productos_filtrados = []
 
