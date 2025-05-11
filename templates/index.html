@@ -1,52 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Buscar producto por URL - SneakerHunter</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #fdfcf7; margin: 20px; }
-        h1 { color: #333; }
-        form { margin-bottom: 30px; }
-        input[type="text"] { width: 400px; padding: 8px; }
-        input[type="submit"] { padding: 8px 16px; background-color: black; color: white; border: none; cursor: pointer; }
-        .producto { border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px; display: inline-block; width: 220px; vertical-align: top; background: white; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-        .producto img { width: 100%; height: auto; border-radius: 8px; }
-        .producto h3 { font-size: 16px; margin: 5px 0; }
-        .producto p { margin: 5px 0; color: #444; }
-        .mensaje { color: #a00; margin-top: 20px; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <title>SneakerHunter</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #fff; }
+    form { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    label { font-weight: bold; }
+    input, button { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+    button { background: black; color: white; border: none; cursor: pointer; }
+    button:hover { background: #333; }
+    .card-container { display: flex; flex-wrap: wrap; gap: 16px; }
+    .card { width: 220px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+    .card img { width: 100%; height: auto; max-height: 240px; object-fit: contain; }
+    .card-body { padding: 10px; font-size: 14px; }
+    .card-body h4 { margin: 0 0 6px; }
+    .btn { margin-top: 8px; display: inline-block; padding: 6px 12px; border-radius: 4px; text-align: center; text-decoration: none; background: black; color: white; }
+  </style>
 </head>
 <body>
 
-<h1>Buscar producto por URL de KICKS</h1>
+<div style="text-align: center; margin-bottom: 30px;">
+  <h1>SneakerHunter</h1>
+  <p style="color: #555;">Encuentra las mejores opciones en sneakers</p>
+</div>
 
 <form method="post">
-    <label>URL del producto:</label><br>
-    <input type="text" name="url" placeholder="https://www.kicks.com.gt/..." required><br><br>
-
-    <label>Talla deseada:</label><br>
-    <input type="text" name="talla" placeholder="Ej: 9.5" required><br><br>
-
-    <input type="submit" value="Buscar producto">
+  <label for="talla">Talla:</label>
+  <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '9.5' }}">
+  <button type="submit">Buscar</button>
 </form>
 
-{% if mensaje %}
-    <div class="mensaje">{{ mensaje }}</div>
-{% endif %}
-
-{% if productos %}
-    {% for p in productos %}
-        <div class="producto">
-            <a href="{{ p.url }}" target="_blank">
-                <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
-                <h3>{{ p.nombre }}</h3>
-            </a>
-            <p><strong>Q{{ '%.2f' | format(p.precio) }}</strong></p>
-            <p>Marca: {{ p.marca }}</p>
-            <p>Talla: {{ p.talla_disponible }}</p>
-        </div>
-    {% endfor %}
-{% endif %}
+<div class="card-container">
+  {% for p in productos %}
+  <div class="card">
+    <div class="card-body">
+      <h4>{{ p.Producto }}</h4>
+      <p>Talla: {{ p.Talla }}</p>
+      <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
+      <a href="{{ p.URL }}" target="_blank" class="btn">Ver producto</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
 
 </body>
 </html>
