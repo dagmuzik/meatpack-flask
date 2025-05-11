@@ -1,59 +1,117 @@
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
+from datetime import datetime
 
-def detectar_marca(nombre):
-    KNOWN_BRANDS = [
-        "Nike", "Adidas", "Puma", "New Balance", "Vans", "Reebok",
-        "Converse", "Under Armour", "Asics", "Saucony", "Salomon",
-        "Jordan", "Mizuno", "Fila", "Hoka", "On"
-    ]
-    nombre_lower = nombre.lower()
-    for marca in KNOWN_BRANDS:
-        if marca.lower() in nombre_lower:
-            return marca
-    return nombre.split()[0]
+HEADERS = {"User-Agent": "Mozilla/5.0"}
 
-def scrape_kicks_product(url_producto, talla_busqueda="9.5"):
-    headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        response = requests.get(url_producto, headers=headers, timeout=10)
-        if response.status_code != 200:
-            print("⚠️ No se pudo acceder al producto.")
-            return None
+# Función genérica para realizar solicitudes HTTP
+def get_json(url, headers=None, params=None):
+    response = requests.get(url, headers=headers or HEADERS, params=params)
+    return response.json() if response.ok else {}
 
-        soup = BeautifulSoup(response.text, "html.parser")
+# Adidas
 
-        nombre = soup.select_one("h1.page-title span").text.strip() if soup.select_one("h1.page-title span") else "Producto sin nombre"
-        imagen_tag = soup.select_one(".gallery-placeholder img")
-        imagen = imagen_tag["src"] if imagen_tag else ""
-        precio_tag = soup.select_one(".special-price .price") or soup.select_one(".price")
-        precio = float(precio_tag.text.replace("Q", "").replace(",", "").strip()) if precio_tag else 0.0
+def obtener_adidas(talla):
+    productos = []
+    for page in range(10):
+        url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={page*50}&_to={(page+1)*50-1}"
+        productos.extend(get_json(url))
+    resultados = []
+    for producto in productos:
+        product_id = producto.get("productId")
+        variaciones = get_json(f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}")
+        for sku in variaciones.get("skus", []):
+            if talla in sku["dimensions"].get("Talla", ""):
+                resultados.append({
+                    "Producto": producto["productName"],
+                    "Talla": sku["dimensions"]["Talla"],
+                    "Precio": sku["bestPrice"] / 100,
+                    "URL": f"https://www.adidas.com.gt/{producto.get('linkText')}/p"
+                })
+    return resultados
 
-        tallas_disponibles = []
-        for tag in soup.select(".swatch-option.text"):
-            talla = (tag.get("data-option-label") or tag.get("aria-label") or tag.text).strip()
-            if talla:
-                tallas_disponibles.append(talla)
+# Meatpack y La Grieta
 
-        # 🛠 Imprimimos tallas detectadas y la comparación
-        tallas_normalizadas = [t.strip() for t in tallas_disponibles]
-        print(f"🔍 Tallas encontradas: {tallas_normalizadas}")
-        print(f"🔎 Comparando contra: '{talla_busqueda.strip()}'")
+def obtener_shopify(url, tienda, talla):
+    data = get_json(url)
+    productos = []
+    for prod in data.get("products", []):
+        for var in prod["variants"]:
+            if talla in var["title"] and var["available"]:
+                precio = float(var["price"]) / 100 if tienda == "Meatpack" else float(var["price"])
+                productos.append({
+                    "Tienda": tienda,
+                    "Producto": prod["title"],
+                    "Talla": var["title"],
+                    "Precio": precio,
+                    "URL": f'{url.split(".com")[0]}.com/products/{prod["handle"]}'
+                })
+    return productos
 
-        if talla_busqueda.strip() not in tallas_normalizadas:
-            print(f"❌ Talla {talla_busqueda} no disponible.")
-            return None
+# Bitterheads
 
-        return {
-            "nombre": nombre,
-            "marca": detectar_marca(nombre),
-            "precio": precio,
-            "imagen": imagen,
-            "talla_disponible": talla_busqueda,
-            "url": url_producto,
-            "tallas_visibles": tallas_disponibles
-        }
+def obtener_bitterheads(talla):
+    productos = []
+    for page in range(1, 81):
+        url = f"https://www.bitterheads.com/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps=24&pg={page}"
+        prods = get_json(url)
+        for p in prods:
+            tallas_disp = get_json(f"https://www.bitterheads.com/api/catalog_system/pub/products/variations/{p['productId']}")
+            tallas = [sku["dimensions"]["Talla"] for sku in tallas_disp.get("skus", []) if sku["available"]]
+            if talla in tallas:
+                productos.append({
+                    "Producto": p["productName"],
+                    "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"],
+                    "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
+                    "Tallas": ", ".join(tallas)
+                })
+    return productos
 
-    except Exception as e:
-        print(f"💥 Error: {e}")
-        return None
+# Deportes del Centro
+
+def obtener_deportesdelcentro(talla):
+    productos = []
+    for page in range(1, 11):
+        data = get_json("https://deporteselcentro.com/wp-json/wc/store/v1/products", params={"page": page, "per_page": 100})
+        for prod in data:
+            tallas = [term["name"] for attr in prod["attributes"] if attr["name"].lower() == "talla" for term in attr["terms"]]
+            if talla in tallas and prod["on_sale"]:
+                productos.append({
+                    "Producto": prod["name"],
+                    "Precio": int(prod["prices"]["sale_price"]) / 100,
+                    "URL": prod["permalink"],
+                    "Tallas": ", ".join(tallas)
+                })
+    return productos
+
+# Premium Trendy
+
+def obtener_premiumtrendy():
+    productos = []
+    page = 1
+    while True:
+        data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
+        if not data: break
+        productos += [{"Producto": p["name"], "Precio": int(p["prices"]["sale_price"])/100, "URL": p["permalink"]} for p in data]
+        page += 1
+    return productos
+
+# Función principal
+
+def buscar_todos(talla="9.5"):
+    resultados = []
+    resultados += obtener_adidas(talla)
+    resultados += obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
+    resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
+    resultados += obtener_bitterheads(talla)
+    resultados += obtener_deportesdelcentro(talla)
+    resultados += obtener_premiumtrendy()
+
+    return pd.DataFrame(resultados).sort_values(by="Precio")
+
+if __name__ == "__main__":
+    df = buscar_todos("9.5")
+    fecha = datetime.now().strftime("%Y-%m-%d")
+    df.to_csv(f"ofertas_sneaker_{fecha}.csv", index=False)
+    print(df)
