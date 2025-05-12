@@ -171,9 +171,13 @@ def obtener_kicks(talla_buscada):
             if not special_price:
                 continue
             precio = float(special_price)
-            imagen = attr.get("image")
-            if not imagen:
-                imagen = f"https://www.kicks.com.gt/media/catalog/product/cache/6/image/400x/040ec09b1e35df139433887a97daa66f/{sku_padre[-3:]}/{sku_padre[-6:-3]}/{sku_padre}.jpg"
+imagen = None
+for attri in data.get("custom_attributes", []):
+    if attri.get("attribute_code") == "image":
+        imagen = f"https://www.kicks.com.gt/media/catalog/product{attri.get('value')}"
+        break
+    if not imagen:
+        imagen = "https://via.placeholder.com/240x200?text=Sneaker"
             resultados.append({
                 "Producto": nombre,
                 "Talla": talla_texto,
