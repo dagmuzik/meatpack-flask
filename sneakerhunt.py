@@ -58,7 +58,7 @@ def inferir_marca(nombre):
         return "new balance"
     if "kobe" in nombre:
         return "nike"
-    if "shadow" in nombre:
+    if "shadow" in nombre or "grid azura" in nombre:
         return "saucony"
     if "nitro" in nombre:
         return "puma"
