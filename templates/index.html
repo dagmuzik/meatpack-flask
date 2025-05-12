@@ -11,10 +11,6 @@
       padding: 30px 20px;
     }
 
-    h1 {
-      margin-bottom: 10px;
-    }
-
     .header {
       text-align: center;
       margin-bottom: 20px;
@@ -27,14 +23,11 @@
       margin: 0 auto 30px;
     }
 
-    input, button {
+    input, select, button {
       padding: 12px;
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 16px;
-    }
-
-    input {
       margin-bottom: 10px;
     }
 
@@ -161,6 +154,17 @@
 
 <form method="post">
   <input type="text" name="talla" placeholder="Buscar por talla exacta (Ej. 9 o 9.5)" value="{{ talla or '' }}">
+
+  <select name="tienda">
+    <option value="">Todas las tiendas</option>
+    <option value="Adidas" {% if tienda == "Adidas" %}selected{% endif %}>Adidas</option>
+    <option value="Kicks" {% if tienda == "Kicks" %}selected{% endif %}>Kicks</option>
+    <option value="Bitterheads" {% if tienda == "Bitterheads" %}selected{% endif %}>Bitterheads</option>
+    <option value="Meatpack" {% if tienda == "Meatpack" %}selected{% endif %}>Meatpack</option>
+    <option value="La Grieta" {% if tienda == "La Grieta" %}selected{% endif %}>La Grieta</option>
+    <option value="Premium Trendy" {% if tienda == "Premium Trendy" %}selected{% endif %}>Premium Trendy</option>
+  </select>
+
   <button type="submit">Buscar Sneakers</button>
 </form>
 
@@ -170,7 +174,7 @@
   <div class="loader">🔍 Buscando sneakers disponibles...</div>
 {% else %}
   <div class="filters">
-    Mostrando resultados para talla <strong>{{ talla }}</strong> — Orden: <span style="color: #000;">Precio (menor a mayor)</span>
+    Mostrando resultados para talla <strong>{{ talla }}</strong> {% if tienda %}en <strong>{{ tienda }}</strong>{% endif %}
   </div>
 
   <div class="card-container">
