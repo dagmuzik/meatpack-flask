@@ -75,41 +75,64 @@ def obtener_shopify(url, tienda, talla):
     return productos
 
 def obtener_premiumtrendy(talla):
+    print(f"🔍 Buscando en Premium Trendy talla {talla}...")
     productos = []
     page = 1
+
     while True:
+        print(f"📄 Página {page}")
         data = get_json(
             "https://premiumtrendygt.com/wp-json/wc/store/products",
             params={"on_sale": "true", "per_page": 100, "page": page}
         )
+
         if not data:
+            print("✅ Fin de páginas en Premium Trendy.")
             break
 
         for item in data:
+            nombre = item.get("name")
             precios = item.get("prices", {})
             oferta_raw = precios.get("sale_price")
             regular_raw = precios.get("regular_price")
             if not oferta_raw or float(oferta_raw) <= 0:
-                continue  # sin precio válido
+                print(f"❌ {nombre} descartado por precio inválido")
+                continue
 
-            # Precios en centavos a quetzales
+            # Verificar si hay talla disponible
+            match_talla = False
+            for attr in item.get("attributes", []):
+                if "talla" in attr.get("name", "").lower():
+                    for term in attr.get("terms", []):
+                        if talla_coincide(talla, term.get("name", "")) and term.get("count", 0) > 0:
+                            match_talla = True
+                            break
+                if match_talla:
+                    break
+
+            if not match_talla:
+                print(f"⚠️ {nombre} descartado, talla {talla} no disponible.")
+                continue
+
+            # Formato de precios correcto
             oferta = float(oferta_raw)
-            regular = float(regular_raw or 0)
-            if oferta > 1000: oferta = oferta / 100
-            if regular > 1000: regular = regular / 100
+            if oferta > 1000:
+                oferta = oferta / 100
 
             productos.append({
-                "Producto": item.get("name"),
-                "Talla": "Única",
+                "Producto": nombre,
+                "Talla": talla,
                 "Precio": oferta,
-                "Marca": inferir_marca(item.get("name", "")),
+                "Marca": inferir_marca(nombre),
                 "Tienda": "Premium Trendy",
                 "URL": item.get("permalink"),
                 "Imagen": item.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
             })
+            print(f"✅ Agregado: {nombre} - Q{oferta:.2f}")
 
         page += 1
 
+    print(f"🔎 Total encontrados en Premium Trendy: {len(productos)}")
     return productos
 
 def obtener_bitterheads(talla):
