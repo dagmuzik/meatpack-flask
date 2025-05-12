@@ -129,7 +129,7 @@ def obtener_kicks(talla_buscada):
 
     resultados = []
     for i, (sku_padre, href) in enumerate(skus.items()):
-        if i >= 10:
+        if i >= 5:
             break
         padre_url = f"{BASE_KICKS_API}/products/{sku_padre}?storeCode=kicks_gt"
         data = get_json(padre_url)
