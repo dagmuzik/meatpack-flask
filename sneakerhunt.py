@@ -90,10 +90,13 @@ def obtener_adidas(talla):
 
 def obtener_bitterheads(talla):
     productos = []
+    vistos = set()
     for page in range(1, 3):
         url = f"https://www.bitterheads.com/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps=24&pg={page}"
         prods = get_json(url)
         for p in prods:
+            if p['productId'] in vistos:
+                continue
             tallas_disp = get_json(f"https://www.bitterheads.com/api/catalog_system/pub/products/variations/{p['productId']}")
             for sku in tallas_disp.get("skus", []):
                 talla_sku = sku["dimensions"].get("Talla", "")
@@ -106,6 +109,8 @@ def obtener_bitterheads(talla):
                         "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
                         "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
                     })
+                    vistos.add(p['productId'])
+                    break  # solo uno por producto
     return productos
 
 def obtener_kicks(talla_buscada):
