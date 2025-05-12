@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SneakerHunter</title>
   <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
+    html, body {
+      height: 100%;
       margin: 0;
-      padding: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Segoe UI", sans-serif;
       background-color: #f6f6f6;
     }
 
@@ -42,6 +44,7 @@
     }
 
     .container {
+      flex: 1;
       padding: 20px;
     }
 
@@ -155,11 +158,28 @@
       color: #666;
       font-size: 18px;
     }
+
+    footer {
+      text-align: center;
+      padding: 30px 10px;
+      font-size: 14px;
+      color: #555;
+      background: #fafafa;
+    }
+
+    footer small {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #999;
+    }
   </style>
 </head>
 <body>
   <header>
-    <img src="{{ url_for('static', filename='img/sneakerhunter_logo.png') }}" alt="Logo SneakerHunter" />
+    <a href="/">
+      <img src="{{ url_for('static', filename='img/sneakerhunter_logo.png') }}" alt="SneakerHunter" />
+    </a>
     <div>
       <h1>SneakerHunter</h1>
       <p>Buscador de sneakers en oferta en tiendas online de Guatemala</p>
@@ -221,5 +241,10 @@
     </div>
     {% endif %}
   </div>
+
+  <footer>
+    Buscá, compará y cazá tu próximo par
+    <small>© 2024 SneakerHunter GT. Todos los derechos reservados.</small>
+  </footer>
 </body>
 </html>
