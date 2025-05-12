@@ -78,7 +78,6 @@ def obtener_premiumtrendy(talla):
     productos = []
     page = 1
     while True:
-        print(f"🔄 Premium Trendy - Página {page}...")
         data = get_json(
             "https://premiumtrendygt.com/wp-json/wc/store/products",
             params={"on_sale": "true", "per_page": 100, "page": page}
@@ -88,33 +87,20 @@ def obtener_premiumtrendy(talla):
 
         for item in data:
             precios = item.get("prices", {})
-            sale_price = precios.get("sale_price")
-            if not sale_price or float(sale_price) == 0:
-                continue  # descartar si no tiene precio de oferta
+            oferta_raw = precios.get("sale_price")
+            regular_raw = precios.get("regular_price")
+            if not oferta_raw or float(oferta_raw) <= 0:
+                continue  # sin precio válido
 
-            # Verificar si la talla está en stock
-            tallas = item.get("attributes", [])
-            disponible = False
-            for attr in tallas:
-                if "talla" in attr.get("name", "").lower():
-                    for term in attr.get("terms", []):
-                        if talla_coincide(talla, term.get("name", "")) and term.get("count", 0) > 0:
-                            disponible = True
-                            break
-                if disponible:
-                    break
-
-            if not disponible:
-                continue
-
-            regular = float(precios.get("regular_price", 0))
-            oferta = float(sale_price)
-            if regular > 1000: regular = regular / 100
+            # Precios en centavos a quetzales
+            oferta = float(oferta_raw)
+            regular = float(regular_raw or 0)
             if oferta > 1000: oferta = oferta / 100
+            if regular > 1000: regular = regular / 100
 
             productos.append({
                 "Producto": item.get("name"),
-                "Talla": talla,
+                "Talla": "Única",
                 "Precio": oferta,
                 "Marca": inferir_marca(item.get("name", "")),
                 "Tienda": "Premium Trendy",
