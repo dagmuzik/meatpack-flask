@@ -80,7 +80,12 @@ def obtener_premiumtrendy(talla):
             break
         for p in data:
             tallas = p.get("attributes", [])
-            match = any(talla_coincide(talla, t.get("terms", [{}])[0].get("name", "")) for t in tallas if t.get("name", "").lower() == "talla")
+            match = any(
+    talla_coincide(talla, term.get("name", ""))
+    for attr in tallas
+    if "talla" in attr.get("name", "").lower()
+    for term in attr.get("terms", [])
+)
             if match:
                 productos.append({
                     "Producto": p["name"],
