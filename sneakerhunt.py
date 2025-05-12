@@ -75,27 +75,39 @@ def obtener_shopify(url, tienda, talla):
 def obtener_premiumtrendy(talla):
     productos = []
     for page in range(1, 3):
-        data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
+        data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={
+            "on_sale": "true", "page": page, "per_page": 100
+        })
         if not data:
             break
         for p in data:
             tallas = p.get("attributes", [])
-            match = any(
-    talla_coincide(talla, term.get("name", ""))
-    for attr in tallas
-    if "talla" in attr.get("name", "").lower()
-    for term in attr.get("terms", [])
-)
-            if match:
-                productos.append({
-                    "Producto": p["name"],
-                    "Talla": talla,
-                    "Precio": float(p["prices"]["sale_price"]) if p["prices"]["sale_price"] else float(p["prices"]["price"]),
-                    "Marca": inferir_marca(p["name"]),
-                    "Tienda": "Premium Trendy",
-                    "URL": p["permalink"],
-                    "Imagen": p.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
-                })
+            disponible = False
+            for attr in tallas:
+                if "talla" in attr.get("name", "").lower():
+                    for term in attr.get("terms", []):
+                        if talla_coincide(talla, term.get("name", "")) and term.get("count", 0) > 0:
+                            disponible = True
+                            break
+                if disponible:
+                    break
+
+            if not disponible:
+                continue
+
+            precio = p["prices"].get("sale_price") or p["prices"].get("price")
+            if precio and precio > 1000:
+                precio = precio / 100  # WooCommerce a veces lo da en centavos
+
+            productos.append({
+                "Producto": p["name"],
+                "Talla": talla,
+                "Precio": float(precio),
+                "Marca": inferir_marca(p["name"]),
+                "Tienda": "Premium Trendy",
+                "URL": p["permalink"],
+                "Imagen": p.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+            })
     return productos
 
 def obtener_bitterheads(talla):
