@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    talla = None
+    talla = ''
     productos = None
 
     if request.method == 'POST':
