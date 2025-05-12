@@ -125,7 +125,7 @@ def obtener_bitterheads(talla):
                     productos.append({
                         "Producto": p["productName"],
                         "Talla": talla_sku,
-                        "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"] * 100,
+                        "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"],
                         "Marca": inferir_marca(p["productName"]),
                         "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
                         "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
