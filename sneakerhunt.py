@@ -4,7 +4,10 @@ import pandas as pd
 from datetime import datetime
 import re
 
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept": "application/json"
+}
 
 MAPA_TALLAS = {
     "139": "5.5", "142": "5.75", "145": "6", "148": "6.5", "151": "7", "154": "7.5",
@@ -19,10 +22,7 @@ BASE_KICKS_WEB = "https://www.kicks.com.gt"
 def get_json(url, headers=None, params=None):
     try:
         headers = headers or {}
-        headers.update({
-            "User-Agent": "Mozilla/5.0",
-            "Accept": "application/json"
-        })
+        headers.update(HEADERS)
         response = requests.get(url, headers=headers, params=params, timeout=5)
         response.raise_for_status()
         return response.json()
@@ -46,7 +46,7 @@ def obtener_adidas(talla):
                     "Talla": sku["dimensions"]["Talla"],
                     "Precio": sku["bestPrice"] / 100,
                     "URL": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
-                    "Imagen": producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "")
+                    "Imagen": producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
     return resultados
 
@@ -54,16 +54,15 @@ def obtener_shopify(url, tienda, talla):
     data = get_json(url)
     productos = []
     for prod in data.get("products", []):
-        img = prod["images"][0]["src"] if prod.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
-        for var in prod["variants"]:
-            if talla in var["title"] and var["available"]:
+        img = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+        for var in prod.get("variants", []):
+            if talla in var.get("title", "") and var.get("available"):
                 precio = float(var["price"]) / 100 if tienda == "Meatpack" else float(var["price"])
                 productos.append({
-                    "Tienda": tienda,
                     "Producto": prod["title"],
                     "Talla": var["title"],
                     "Precio": precio,
-                    "URL": f'{url.split(".com")[0]}.com/products/{prod["handle"]}',
+                    "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
                     "Imagen": img
                 })
     return productos
@@ -88,15 +87,38 @@ def obtener_bitterheads(talla):
 
 def obtener_deportesdelcentro(talla):
     productos = []
+    base_url = "https://deporteselcentro.com/wp-json/wc/store/v1/products"
+    headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "es-ES,es;q=0.9",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1"
+    }
     for page in range(1, 6):
-        data = get_json("https://deporteselcentro.com/wp-json/wc/store/v1/products", params={"page": page, "per_page": 100})
-        for prod in data:
-            tallas = [term["name"] for attr in prod["attributes"] if attr["name"].lower() == "talla" for term in attr["terms"]]
-            if talla in tallas and prod.get("on_sale"):
+        try:
+            res = requests.get(base_url, headers=headers, params={"page": page, "per_page": 100}, timeout=5)
+            res.raise_for_status()
+            productos_data = res.json()
+        except Exception as e:
+            print(f"❌ Error página {page} - Deportes del Centro: {e}")
+            break
+        if not productos_data:
+            break
+        for prod in productos_data:
+            tallas = []
+            for atributo in prod.get("attributes", []):
+                if atributo.get("name", "").lower() == "talla":
+                    tallas = [term.get("name") for term in atributo.get("terms", [])]
+            sale_price = int(prod["prices"]["sale_price"])
+            regular_price = int(prod["prices"]["regular_price"])
+            on_sale = prod.get("on_sale", False)
+            if talla in tallas and on_sale and sale_price < regular_price:
                 productos.append({
                     "Producto": prod["name"],
                     "Talla": talla,
-                    "Precio": int(prod["prices"]["sale_price"]) / 100,
+                    "Precio": sale_price / 100,
                     "URL": prod["permalink"],
                     "Imagen": prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
@@ -119,10 +141,10 @@ def obtener_premiumtrendy():
             })
         page += 1
     return productos
-    
+
 def obtener_kicks(talla_buscada):
     skus = {}
-    for pagina in range(1, 4):  # LIMITADO a 3 páginas
+    for pagina in range(1, 4):
         url = f"https://www.kicks.com.gt/marcas.html?p={pagina}&product_list_limit=36&special_price=29.99-1749.99&tipo_1=241"
         try:
             res = requests.get(url, headers=HEADERS, timeout=5)
@@ -143,12 +165,10 @@ def obtener_kicks(talla_buscada):
         data = get_json(padre_url)
         if not data or data.get("type_id") != "configurable":
             continue
-
         atributos = {attr["attribute_code"]: attr.get("value") for attr in data.get("custom_attributes", [])}
         nombre = data.get("name")
         url_key = atributos.get("url_key")
         url_producto = f"{BASE_KICKS_WEB}/{url_key}.html" if url_key else href
-
         variantes_url = f"{BASE_KICKS_API}/configurable-products/{sku_padre}/children?storeCode=kicks_gt"
         variantes = get_json(variantes_url)
         for var in variantes:
@@ -173,13 +193,31 @@ def obtener_kicks(talla_buscada):
 
 def buscar_todos(talla="9.5"):
     resultados = []
-    resultados += obtener_adidas(talla)
-    resultados += obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
-    resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
-    resultados += obtener_bitterheads(talla)
-    resultados += obtener_deportesdelcentro(talla)
-    resultados += obtener_premiumtrendy()
-    resultados += obtener_kicks(talla)
+    try:
+        resultados += obtener_adidas(talla)
+    except Exception as e:
+        print(f"❌ Error en Adidas: {e}")
+    try:
+        resultados += obtener_kicks(talla)
+    except Exception as e:
+        print(f"❌ Error en Kicks: {e}")
+    try:
+        resultados += obtener_deportesdelcentro(talla)
+    except Exception as e:
+        print(f"❌ Error en Deportes del Centro: {e}")
+    try:
+        resultados += obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
+        resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
+    except Exception as e:
+        print(f"❌ Error en Shopify: {e}")
+    try:
+        resultados += obtener_bitterheads(talla)
+    except Exception as e:
+        print(f"❌ Error en Bitterheads: {e}")
+    try:
+        resultados += obtener_premiumtrendy()
+    except Exception as e:
+        print(f"❌ Error en Premium Trendy: {e}")
     return pd.DataFrame(resultados).sort_values(by="Precio")
 
 if __name__ == "__main__":
