@@ -5,194 +5,194 @@
   <title>SneakerHunter</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      background: #f4f6f8;
+      font-family: "Segoe UI", sans-serif;
       margin: 0;
-      padding: 30px 20px;
+      padding: 0;
+      background-color: #f6f6f6;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
+    header {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    header img {
+      height: 36px;
+      margin-right: 12px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      margin: 0;
+      color: #222;
+    }
+
+    .container {
+      padding: 30px 40px;
     }
 
     form {
       display: flex;
-      flex-direction: column;
-      max-width: 400px;
-      margin: 0 auto 30px;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
     }
 
-    input, select, button {
-      padding: 12px;
-      border-radius: 6px;
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"], select {
+      padding: 6px 10px;
+      border-radius: 4px;
       border: 1px solid #ccc;
-      font-size: 16px;
-      margin-bottom: 10px;
     }
 
     button {
-      background: black;
+      padding: 8px 14px;
+      background-color: #111;
       color: white;
-      cursor: pointer;
       border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
     button:hover {
-      background: #222;
+      background-color: #333;
     }
 
     .card-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
       gap: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
+      justify-content: flex-start;
     }
 
     .card {
-      position: relative;
+      width: 260px;
       background: white;
-      border-radius: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
       overflow: hidden;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
       display: flex;
       flex-direction: column;
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease;
     }
 
     .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
     }
 
     .card img {
       width: 100%;
-      height: auto;
-      max-height: 280px;
-      background: #eee;
+      height: 240px;
       object-fit: contain;
-      display: block;
-      margin: 0 auto;
-      border-bottom: 1px solid #ddd;
+      background: #f9f9f9;
     }
 
     .card-body {
       padding: 16px;
       display: flex;
       flex-direction: column;
-      flex: 1;
-    }
-
-    .brand {
-      font-size: 12px;
-      color: #555;
-      font-weight: bold;
-      margin-bottom: 6px;
+      justify-content: space-between;
+      flex-grow: 1;
     }
 
     .card-body h4 {
       margin: 0 0 8px;
-      font-size: 17px;
-      font-weight: 600;
+      font-size: 16px;
+      color: #111;
     }
 
     .card-body p {
       margin: 4px 0;
       font-size: 14px;
+      color: #444;
+    }
+
+    .brand-badge {
+      font-size: 12px;
+      font-weight: bold;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 4px;
     }
 
     .btn {
       margin-top: auto;
-      display: inline-block;
-      padding: 10px 12px;
-      text-align: center;
-      border-radius: 6px;
-      background: black;
+      background-color: #111;
       color: white;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      text-align: center;
       text-decoration: none;
-      font-size: 14px;
-    }
-
-    .btn:hover {
-      background: #111;
+      display: inline-block;
     }
 
     .loader {
       text-align: center;
+      padding: 60px;
+      color: #666;
       font-size: 18px;
-      color: #555;
-      margin-top: 40px;
-    }
-
-    .filters {
-      text-align: center;
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 16px;
-    }
-
-    .tienda-tag {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0, 0, 0, 0.75);
-      color: #fff;
-      padding: 5px 10px;
-      font-size: 12px;
-      font-weight: bold;
-      border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
-<div class="header">
+<header>
+  <img src="{{ url_for('static', filename='img/sneakerhunter_logo.png') }}" alt="Logo SneakerHunter">
   <h1>SneakerHunter</h1>
-  <p style="color: #444;">Buscador de sneakers en oferta en tiendas Online de Guatemala</p>
-</div>
+</header>
 
-<form method="post">
-  <input type="text" name="talla" placeholder="Buscar por talla exacta (Ej. 9 o 9.5)" value="{{ talla or '' }}">
+<div class="container">
+  <form method="post">
+    <label for="talla">Talla:</label>
+    <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
 
-  <select name="tienda">
-    <option value="">Todas las tiendas</option>
-    <option value="Adidas" {% if tienda == "Adidas" %}selected{% endif %}>Adidas</option>
-    <option value="Kicks" {% if tienda == "Kicks" %}selected{% endif %}>Kicks</option>
-    <option value="Bitterheads" {% if tienda == "Bitterheads" %}selected{% endif %}>Bitterheads</option>
-    <option value="Meatpack" {% if tienda == "Meatpack" %}selected{% endif %}>Meatpack</option>
-    <option value="La Grieta" {% if tienda == "La Grieta" %}selected{% endif %}>La Grieta</option>
-    <option value="Premium Trendy" {% if tienda == "Premium Trendy" %}selected{% endif %}>Premium Trendy</option>
-  </select>
+    <label for="tienda">Tienda:</label>
+    <select name="tienda">
+      <option value="">Todas</option>
+      <option value="Adidas" {% if tienda == 'Adidas' %}selected{% endif %}>Adidas</option>
+      <option value="Kicks" {% if tienda == 'Kicks' %}selected{% endif %}>Kicks</option>
+      <option value="Bitterheads" {% if tienda == 'Bitterheads' %}selected{% endif %}>Bitterheads</option>
+      <option value="Meatpack" {% if tienda == 'Meatpack' %}selected{% endif %}>Meatpack</option>
+      <option value="La Grieta" {% if tienda == 'La Grieta' %}selected{% endif %}>La Grieta</option>
+      <option value="Premium Trendy" {% if tienda == 'Premium Trendy' %}selected{% endif %}>Premium Trendy</option>
+    </select>
 
-  <button type="submit">Buscar Sneakers</button>
-</form>
+    <button type="submit">Buscar</button>
+  </form>
 
-{% if productos is not defined %}
-  <!-- Página inicial sin resultados -->
-{% elif not productos %}
-  <div class="loader">🔍 Buscando sneakers disponibles...</div>
-{% else %}
-  <div class="filters">
-    Mostrando resultados para talla <strong>{{ talla }}</strong> {% if tienda %}en <strong>{{ tienda }}</strong>{% endif %}
-  </div>
+  {% if productos is not defined %}
+    <div class="loader">🔍 Ingresá una talla para iniciar la búsqueda.</div>
 
-  <div class="card-container">
-    {% for p in productos %}
-    <div class="card">
-      <div class="tienda-tag">{{ p.Tienda or 'Tienda' }}</div>
-      <img src="{{ p.Imagen }}" alt="{{ p.Producto }}" loading="lazy">
-      <div class="card-body">
-        <div class="brand">{{ p.Marca or '' }}</div>
-        <h4>{{ p.Producto }}</h4>
-        <p>Talla: {{ p.Talla }}</p>
-        <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
-        <a href="{{ p.URL }}" target="_blank" class="btn">Ver producto</a>
+  {% elif productos|length == 0 %}
+    <div class="loader">❌ No se encontraron resultados para esa talla.</div>
+
+  {% else %}
+    <div class="card-container">
+      {% for p in productos %}
+      <div class="card">
+        <img src="{{ p.Imagen or 'https://via.placeholder.com/240x200?text=Sneaker' }}" alt="{{ p.Producto }}">
+        <div class="card-body">
+          <div class="brand-badge">{{ p.Marca }} · {{ p.Tienda }}</div>
+          <h4>{{ p.Producto }}</h4>
+          <p>Talla: {{ p.Talla }}</p>
+          <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
+          <a href="{{ p.URL }}" target="_blank" class="btn">Ver producto</a>
+        </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-{% endif %}
+  {% endif %}
+</div>
 
 </body>
 </html>
