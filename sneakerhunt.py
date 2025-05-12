@@ -56,23 +56,38 @@ def inferir_marca(nombre):
     return ""
 
 def obtener_shopify(url, tienda, talla):
-    data = get_json(url)
+    try:
+        data = get_json(url)
+    except Exception as e:
+        print(f"❌ Error al obtener datos de {tienda}: {e}")
+        return []
+
     productos = []
     for prod in data.get("products", []):
         img = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
         for var in prod.get("variants", []):
             if talla_coincide(talla, var.get("title", "")) and var.get("available"):
-                precio = float(var["price"])
-                productos.append({
-                    "Producto": prod["title"],
-                    "Talla": var["title"],
-                    "Precio": precio,
-                    "Marca": inferir_marca(prod["title"]),
-                    "Tienda": tienda,
-                    "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
-                    "Imagen": img
-                })
+                try:
+                    precio = float(var["price"])
+                    productos.append({
+                        "Producto": prod["title"],
+                        "Talla": var["title"],
+                        "Precio": precio,
+                        "Marca": inferir_marca(prod["title"]),
+                        "Tienda": tienda,
+                        "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
+                        "Imagen": img
+                    })
+                except Exception as e:
+                    print(f"⚠️ Error al procesar producto {prod.get('title')}: {e}")
     return productos
+
+
+def obtener_meatpack(talla):
+    return obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
+
+def obtener_lagrieta(talla):
+    return obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
 
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
