@@ -150,7 +150,7 @@ def obtener_kicks(talla_buscada):
             special_price = attr.get("special_price")
             if not special_price:
                 continue
-            precio = float(special_price) * 100
+            precio = float(special_price)
             imagen = f"https://www.kicks.com.gt/media/catalog/product/cache/6/image/400x/040ec09b1e35df139433887a97daa66f/{sku_padre[-3:]}/{sku_padre[-6:-3]}/{sku_padre}.jpg"
             resultados.append({
                 "Producto": nombre,
