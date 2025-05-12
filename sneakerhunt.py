@@ -1,8 +1,20 @@
 import requests
+from bs4 import BeautifulSoup
 import pandas as pd
 from datetime import datetime
+import re
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+MAPA_TALLAS = {
+    "139": "5.5", "142": "5.75", "145": "6", "148": "6.5", "151": "7", "154": "7.5",
+    "157": "8", "160": "8.5", "163": "9", "166": "9.5", "169": "10", "172": "10.5",
+    "175": "11", "178": "11.5", "181": "12", "184": "12.5", "187": "13", "190": "13.5",
+    "193": "14", "196": "14.5", "199": "15", "752": "15.5?"
+}
+
+BASE_KICKS_API = "https://www.kicks.com.gt/rest/V1"
+BASE_KICKS_WEB = "https://www.kicks.com.gt"
 
 def get_json(url, headers=None, params=None):
     try:
@@ -13,7 +25,6 @@ def get_json(url, headers=None, params=None):
         print(f"⚠️ Error solicitando {url}: {e}")
         return {}
 
-# Adidas
 def obtener_adidas(talla):
     productos = []
     for page in range(2):
@@ -23,7 +34,6 @@ def obtener_adidas(talla):
     for producto in productos:
         product_id = producto.get("productId")
         variaciones = get_json(f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}")
-        img = producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "") if producto.get("items") else ""
         for sku in variaciones.get("skus", []):
             if talla in sku["dimensions"].get("Talla", ""):
                 resultados.append({
@@ -31,50 +41,46 @@ def obtener_adidas(talla):
                     "Talla": sku["dimensions"]["Talla"],
                     "Precio": sku["bestPrice"] / 100,
                     "URL": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
-                    "Imagen": img or "https://via.placeholder.com/240x200?text=Sneaker"
+                    "Imagen": producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "")
                 })
     return resultados
 
-# Meatpack y La Grieta
 def obtener_shopify(url, tienda, talla):
     data = get_json(url)
     productos = []
     for prod in data.get("products", []):
         img = prod["images"][0]["src"] if prod.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
-        for var in prod.get("variants", []):
-            if talla in var.get("title", "") and var.get("available"):
+        for var in prod["variants"]:
+            if talla in var["title"] and var["available"]:
                 precio = float(var["price"]) / 100 if tienda == "Meatpack" else float(var["price"])
                 productos.append({
                     "Tienda": tienda,
                     "Producto": prod["title"],
                     "Talla": var["title"],
                     "Precio": precio,
-                    "URL": f"https://{url.split('/')[2]}/products/{prod['handle']}",
+                    "URL": f'{url.split(".com")[0]}.com/products/{prod["handle"]}',
                     "Imagen": img
                 })
     return productos
 
-# Bitterheads
-def obtener_bitterheads(talla, max_pages=3):
+def obtener_bitterheads(talla):
     productos = []
-    for page in range(1, max_pages + 1):
+    for page in range(1, 4):
         url = f"https://www.bitterheads.com/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps=24&pg={page}"
         prods = get_json(url)
         for p in prods:
-            variaciones = get_json(f"https://www.bitterheads.com/api/catalog_system/pub/products/variations/{p['productId']}")
-            tallas = [sku["dimensions"]["Talla"] for sku in variaciones.get("skus", []) if sku.get("available")]
+            tallas_disp = get_json(f"https://www.bitterheads.com/api/catalog_system/pub/products/variations/{p['productId']}")
+            tallas = [sku["dimensions"]["Talla"] for sku in tallas_disp.get("skus", []) if sku.get("available")]
             if talla in tallas:
-                img = p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "") if p.get("items") else ""
                 productos.append({
                     "Producto": p["productName"],
                     "Talla": talla,
                     "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"],
                     "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
-                    "Imagen": img or "https://via.placeholder.com/240x200?text=Sneaker"
+                    "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
     return productos
 
-# Deportes del Centro
 def obtener_deportesdelcentro(talla):
     productos = []
     for page in range(1, 6):
@@ -91,14 +97,12 @@ def obtener_deportesdelcentro(talla):
                 })
     return productos
 
-# Premium Trendy
 def obtener_premiumtrendy():
     productos = []
     page = 1
     while True:
         data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
-        if not data:
-            break
+        if not data: break
         for p in data:
             productos.append({
                 "Producto": p["name"],
@@ -110,7 +114,55 @@ def obtener_premiumtrendy():
         page += 1
     return productos
 
-# Unificación
+def obtener_kicks(talla_buscada):
+    skus = {}
+    pagina = 1
+    while True:
+        url = f"https://www.kicks.com.gt/marcas.html?p={pagina}&product_list_limit=36&special_price=29.99-1749.99&tipo_1=241"
+        res = requests.get(url, headers=HEADERS)
+        soup = BeautifulSoup(res.text, "html.parser")
+        links = soup.select(".product-item-info a")
+        hrefs = {a.get("href") for a in links if a.get("href", "").endswith(".html")}
+        if not hrefs:
+            break
+        for href in hrefs:
+            match = re.search(r"(\d{8})", href)
+            if match:
+                skus[match.group(1)] = href
+        pagina += 1
+
+    resultados = []
+    for sku_padre, href in skus.items():
+        padre_url = f"{BASE_KICKS_API}/products/{sku_padre}?storeCode=kicks_gt"
+        data = get_json(padre_url)
+        if not data or data.get("type_id") != "configurable":
+            continue
+        atributos = {attr["attribute_code"]: attr.get("value") for attr in data.get("custom_attributes", [])}
+        nombre = data.get("name")
+        url_key = atributos.get("url_key")
+        url_producto = f"{BASE_KICKS_WEB}/{url_key}.html" if url_key else href
+        variantes_url = f"{BASE_KICKS_API}/configurable-products/{sku_padre}/children?storeCode=kicks_gt"
+        variantes = get_json(variantes_url)
+        for var in variantes:
+            attr = {a["attribute_code"]: a.get("value") for a in var.get("custom_attributes", [])}
+            talla_id = attr.get("talla_calzado")
+            talla_texto = MAPA_TALLAS.get(talla_id, talla_id)
+            if talla_texto != talla_buscada:
+                continue
+            special_price = attr.get("special_price")
+            if not special_price:
+                continue
+            precio = float(special_price)
+            imagen = f"https://www.kicks.com.gt/media/catalog/product/cache/6/image/400x/040ec09b1e35df139433887a97daa66f/{sku_padre[-3:]}/{sku_padre[-6:-3]}/{sku_padre}.jpg"
+            resultados.append({
+                "Producto": nombre,
+                "Talla": talla_texto,
+                "Precio": precio,
+                "URL": url_producto,
+                "Imagen": imagen
+            })
+    return resultados
+
 def buscar_todos(talla="9.5"):
     resultados = []
     resultados += obtener_adidas(talla)
@@ -119,9 +171,11 @@ def buscar_todos(talla="9.5"):
     resultados += obtener_bitterheads(talla)
     resultados += obtener_deportesdelcentro(talla)
     resultados += obtener_premiumtrendy()
+    resultados += obtener_kicks(talla)
     return pd.DataFrame(resultados).sort_values(by="Precio")
 
 if __name__ == "__main__":
     df = buscar_todos("9.5")
-    df.to_csv("sneakers_output.csv", index=False)
+    fecha = datetime.now().strftime("%Y-%m-%d")
+    df.to_csv(f"ofertas_sneaker_{fecha}.csv", index=False)
     print(df)
