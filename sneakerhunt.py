@@ -88,30 +88,6 @@ def obtener_adidas(talla):
                 })
     return resultados
 
-def obtener_premiumtrendy(talla):
-    productos = []
-    keywords = ["tenis", "sneaker", "zapatilla", "forum", "ultraboost", "nmd", "rivalry", "gazelle", "campus", "samba"]
-    page = 1
-    while page <= 2:
-        data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
-        if not data:
-            break
-        for p in data:
-            nombre = p["name"].lower()
-            if any(k in nombre for k in keywords):
-                tallas = [t["name"] for t in p.get("attributes", []) if t.get("name", "").lower() == "talla"]
-                if any(talla_coincide(talla, t) for t in tallas):
-                    productos.append({
-                        "Producto": p["name"],
-                        "Talla": talla,
-                        "Precio": float(p["prices"]["sale_price"]) / 100,
-                        "Marca": inferir_marca(p["name"]),
-                        "URL": p["permalink"],
-                        "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
-                    })
-        page += 1
-    return productos
-
 def obtener_bitterheads(talla):
     productos = []
     for page in range(1, 3):
@@ -125,7 +101,7 @@ def obtener_bitterheads(talla):
                     productos.append({
                         "Producto": p["productName"],
                         "Talla": talla_sku,
-                        "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"],
+                        "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"] * 100,
                         "Marca": inferir_marca(p["productName"]),
                         "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
                         "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
@@ -195,10 +171,6 @@ def buscar_todos(talla="9.5"):
     except Exception as e:
         print(f"❌ Error en Kicks: {e}")
     try:
-        resultados += obtener_premiumtrendy(talla)
-    except Exception as e:
-        print(f"❌ Error en Premium Trendy: {e}")
-    try:
         resultados += obtener_bitterheads(talla)
     except Exception as e:
         print(f"❌ Error en Bitterheads: {e}")
@@ -208,4 +180,3 @@ def buscar_todos(talla="9.5"):
     except Exception as e:
         print(f"❌ Error en Shopify: {e}")
     return pd.DataFrame(resultados).sort_values(by="Precio")
-
