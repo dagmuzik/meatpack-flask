@@ -44,7 +44,7 @@ def obtener_adidas(talla):
                 resultados.append({
                     "Producto": producto["productName"],
                     "Talla": sku["dimensions"]["Talla"],
-                    "Precio": sku["bestPrice"],
+                    "Precio": sku["bestPrice"] / 100,
                     "URL": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
                     "Imagen": producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
@@ -96,7 +96,7 @@ def obtener_premiumtrendy():
             productos.append({
                 "Producto": p["name"],
                 "Talla": "Única",
-                "Precio": float(p["prices"]["sale_price"]),
+                "Precio": float(p["prices"]["sale_price"]) / 100,
                 "URL": p["permalink"],
                 "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
             })
