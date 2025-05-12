@@ -77,18 +77,18 @@ def obtener_premiumtrendy(talla):
     for page in range(1, 3):
         data = get_json(
             "https://premiumtrendygt.com/wp-json/wc/store/products",
-            params={"on_sale": "true", "page": page, "per_page": 100}
+            params={"page": page, "per_page": 100}
         )
         if not data:
             break
         for p in data:
-            disponible = False
             tallas = p.get("attributes", [])
+            disponible = False
             for attr in tallas:
                 if "talla" in attr.get("name", "").lower():
                     for term in attr.get("terms", []):
                         talla_nombre = term.get("name", "").strip().lower()
-                        if talla_coincide(talla, talla_nombre) and term.get("count", 0) > 0:
+                        if talla_coincide(talla, talla_nombre):
                             disponible = True
                             break
                 if disponible:
@@ -99,7 +99,7 @@ def obtener_premiumtrendy(talla):
 
             raw_price = p["prices"].get("sale_price") or p["prices"].get("price")
             precio = float(raw_price)
-            if precio > 1000:  # prevent Q50000.00
+            if precio > 1000:  # prevenir precios incorrectos
                 precio = precio / 100
 
             productos.append({
