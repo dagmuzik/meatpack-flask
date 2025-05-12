@@ -141,7 +141,7 @@
 
   <header>
     <a href="/">
-      <img src="{{ url_for('static', filename='img/sneakerhunter_logo.png') }}" alt="Logo">
+      <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="Logo">
     </a>
     <div>
       <h1>SneakerHunter</h1>
@@ -185,11 +185,11 @@
 
   {% if productos is not defined or productos is none %}
     <div class="logo-centered">
-      <img src="{{ url_for('static', filename='img/sneakerhunter_logo.png') }}" alt="SneakerHunter Logo">
+      <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="SneakerHunter Logo">
     </div>
   {% elif productos|length == 0 %}
     <div class="logo-centered">
-      <img src="{{ url_for('static', filename='img/sneakerhunter_logo.png') }}" alt="SneakerHunter Logo">
+      <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="SneakerHunter Logo">
     </div>
     <div class="loader">❌ No se encontraron resultados con esos filtros.</div>
   {% else %}
