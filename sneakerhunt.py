@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-from datetime import datetime
 import re
 
 HEADERS = {
@@ -38,32 +37,20 @@ def talla_coincide(talla_buscada, talla_encontrada):
 
 def inferir_marca(nombre):
     nombre = nombre.lower()
-    if "sl 72" in nombre:
-        return "adidas"
-    if "forum" in nombre:
-        return "adidas"
-    if "gazelle" in nombre:
-        return "adidas"
-    if "stan smith" in nombre:
+    if "sl 72" in nombre or "forum" in nombre or "gazelle" in nombre or "stan smith" in nombre:
         return "adidas"
     if "slip-on" in nombre or "sk8-hi" in nombre or "ultrarange" in nombre:
         return "vans"
     if "chuck" in nombre:
         return "converse"
-    if "nike" in nombre:
-        return "nike"
-    if "air" in nombre:
+    if "nike" in nombre or "air" in nombre or "kobe" in nombre or "jelly ma" in nombre:
         return "nike"
     if "new balance" in nombre:
         return "new balance"
-    if "kobe" in nombre:
-        return "nike"
     if "shadow" in nombre or "grid azura" in nombre:
         return "saucony"
     if "nitro" in nombre:
         return "puma"
-    if "jelly ma" in nombre:
-        return "nike"
     return ""
 
 def obtener_shopify(url, tienda, talla):
@@ -82,6 +69,27 @@ def obtener_shopify(url, tienda, talla):
                     "Tienda": tienda,
                     "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
                     "Imagen": img
+                })
+    return productos
+
+def obtener_premiumtrendy(talla):
+    productos = []
+    for page in range(1, 3):
+        data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
+        if not data:
+            break
+        for p in data:
+            tallas = p.get("attributes", [])
+            match = any(talla_coincide(talla, t.get("terms", [{}])[0].get("name", "")) for t in tallas if t.get("name", "").lower() == "talla")
+            if match:
+                productos.append({
+                    "Producto": p["name"],
+                    "Talla": talla,
+                    "Precio": float(p["prices"]["sale_price"]) if p["prices"]["sale_price"] else float(p["prices"]["price"]),
+                    "Marca": inferir_marca(p["name"]),
+                    "Tienda": "Premium Trendy",
+                    "URL": p["permalink"],
+                    "Imagen": p.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
     return productos
 
@@ -168,7 +176,6 @@ def obtener_kicks(talla_buscada):
         url_key = atributos.get("url_key")
         url_producto = f"{BASE_KICKS_WEB}/{url_key}.html" if url_key else href
 
-        # Extraer imagen
         imagen = None
         for attri in data.get("custom_attributes", []):
             if attri.get("attribute_code") == "image":
@@ -199,7 +206,7 @@ def obtener_kicks(talla_buscada):
                 "Imagen": imagen
             })
     return resultados
-    
+
 def buscar_todos(talla="9.5"):
     resultados = []
     try:
@@ -219,5 +226,8 @@ def buscar_todos(talla="9.5"):
         resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
     except Exception as e:
         print(f"❌ Error en Shopify: {e}")
+    try:
+        resultados += obtener_premiumtrendy(talla)
+    except Exception as e:
+        print(f"❌ Error en Premium Trendy: {e}")
     return pd.DataFrame(resultados).sort_values(by="Precio")
-
