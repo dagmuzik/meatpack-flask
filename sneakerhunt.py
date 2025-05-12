@@ -122,20 +122,20 @@ def obtener_premiumtrendy():
     
 def obtener_kicks(talla_buscada):
     skus = {}
-    pagina = 1
-    while True:
+    for pagina in range(1, 4):  # LIMITADO a 3 páginas
         url = f"https://www.kicks.com.gt/marcas.html?p={pagina}&product_list_limit=36&special_price=29.99-1749.99&tipo_1=241"
-        res = requests.get(url, headers=HEADERS)
-        soup = BeautifulSoup(res.text, "html.parser")
-        links = soup.select(".product-item-info a")
-        hrefs = {a.get("href") for a in links if a.get("href", "").endswith(".html")}
-        if not hrefs:
-            break
-        for href in hrefs:
-            match = re.search(r"(\d{8})", href)
-            if match:
-                skus[match.group(1)] = href
-        pagina += 1
+        try:
+            res = requests.get(url, headers=HEADERS, timeout=5)
+            soup = BeautifulSoup(res.text, "html.parser")
+            links = soup.select(".product-item-info a")
+            hrefs = {a.get("href") for a in links if a.get("href", "").endswith(".html")}
+            for href in hrefs:
+                match = re.search(r"(\d{8})", href)
+                if match:
+                    skus[match.group(1)] = href
+        except Exception as e:
+            print(f"Error parsing página {pagina}: {e}")
+            continue
 
     resultados = []
     for sku_padre, href in skus.items():
@@ -143,10 +143,12 @@ def obtener_kicks(talla_buscada):
         data = get_json(padre_url)
         if not data or data.get("type_id") != "configurable":
             continue
+
         atributos = {attr["attribute_code"]: attr.get("value") for attr in data.get("custom_attributes", [])}
         nombre = data.get("name")
         url_key = atributos.get("url_key")
         url_producto = f"{BASE_KICKS_WEB}/{url_key}.html" if url_key else href
+
         variantes_url = f"{BASE_KICKS_API}/configurable-products/{sku_padre}/children?storeCode=kicks_gt"
         variantes = get_json(variantes_url)
         for var in variantes:
