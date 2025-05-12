@@ -75,70 +75,80 @@ def obtener_shopify(url, tienda, talla):
     return productos
 
 def obtener_premiumtrendy(talla):
-    print(f"🔍 Buscando en Premium Trendy talla {talla}...")
-    productos = []
+    productos_disponibles = []
     page = 1
+    base_url = "https://premiumtrendygt.com"
+    products_api = f"{base_url}/wp-json/wc/store/products"
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    def detectar_atributo_talla(html):
+        soup = BeautifulSoup(html, "html.parser")
+        select = soup.find("select", {"name": lambda x: x and "attribute_pa_talla" in x})
+        return select["name"] if select else None
+
+    def verificar_disponibilidad(product_url, atributo_talla, talla_objetivo):
+        url_con_talla = f"{product_url}?{atributo_talla}={talla_objetivo}"
+        try:
+            r = requests.get(url_con_talla, headers=headers, timeout=10)
+            if r.status_code != 200:
+                return False
+            soup = BeautifulSoup(r.text, "html.parser")
+            boton = soup.select_one("button.single_add_to_cart_button")
+            return boton and "disabled" not in boton.get("class", [])
+        except:
+            return False
 
     while True:
-        print(f"📄 Página {page}")
-        data = get_json(
-            "https://premiumtrendygt.com/wp-json/wc/store/products",
-            params={"on_sale": "true", "per_page": 100, "page": page}
-        )
-
-        if not data:
-            print("✅ Fin de productos en Premium Trendy.")
+        print(f"🔄 Premium Trendy página {page}...")
+        resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page})
+        if resp.status_code != 200:
+            print(f"❌ Error Premium Trendy: {resp.status_code}")
             break
 
-        for item in data:
-            nombre = item.get("name")
-            precios = item.get("prices", {})
-            oferta_raw = precios.get("sale_price")
-            if not oferta_raw or float(oferta_raw) <= 0:
-                print(f"❌ {nombre} descartado por precio inválido")
+        productos = resp.json()
+        if not productos:
+            print("✅ Fin productos Premium Trendy")
+            break
+
+        for prod in productos:
+            nombre = prod.get("name")
+            url = prod.get("permalink")
+            etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
+            if "sneakers" not in etiquetas:
+                print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
                 continue
 
-            tallas_raw = []
-            disponible = False
-            for attr in item.get("attributes", []):
-                if "talla" in attr.get("name", "").lower():
-                    for term in attr.get("terms", []):
-                        talla_term = term.get("name", "").strip()
-                        count = term.get("count", 0)
-                        tallas_raw.append(f"{talla_term} ({count})")
+            try:
+                html = requests.get(url, headers=headers, timeout=10).text
+                atributo = detectar_atributo_talla(html)
+            except:
+                atributo = None
 
-                        # Mostrar log de tallas
-                        print(f"🧪 {nombre} → {talla_term} (stock: {count})")
-
-                        if talla_coincide(talla, talla_term) and count > 0:
-                            disponible = True
-                            break
-                if disponible:
-                    break
-
-            if not disponible:
-                print(f"⚠️ {nombre} descartado, talla {talla} no disponible.")
+            if not atributo:
+                print(f"⏭️ {nombre} — Sin atributo de talla")
                 continue
 
-            oferta = float(oferta_raw)
-            if oferta > 1000:
-                oferta = oferta / 100
+            if not verificar_disponibilidad(url, atributo, talla):
+                print(f"❌ {nombre} — Talla {talla} no disponible")
+                continue
 
-            productos.append({
+            precios = prod.get("prices", {})
+            regular = int(precios.get("regular_price", 0)) / 100
+            oferta = int(precios.get("sale_price", 0)) / 100
+
+            productos_disponibles.append({
                 "Producto": nombre,
                 "Talla": talla,
-                "Precio": oferta,
-                "Marca": inferir_marca(nombre),
+                "Precio": oferta if oferta > 0 else regular,
+                "URL": url,
+                "Imagen": prod.get("images", [{}])[0].get("src", ""),
                 "Tienda": "Premium Trendy",
-                "URL": item.get("permalink"),
-                "Imagen": item.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+                "Marca": inferir_marca(nombre)
             })
-            print(f"✅ Agregado: {nombre} - Q{oferta:.2f}")
 
         page += 1
 
-    print(f"🎯 Total encontrados en Premium Trendy: {len(productos)}")
-    return productos
+    return productos_disponibles
 
 def obtener_bitterheads(talla):
     productos = []
