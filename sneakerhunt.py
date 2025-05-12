@@ -56,10 +56,14 @@ def inferir_marca(nombre):
         return "nike"
     if "new balance" in nombre:
         return "new balance"
-    if "Shadow" in nombre:
-        return "Saucony"
     if "kobe" in nombre:
-        return "Nike"
+        return "nike"
+    if "shadow" in nombre:
+        return "saucony"
+    if "nitro" in nombre:
+        return "puma"
+    if "jelly ma" in nombre:
+        return "nike"
     return ""
 
 def obtener_shopify(url, tienda, talla):
