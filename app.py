@@ -5,13 +5,16 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    talla = request.values.get('talla', '9.5')
-    
-    resultados = buscar_todos(talla)
+    talla = None
+    productos = None
 
-    productos = resultados.to_dict(orient='records')
+    if request.method == 'POST':
+        talla = request.form.get('talla', '').strip()
+        if talla:
+            resultados = buscar_todos(talla)
+            productos = resultados.to_dict(orient='records') if not resultados.empty else []
 
-    return render_template('index.html', productos=productos, talla=talla)
+    return render_template('index.html', talla=talla, productos=productos)
 
 if __name__ == '__main__':
     app.run(debug=True)
