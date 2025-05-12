@@ -91,92 +91,86 @@ def obtener_lagrieta(talla):
 
 import requests
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import concurrent.futures
+import gc
 
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
+    page = 1
+    max_pages = 3  # Limitar para evitar sobrecarga
     base_url = "https://premiumtrendygt.com"
     products_api = f"{base_url}/wp-json/wc/store/products"
     headers = {"User-Agent": "Mozilla/5.0"}
-    max_pages = 2
-    page = 1
+
+    etiquetas_invalidas = {"clothing", "accesorios", "birkenstock", "blackclover", "ralph lauren"}
 
     def detectar_atributo_talla(html):
         soup = BeautifulSoup(html, "html.parser")
         select = soup.find("select", {"name": lambda x: x and "attribute_pa_talla" in x})
         return select["name"] if select else None
 
-    def verificar_disponibilidad(product_url, atributo_talla, talla_objetivo):
-        url_con_talla = f"{product_url}?{atributo_talla}={talla_objetivo}"
-        try:
-            r = requests.get(url_con_talla, headers=headers, timeout=6)
-            if r.status_code != 200:
-                return False
-            soup = BeautifulSoup(r.text, "html.parser")
-            boton = soup.select_one("button.single_add_to_cart_button")
-            return boton and "disabled" not in boton.get("class", [])
-        except:
-            return False
-
-    def procesar_producto(prod):
+    def verificar_producto(prod):
         nombre = prod.get("name")
         url = prod.get("permalink")
-        etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
-        if "sneakers" not in etiquetas:
+        etiquetas = {tag["name"].lower() for tag in prod.get("tags", [])}
+        if "sneakers" not in etiquetas or etiquetas & etiquetas_invalidas:
             print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
             return None
 
         try:
-            html = requests.get(url, headers=headers, timeout=6).text
+            html = requests.get(url, headers=headers, timeout=10).text
             atributo = detectar_atributo_talla(html)
             if not atributo:
                 print(f"⏭️ {nombre} — Sin atributo de talla")
                 return None
-
-            if not verificar_disponibilidad(url, atributo, talla):
+            url_con_talla = f"{url}?{atributo}={talla}"
+            r = requests.get(url_con_talla, headers=headers, timeout=10)
+            if r.status_code != 200:
+                return None
+            soup = BeautifulSoup(r.text, "html.parser")
+            boton = soup.select_one("button.single_add_to_cart_button")
+            if not boton or "disabled" in boton.get("class", []):
                 print(f"❌ {nombre} — Talla {talla} no disponible")
                 return None
-
-            precios = prod.get("prices", {})
-            regular = int(precios.get("regular_price", 0)) / 100
-            oferta = int(precios.get("sale_price", 0)) / 100
-
-            return {
-                "Producto": nombre,
-                "Talla": talla,
-                "Precio": oferta if oferta > 0 else regular,
-                "URL": url,
-                "Imagen": prod.get("images", [{}])[0].get("src", ""),
-                "Tienda": "Premium Trendy",
-                "Marca": inferir_marca(nombre)
-            }
         except Exception as e:
-            print(f"⚠️ Error procesando {nombre}: {e}")
+            print(f"⚠️ Error verificando {nombre}: {e}")
             return None
+
+        precios = prod.get("prices", {})
+        regular = int(precios.get("regular_price", 0)) / 100
+        oferta = int(precios.get("sale_price", 0)) / 100
+        precio_final = oferta if oferta > 0 else regular
+        if precio_final == 0:
+            return None
+
+        return {
+            "Producto": nombre,
+            "Talla": talla,
+            "Precio": precio_final,
+            "URL": url,
+            "Imagen": prod.get("images", [{}])[0].get("src", ""),
+            "Tienda": "Premium Trendy",
+            "Marca": inferir_marca(nombre)
+        }
 
     while page <= max_pages:
         print(f"🔄 Premium Trendy página {page}...")
-        try:
-            resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=10)
-            if resp.status_code != 200:
-                print(f"❌ Error HTTP {resp.status_code} en página {page}")
-                break
-            productos = resp.json()
-        except Exception as e:
-            print(f"❌ Error solicitando productos: {e}")
+        resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page})
+        if resp.status_code != 200:
+            print(f"❌ Error Premium Trendy: {resp.status_code}")
             break
 
+        productos = resp.json()
         if not productos:
             print("✅ Fin productos Premium Trendy")
             break
 
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            futures = [executor.submit(procesar_producto, prod) for prod in productos]
-            for future in as_completed(futures):
-                result = future.result()
-                if result:
-                    productos_disponibles.append(result)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            resultados = list(executor.map(verificar_producto, productos))
 
+        productos_disponibles += [p for p in resultados if p]
+
+        gc.collect()
         page += 1
 
     return productos_disponibles
