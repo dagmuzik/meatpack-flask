@@ -87,34 +87,39 @@ def obtener_premiumtrendy(talla):
         )
 
         if not data:
-            print("✅ Fin de páginas en Premium Trendy.")
+            print("✅ Fin de productos en Premium Trendy.")
             break
 
         for item in data:
             nombre = item.get("name")
             precios = item.get("prices", {})
             oferta_raw = precios.get("sale_price")
-            regular_raw = precios.get("regular_price")
             if not oferta_raw or float(oferta_raw) <= 0:
                 print(f"❌ {nombre} descartado por precio inválido")
                 continue
 
-            # Verificar si hay talla disponible
-            match_talla = False
+            tallas_raw = []
+            disponible = False
             for attr in item.get("attributes", []):
                 if "talla" in attr.get("name", "").lower():
                     for term in attr.get("terms", []):
-                        if talla_coincide(talla, term.get("name", "")) and term.get("count", 0) > 0:
-                            match_talla = True
+                        talla_term = term.get("name", "").strip()
+                        count = term.get("count", 0)
+                        tallas_raw.append(f"{talla_term} ({count})")
+
+                        # Mostrar log de tallas
+                        print(f"🧪 {nombre} → {talla_term} (stock: {count})")
+
+                        if talla_coincide(talla, talla_term) and count > 0:
+                            disponible = True
                             break
-                if match_talla:
+                if disponible:
                     break
 
-            if not match_talla:
+            if not disponible:
                 print(f"⚠️ {nombre} descartado, talla {talla} no disponible.")
                 continue
 
-            # Formato de precios correcto
             oferta = float(oferta_raw)
             if oferta > 1000:
                 oferta = oferta / 100
@@ -132,7 +137,7 @@ def obtener_premiumtrendy(talla):
 
         page += 1
 
-    print(f"🔎 Total encontrados en Premium Trendy: {len(productos)}")
+    print(f"🎯 Total encontrados en Premium Trendy: {len(productos)}")
     return productos
 
 def obtener_bitterheads(talla):
