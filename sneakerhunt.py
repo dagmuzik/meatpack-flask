@@ -87,19 +87,22 @@ def obtener_bitterheads(talla):
 
 def obtener_premiumtrendy():
     productos = []
+    keywords = ["tenis", "sneaker", "zapatilla", "forum", "ultraboost", "nmd", "rivalry", "gazelle", "campus", "samba"]
     page = 1
     while page <= 2:
         data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
         if not data:
             break
         for p in data:
-            productos.append({
-                "Producto": p["name"],
-                "Talla": "Única",
-                "Precio": float(p["prices"]["sale_price"]) / 100,
-                "URL": p["permalink"],
-                "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
-            })
+            nombre = p["name"].lower()
+            if any(k in nombre for k in keywords):
+                productos.append({
+                    "Producto": p["name"],
+                    "Talla": "Única",
+                    "Precio": float(p["prices"]["sale_price"]) / 100,
+                    "URL": p["permalink"],
+                    "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
+                })
         page += 1
     return productos
 
