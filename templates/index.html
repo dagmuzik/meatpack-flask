@@ -14,6 +14,7 @@
     header {
       display: flex;
       align-items: center;
+      gap: 12px;
       padding: 10px 20px;
       background: #fff;
       border-bottom: 1px solid #eee;
@@ -24,13 +25,18 @@
 
     header img {
       height: 36px;
-      margin-right: 12px;
     }
 
     header h1 {
       font-size: 22px;
       margin: 0;
       color: #222;
+    }
+
+    header p {
+      margin: 2px 0 0 0;
+      font-size: 13px;
+      color: #666;
     }
 
     .container {
@@ -148,7 +154,10 @@
 
 <header>
   <img src="{{ url_for('static', filename='img/sneakerhunter_logo.png') }}" alt="Logo SneakerHunter">
-  <h1>SneakerHunter</h1>
+  <div>
+    <h1>SneakerHunter</h1>
+    <p>Buscador de sneakers en oferta en tiendas online de Guatemala</p>
+  </div>
 </header>
 
 <div class="container">
