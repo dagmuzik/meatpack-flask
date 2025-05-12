@@ -220,8 +220,3 @@ def buscar_todos(talla="9.5"):
         print(f"❌ Error en Premium Trendy: {e}")
     return pd.DataFrame(resultados).sort_values(by="Precio")
 
-if __name__ == "__main__":
-    df = buscar_todos("9.5")
-    fecha = datetime.now().strftime("%Y-%m-%d")
-    df.to_csv(f"ofertas_sneaker_{fecha}.csv", index=False)
-    print(df)
