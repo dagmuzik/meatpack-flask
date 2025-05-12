@@ -69,7 +69,7 @@ def obtener_shopify(url, tienda, talla):
 
 def obtener_bitterheads(talla):
     productos = []
-    for page in range(1, 4):
+    for page in range(1, 3):
         url = f"https://www.bitterheads.com/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps=24&pg={page}"
         prods = get_json(url)
         for p in prods:
@@ -90,13 +90,9 @@ def obtener_deportesdelcentro(talla):
     base_url = "https://deporteselcentro.com/wp-json/wc/store/v1/products"
     headers = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "es-ES,es;q=0.9",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
+        "User-Agent": "Mozilla/5.0"
     }
-    for page in range(1, 6):
+    for page in range(1, 3):
         try:
             res = requests.get(base_url, headers=headers, params={"page": page, "per_page": 100}, timeout=5)
             res.raise_for_status()
@@ -127,7 +123,7 @@ def obtener_deportesdelcentro(talla):
 def obtener_premiumtrendy():
     productos = []
     page = 1
-    while True:
+    while page <= 2:
         data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
         if not data:
             break
@@ -144,7 +140,7 @@ def obtener_premiumtrendy():
 
 def obtener_kicks(talla_buscada):
     skus = {}
-    for pagina in range(1, 4):
+    for pagina in range(1, 3):
         url = f"https://www.kicks.com.gt/marcas.html?p={pagina}&product_list_limit=36&special_price=29.99-1749.99&tipo_1=241"
         try:
             res = requests.get(url, headers=HEADERS, timeout=5)
@@ -160,7 +156,9 @@ def obtener_kicks(talla_buscada):
             continue
 
     resultados = []
-    for sku_padre, href in skus.items():
+    for i, (sku_padre, href) in enumerate(skus.items()):
+        if i >= 10:
+            break
         padre_url = f"{BASE_KICKS_API}/products/{sku_padre}?storeCode=kicks_gt"
         data = get_json(padre_url)
         if not data or data.get("type_id") != "configurable":
