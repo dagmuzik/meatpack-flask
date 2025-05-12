@@ -5,105 +5,144 @@
   <title>SneakerHunter</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f4f4f4;
-      padding: 30px;
+      font-family: system-ui, sans-serif;
+      background: #f7f7f7;
       margin: 0;
+      padding: 30px 20px;
     }
+
     h1 {
-      margin-bottom: 0;
+      margin-bottom: 10px;
     }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .filters {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
     form {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-direction: column;
+      max-width: 400px;
+      margin: 0 auto 30px;
     }
+
     input, button {
-      padding: 8px 10px;
-      border-radius: 4px;
+      padding: 12px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 14px;
+      font-size: 16px;
     }
+
+    input {
+      margin-bottom: 10px;
+    }
+
     button {
       background: black;
       color: white;
       cursor: pointer;
       border: none;
     }
+
     button:hover {
-      background: #333;
+      background: #222;
     }
+
     .card-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
       justify-content: center;
+      gap: 24px;
     }
+
     .card {
-      width: 260px;
+      width: 280px;
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
       overflow: hidden;
-      transition: transform 0.2s;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
+      transition: transform 0.2s ease;
     }
+
     .card:hover {
-      transform: scale(1.02);
+      transform: translateY(-4px);
     }
+
     .card img {
       width: 100%;
       height: 200px;
       object-fit: cover;
-      background: #f8f8f8;
+      background: #eee;
     }
+
     .card-body {
-      padding: 12px;
-      font-size: 14px;
+      padding: 14px;
     }
-    .card-body h4 {
-      margin: 4px 0;
-      font-size: 16px;
-      font-weight: 600;
-    }
+
     .card-body .brand {
       font-size: 12px;
       color: #777;
       font-weight: bold;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
+
+    .card-body h4 {
+      margin: 0 0 6px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-body p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
     .btn {
       margin-top: 10px;
       display: inline-block;
-      padding: 8px 12px;
-      border-radius: 4px;
+      padding: 10px 12px;
       text-align: center;
-      text-decoration: none;
+      border-radius: 4px;
       background: black;
       color: white;
+      text-decoration: none;
+      font-size: 14px;
     }
+
     .btn:hover {
-      background: #222;
+      background: #111;
     }
+
   </style>
 </head>
 <body>
 
-<div style="text-align: center; margin-bottom: 30px;">
+<div class="header">
   <h1>SneakerHunter</h1>
-  <p style="color: #555;">Encuentra las mejores opciones en sneakers</p>
+  <p style="color: #444;">Buscador de sneakers con talla exacta y precio real en tiendas de Guatemala</p>
 </div>
 
 <form method="post">
-  <label for="talla">Talla:</label>
-  <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '9.5' }}">
-  <button type="submit">Buscar</button>
+  <input type="text" name="talla" placeholder="Buscar por talla exacta (Ej. 9 o 9.5)" value="{{ talla or '' }}">
+  <button type="submit">Buscar Sneakers</button>
 </form>
+
+{% if talla %}
+<div class="filters">
+  Mostrando resultados para talla <strong>{{ talla }}</strong> — Orden: <span style="color: #000;">Precio (menor a mayor)</span>
+</div>
+{% endif %}
 
 <div class="card-container">
   {% for p in productos %}
