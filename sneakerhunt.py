@@ -18,7 +18,12 @@ BASE_KICKS_WEB = "https://www.kicks.com.gt"
 
 def get_json(url, headers=None, params=None):
     try:
-        response = requests.get(url, headers=headers or HEADERS, params=params, timeout=5)
+        headers = headers or {}
+        headers.update({
+            "User-Agent": "Mozilla/5.0",
+            "Accept": "application/json"
+        })
+        response = requests.get(url, headers=headers, params=params, timeout=5)
         response.raise_for_status()
         return response.json()
     except Exception as e:
