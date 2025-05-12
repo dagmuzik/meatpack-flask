@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: system-ui, sans-serif;
-      background: #f7f7f7;
+      background: #f4f6f8;
       margin: 0;
       padding: 30px 20px;
     }
@@ -50,49 +50,57 @@
     }
 
     .card-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .card {
-      width: 280px;
+      position: relative;
       background: white;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
       display: flex;
       flex-direction: column;
-      transition: transform 0.2s ease;
+      transition: all 0.3s ease;
     }
 
     .card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
     .card img {
       width: 100%;
-      height: 200px;
-      object-fit: cover;
+      height: auto;
+      max-height: 280px;
       background: #eee;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+      border-bottom: 1px solid #ddd;
     }
 
     .card-body {
-      padding: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
 
-    .card-body .brand {
+    .brand {
       font-size: 12px;
-      color: #777;
+      color: #555;
       font-weight: bold;
-      text-transform: uppercase;
       margin-bottom: 6px;
     }
 
     .card-body h4 {
-      margin: 0 0 6px;
-      font-size: 16px;
+      margin: 0 0 8px;
+      font-size: 17px;
       font-weight: 600;
     }
 
@@ -102,11 +110,11 @@
     }
 
     .btn {
-      margin-top: 10px;
+      margin-top: auto;
       display: inline-block;
       padding: 10px 12px;
       text-align: center;
-      border-radius: 4px;
+      border-radius: 6px;
       background: black;
       color: white;
       text-decoration: none;
@@ -128,7 +136,19 @@
       text-align: center;
       font-size: 14px;
       color: #555;
-      margin-bottom: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tienda-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 6px;
     }
   </style>
 </head>
@@ -156,11 +176,10 @@
   <div class="card-container">
     {% for p in productos %}
     <div class="card">
-      <img src="{{ p.Imagen }}" alt="{{ p.Producto }}">
+      <div class="tienda-tag">{{ p.Tienda or 'Tienda' }}</div>
+      <img src="{{ p.Imagen }}" alt="{{ p.Producto }}" loading="lazy">
       <div class="card-body">
-        <div class="brand">
-          {{ p.Marca or '' }}{% if p.Tienda %} · <span style="font-weight: normal;">{{ p.Tienda }}</span>{% endif %}
-        </div>
+        <div class="brand">{{ p.Marca or '' }}</div>
         <h4>{{ p.Producto }}</h4>
         <p>Talla: {{ p.Talla }}</p>
         <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
