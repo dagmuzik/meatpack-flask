@@ -40,8 +40,22 @@ def inferir_marca(nombre):
     nombre = nombre.lower()
     if "sl 72" in nombre:
         return "adidas"
+    if "forum" in nombre:
+        return "adidas"
+    if "gazelle" in nombre:
+        return "adidas"
+    if "stan smith" in nombre:
+        return "adidas"
     if "slip on" in nombre or "sk8-hi" in nombre:
         return "vans"
+    if "chuck" in nombre:
+        return "converse"
+    if "nike" in nombre:
+        return "nike"
+    if "air" in nombre:
+        return "nike"
+    if "new balance" in nombre:
+        return "new balance"
     return ""
 
 def obtener_shopify(url, tienda, talla):
