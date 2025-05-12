@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    productos = []
+    productos = None
     talla = ""
     tienda = ""
     marca = ""
