@@ -8,8 +8,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #d7f0f1; /* Color inspirado en tu imagen */
-      color: #111;
+      background: #f9f9f9;
     }
     header {
       display: flex;
@@ -27,7 +26,7 @@
     header p {
       margin: 0;
       font-size: 14px;
-      color: #444;
+      color: #666;
     }
 
     form {
@@ -47,7 +46,7 @@
       padding: 10px;
       width: 200px;
       border-radius: 6px;
-      border: 1px solid #aaa;
+      border: 1px solid #ccc;
     }
     button {
       background: black;
@@ -70,7 +69,7 @@
 
     .loader {
       text-align: center;
-      color: #666;
+      color: #888;
       margin-top: 20px;
       font-size: 16px;
     }
@@ -105,18 +104,18 @@
     }
     .card-body p {
       margin: 4px 0;
-      color: #333;
+      color: #555;
     }
     .card-body .store {
       font-size: 12px;
-      color: #777;
+      color: #888;
       font-style: italic;
     }
 
     footer {
       text-align: center;
       padding: 40px 20px 20px;
-      color: #444;
+      color: #666;
       font-size: 14px;
     }
 
@@ -166,6 +165,7 @@
         <option value="saucony" {% if marca == 'saucony' %}selected{% endif %}>Saucony</option>
         <option value="converse" {% if marca == 'converse' %}selected{% endif %}>Converse</option>
         <option value="stepney" {% if marca == 'stepney' %}selected{% endif %}>Stepney</option>
+        <!-- Agregá más marcas si lo necesitás -->
       </select>
     </div>
     <div>
