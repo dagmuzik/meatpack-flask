@@ -96,7 +96,7 @@ def obtener_premiumtrendy():
             productos.append({
                 "Producto": p["name"],
                 "Talla": "Única",
-                "Precio": int(p["prices"]["sale_price"]),
+                "Precio": float(p["prices"]["sale_price"]),
                 "URL": p["permalink"],
                 "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
             })
