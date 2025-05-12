@@ -30,6 +30,14 @@ def get_json(url, headers=None, params=None):
         print(f"⚠️ Error solicitando {url}: {e}")
         return {}
 
+def inferir_marca(nombre):
+    nombre = nombre.lower()
+    if "sl 72" in nombre:
+        return "adidas"
+    if "slip on" in nombre or "sk8-hi" in nombre:
+        return "vans"
+    return ""
+
 def obtener_adidas(talla):
     productos = []
     keywords = ["tenis", "sneaker", "zapatilla", "forum", "ultraboost", "nmd", "rivalry", "gazelle", "campus", "samba", "run", "ozweego"]
@@ -66,6 +74,7 @@ def obtener_shopify(url, tienda, talla):
                     "Producto": prod["title"],
                     "Talla": var["title"],
                     "Precio": precio,
+                    "Marca": inferir_marca(prod["title"]),
                     "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
                     "Imagen": img
                 })
@@ -176,6 +185,7 @@ def buscar_todos(talla="9.5"):
         resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
     except Exception as e:
         print(f"❌ Error en Shopify: {e}")
+    return pd.DataFrame(resultados).sort_values(by="Precio")
     try:
         resultados += obtener_bitterheads(talla)
     except Exception as e:
