@@ -47,6 +47,8 @@ def inferir_marca(nombre):
         return "nike"
     if "new balance" in nombre:
         return "new balance"
+    if "dellow" in nombre:
+        return "stepney workers club"
     if "shadow" in nombre or "grid azura" in nombre:
         return "saucony"
     if "nitro" in nombre:
@@ -77,18 +79,20 @@ def obtener_premiumtrendy(talla):
     for page in range(1, 3):
         data = get_json(
             "https://premiumtrendygt.com/wp-json/wc/store/products",
-            params={"page": page, "per_page": 100}
+            params={"on_sale": "true", "page": page, "per_page": 100}
         )
         if not data:
             break
         for p in data:
-            tallas = p.get("attributes", [])
+            precio_raw = p["prices"].get("sale_price")
+            if not precio_raw or float(precio_raw) <= 0:
+                continue  # descartar sin precio válido
+
             disponible = False
-            for attr in tallas:
+            for attr in p.get("attributes", []):
                 if "talla" in attr.get("name", "").lower():
                     for term in attr.get("terms", []):
-                        talla_nombre = term.get("name", "").strip().lower()
-                        if talla_coincide(talla, talla_nombre):
+                        if talla_coincide(talla, term.get("name", "")) and term.get("count", 0) > 0:
                             disponible = True
                             break
                 if disponible:
@@ -97,9 +101,8 @@ def obtener_premiumtrendy(talla):
             if not disponible:
                 continue
 
-            raw_price = p["prices"].get("sale_price") or p["prices"].get("price")
-            precio = float(raw_price)
-            if precio > 1000:  # prevenir precios incorrectos
+            precio = float(precio_raw)
+            if precio > 1000:  # ajuste si lo devuelve en centavos
                 precio = precio / 100
 
             productos.append({
