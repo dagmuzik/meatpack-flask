@@ -182,7 +182,7 @@
   {% if productos is not defined %}
     <div class="loader">🔍 Ingresá una talla para iniciar la búsqueda.</div>
 
-  {% elif productos|length == 0 %}
+  {% elif productos is defined and productos is not none and productos|length == 0 %}
     <div class="loader">❌ No se encontraron resultados para esa talla.</div>
 
   {% else %}
