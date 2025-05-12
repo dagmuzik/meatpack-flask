@@ -44,7 +44,7 @@ def obtener_adidas(talla):
                 resultados.append({
                     "Producto": producto["productName"],
                     "Talla": sku["dimensions"]["Talla"],
-                    "Precio": sku["bestPrice"] / 100,
+                    "Precio": sku["bestPrice"],
                     "URL": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
                     "Imagen": producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
@@ -57,7 +57,7 @@ def obtener_shopify(url, tienda, talla):
         img = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
         for var in prod.get("variants", []):
             if talla in var.get("title", "") and var.get("available"):
-                precio = float(var["price"]) / 100 if tienda == "Meatpack" else float(var["price"])
+                precio = float(var["price"])
                 productos.append({
                     "Producto": prod["title"],
                     "Talla": var["title"],
@@ -79,44 +79,9 @@ def obtener_bitterheads(talla):
                 productos.append({
                     "Producto": p["productName"],
                     "Talla": talla,
-                    "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"],
+                    "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"] * 100,
                     "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
                     "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
-                })
-    return productos
-
-def obtener_deportesdelcentro(talla):
-    productos = []
-    base_url = "https://deporteselcentro.com/wp-json/wc/store/v1/products"
-    headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "User-Agent": "Mozilla/5.0"
-    }
-    for page in range(1, 3):
-        try:
-            res = requests.get(base_url, headers=headers, params={"page": page, "per_page": 100}, timeout=5)
-            res.raise_for_status()
-            productos_data = res.json()
-        except Exception as e:
-            print(f"❌ Error página {page} - Deportes del Centro: {e}")
-            break
-        if not productos_data:
-            break
-        for prod in productos_data:
-            tallas = []
-            for atributo in prod.get("attributes", []):
-                if atributo.get("name", "").lower() == "talla":
-                    tallas = [term.get("name") for term in atributo.get("terms", [])]
-            sale_price = int(prod["prices"]["sale_price"])
-            regular_price = int(prod["prices"]["regular_price"])
-            on_sale = prod.get("on_sale", False)
-            if talla in tallas and on_sale and sale_price < regular_price:
-                productos.append({
-                    "Producto": prod["name"],
-                    "Talla": talla,
-                    "Precio": sale_price / 100,
-                    "URL": prod["permalink"],
-                    "Imagen": prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
     return productos
 
@@ -131,7 +96,7 @@ def obtener_premiumtrendy():
             productos.append({
                 "Producto": p["name"],
                 "Talla": "Única",
-                "Precio": int(p["prices"]["sale_price"]) / 100,
+                "Precio": int(p["prices"]["sale_price"]),
                 "URL": p["permalink"],
                 "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
             })
@@ -178,7 +143,7 @@ def obtener_kicks(talla_buscada):
             special_price = attr.get("special_price")
             if not special_price:
                 continue
-            precio = float(special_price)
+            precio = float(special_price) * 100
             imagen = f"https://www.kicks.com.gt/media/catalog/product/cache/6/image/400x/040ec09b1e35df139433887a97daa66f/{sku_padre[-3:]}/{sku_padre[-6:-3]}/{sku_padre}.jpg"
             resultados.append({
                 "Producto": nombre,
@@ -200,10 +165,6 @@ def buscar_todos(talla="9.5"):
     except Exception as e:
         print(f"❌ Error en Kicks: {e}")
     try:
-        resultados += obtener_deportesdelcentro(talla)
-    except Exception as e:
-        print(f"❌ Error en Deportes del Centro: {e}")
-    try:
         resultados += obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
         resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
     except Exception as e:
@@ -217,4 +178,3 @@ def buscar_todos(talla="9.5"):
     except Exception as e:
         print(f"❌ Error en Premium Trendy: {e}")
     return pd.DataFrame(resultados).sort_values(by="Precio")
-
