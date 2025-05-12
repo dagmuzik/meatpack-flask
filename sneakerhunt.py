@@ -46,7 +46,7 @@ def inferir_marca(nombre):
         return "adidas"
     if "stan smith" in nombre:
         return "adidas"
-    if "slip on" in nombre or "sk8-hi" in nombre:
+    if "slip-on" in nombre or "sk8-hi" in nombre or "ultrarange" in nombre:
         return "vans"
     if "chuck" in nombre:
         return "converse"
