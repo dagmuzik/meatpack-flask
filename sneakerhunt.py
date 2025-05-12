@@ -91,18 +91,18 @@ def obtener_lagrieta(talla):
 
 import requests
 from bs4 import BeautifulSoup
-import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import gc
 
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
     page = 1
-    max_pages = 3  # Limitar para evitar sobrecarga
+    max_pages = 3  # Límite preventivo para evitar timeout
     base_url = "https://premiumtrendygt.com"
     products_api = f"{base_url}/wp-json/wc/store/products"
     headers = {"User-Agent": "Mozilla/5.0"}
 
-    etiquetas_invalidas = {"clothing", "accesorios", "birkenstock", "blackclover", "ralph lauren"}
+    etiquetas_invalidas = {"clothing", "accesorios", "birkenstock", "blackclover", "ralph lauren", "true"}
 
     def detectar_atributo_talla(html):
         soup = BeautifulSoup(html, "html.parser")
@@ -118,13 +118,14 @@ def obtener_premiumtrendy(talla):
             return None
 
         try:
-            html = requests.get(url, headers=headers, timeout=10).text
+            html = requests.get(url, headers=headers, timeout=8).text
             atributo = detectar_atributo_talla(html)
             if not atributo:
                 print(f"⏭️ {nombre} — Sin atributo de talla")
                 return None
+
             url_con_talla = f"{url}?{atributo}={talla}"
-            r = requests.get(url_con_talla, headers=headers, timeout=10)
+            r = requests.get(url_con_talla, headers=headers, timeout=8)
             if r.status_code != 200:
                 return None
             soup = BeautifulSoup(r.text, "html.parser")
@@ -155,20 +156,29 @@ def obtener_premiumtrendy(talla):
 
     while page <= max_pages:
         print(f"🔄 Premium Trendy página {page}...")
-        resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page})
-        if resp.status_code != 200:
-            print(f"❌ Error Premium Trendy: {resp.status_code}")
+        try:
+            resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=10)
+            if resp.status_code != 200:
+                print(f"❌ Error HTTP {resp.status_code} en página {page}")
+                break
+            productos = resp.json()
+        except Exception as e:
+            print(f"❌ Error solicitando productos: {e}")
             break
 
-        productos = resp.json()
         if not productos:
             print("✅ Fin productos Premium Trendy")
             break
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            resultados = list(executor.map(verificar_producto, productos))
-
-        productos_disponibles += [p for p in resultados if p]
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(verificar_producto, prod) for prod in productos]
+            for future in as_completed(futures, timeout=40):
+                try:
+                    result = future.result(timeout=8)
+                    if result:
+                        productos_disponibles.append(result)
+                except Exception as e:
+                    print(f"⚠️ Tarea interrumpida o lenta: {e}")
 
         gc.collect()
         page += 1
