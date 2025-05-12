@@ -32,15 +32,19 @@ def get_json(url, headers=None, params=None):
 
 def obtener_adidas(talla):
     productos = []
+    keywords = ["tenis", "sneaker", "zapatilla", "forum", "ultraboost", "nmd", "rivalry", "gazelle", "campus", "samba", "run", "ozweego"]
     for page in range(2):
         url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={page*50}&_to={(page+1)*50-1}"
         productos.extend(get_json(url))
     resultados = []
     for producto in productos:
+        nombre = producto.get("productName", "").lower()
+        if not any(k in nombre for k in keywords):
+            continue
         product_id = producto.get("productId")
         variaciones = get_json(f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}")
         for sku in variaciones.get("skus", []):
-            if talla in sku["dimensions"].get("Talla", ""):
+            if talla in sku["dimensions"].get("Talla", "") and sku.get("available", False):
                 resultados.append({
                     "Producto": producto["productName"],
                     "Talla": sku["dimensions"]["Talla"],
