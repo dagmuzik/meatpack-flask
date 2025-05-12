@@ -130,7 +130,6 @@
       color: #555;
       margin-bottom: 10px;
     }
-
   </style>
 </head>
 <body>
@@ -140,28 +139,28 @@
   <p style="color: #444;">Buscador de sneakers con talla exacta y precio real en tiendas de Guatemala</p>
 </div>
 
-<form method="post" id="busqueda-form">
+<form method="post">
   <input type="text" name="talla" placeholder="Buscar por talla exacta (Ej. 9 o 9.5)" value="{{ talla or '' }}">
   <button type="submit">Buscar Sneakers</button>
 </form>
 
 {% if productos is not defined %}
-  <!-- Nada mostrado al inicio -->
-{% elif productos|length == 0 %}
+  <!-- Página inicial sin resultados -->
+{% elif not productos %}
   <div class="loader">🔍 Buscando sneakers disponibles...</div>
 {% else %}
-  {% if talla %}
-    <div class="filters">
-      Mostrando resultados para talla <strong>{{ talla }}</strong> — Orden: <span style="color: #000;">Precio (menor a mayor)</span>
-    </div>
-  {% endif %}
+  <div class="filters">
+    Mostrando resultados para talla <strong>{{ talla }}</strong> — Orden: <span style="color: #000;">Precio (menor a mayor)</span>
+  </div>
 
   <div class="card-container">
     {% for p in productos %}
     <div class="card">
       <img src="{{ p.Imagen }}" alt="{{ p.Producto }}">
       <div class="card-body">
-        <div class="brand">{{ p.Marca or '' }}</div>
+        <div class="brand">
+          {{ p.Marca or '' }}{% if p.Tienda %} · <span style="font-weight: normal;">{{ p.Tienda }}</span>{% endif %}
+        </div>
         <h4>{{ p.Producto }}</h4>
         <p>Talla: {{ p.Talla }}</p>
         <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
