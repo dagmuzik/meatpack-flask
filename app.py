@@ -3,18 +3,22 @@ from sneakerhunt import buscar_todos
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    talla = ''
     productos = None
+    talla = ""
+    tienda = ""
 
-    if request.method == 'POST':
-        talla = request.form.get('talla', '').strip()
+    if request.method == "POST":
+        talla = request.form.get("talla", "").strip()
+        tienda = request.form.get("tienda", "").strip()
         if talla:
-            resultados = buscar_todos(talla)
-            productos = resultados.to_dict(orient='records') if not resultados.empty else []
+            print(f"🔎 Buscando productos talla {talla} en tienda: {tienda or 'Todas'}")
+            productos = buscar_todos(talla, tienda)
+        else:
+            productos = []
 
-    return render_template('index.html', talla=talla, productos=productos)
+    return render_template("index.html", productos=productos, talla=talla, tienda=tienda)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
