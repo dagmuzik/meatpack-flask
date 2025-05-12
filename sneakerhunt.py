@@ -39,7 +39,7 @@ def inferir_marca(nombre):
     nombre = nombre.lower()
     if "sl 72" in nombre or "forum" in nombre or "gazelle" in nombre or "stan smith" in nombre:
         return "adidas"
-    if "slip-on" in nombre or "sk8-hi" in nombre or "ultrarange" in nombre:
+    if "slip-on" in nombre or "sk8-hi" in nombre or "ultrarange" in nombre or "old Skool" in nombre:
         return "vans"
     if "chuck" in nombre:
         return "converse"
@@ -76,20 +76,26 @@ def obtener_shopify(url, tienda, talla):
 
 def obtener_premiumtrendy(talla):
     productos = []
-    for page in range(1, 3):
+    page = 1
+    while True:
+        print(f"🔄 Premium Trendy - Página {page}...")
         data = get_json(
             "https://premiumtrendygt.com/wp-json/wc/store/products",
-            params={"on_sale": "true", "page": page, "per_page": 100}
+            params={"on_sale": "true", "per_page": 100, "page": page}
         )
         if not data:
             break
-        for p in data:
-            precio_raw = p["prices"].get("sale_price")
-            if not precio_raw or float(precio_raw) <= 0:
-                continue  # descartar sin precio válido
 
+        for item in data:
+            precios = item.get("prices", {})
+            sale_price = precios.get("sale_price")
+            if not sale_price or float(sale_price) == 0:
+                continue  # descartar si no tiene precio de oferta
+
+            # Verificar si la talla está en stock
+            tallas = item.get("attributes", [])
             disponible = False
-            for attr in p.get("attributes", []):
+            for attr in tallas:
                 if "talla" in attr.get("name", "").lower():
                     for term in attr.get("terms", []):
                         if talla_coincide(talla, term.get("name", "")) and term.get("count", 0) > 0:
@@ -101,19 +107,23 @@ def obtener_premiumtrendy(talla):
             if not disponible:
                 continue
 
-            precio = float(precio_raw)
-            if precio > 1000:  # ajuste si lo devuelve en centavos
-                precio = precio / 100
+            regular = float(precios.get("regular_price", 0))
+            oferta = float(sale_price)
+            if regular > 1000: regular = regular / 100
+            if oferta > 1000: oferta = oferta / 100
 
             productos.append({
-                "Producto": p["name"],
+                "Producto": item.get("name"),
                 "Talla": talla,
-                "Precio": precio,
-                "Marca": inferir_marca(p["name"]),
+                "Precio": oferta,
+                "Marca": inferir_marca(item.get("name", "")),
                 "Tienda": "Premium Trendy",
-                "URL": p.get("permalink"),
-                "Imagen": p.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+                "URL": item.get("permalink"),
+                "Imagen": item.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
             })
+
+        page += 1
+
     return productos
 
 def obtener_bitterheads(talla):
