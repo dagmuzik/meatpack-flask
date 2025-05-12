@@ -159,6 +159,16 @@ def obtener_kicks(talla_buscada):
         nombre = data.get("name")
         url_key = atributos.get("url_key")
         url_producto = f"{BASE_KICKS_WEB}/{url_key}.html" if url_key else href
+
+        # Extraer imagen
+        imagen = None
+        for attri in data.get("custom_attributes", []):
+            if attri.get("attribute_code") == "image":
+                imagen = f"https://www.kicks.com.gt/media/catalog/product{attri.get('value')}"
+                break
+        if not imagen:
+            imagen = "https://via.placeholder.com/240x200?text=Sneaker"
+
         variantes_url = f"{BASE_KICKS_API}/configurable-products/{sku_padre}/children?storeCode=kicks_gt"
         variantes = get_json(variantes_url)
         for var in variantes:
@@ -171,13 +181,6 @@ def obtener_kicks(talla_buscada):
             if not special_price:
                 continue
             precio = float(special_price)
-imagen = None
-for attri in data.get("custom_attributes", []):
-    if attri.get("attribute_code") == "image":
-        imagen = f"https://www.kicks.com.gt/media/catalog/product{attri.get('value')}"
-        break
-    if not imagen:
-        imagen = "https://via.placeholder.com/240x200?text=Sneaker"
             resultados.append({
                 "Producto": nombre,
                 "Talla": talla_texto,
