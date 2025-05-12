@@ -47,21 +47,23 @@
 
     form {
       display: flex;
-      gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 30px;
+      gap: 12px;
+      align-items: flex-end;
       justify-content: center;
+      margin-bottom: 30px;
     }
 
     label {
       font-weight: bold;
+      font-size: 14px;
     }
 
     input[type="text"], select {
       padding: 6px 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
-      min-width: 100px;
+      min-width: 120px;
     }
 
     button {
@@ -166,28 +168,37 @@
 
 <div class="container">
   <form method="post">
-    <label for="talla">Talla:</label>
-    <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
+    <div>
+      <label for="talla">Talla:</label><br>
+      <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
+    </div>
 
-    <label for="tienda">Tienda:</label>
-    <select name="tienda">
-      <option value="">Todas</option>
-      <option value="Adidas" {% if tienda == 'Adidas' %}selected{% endif %}>Adidas</option>
-      <option value="Kicks" {% if tienda == 'Kicks' %}selected{% endif %}>Kicks</option>
-      <option value="Bitterheads" {% if tienda == 'Bitterheads' %}selected{% endif %}>Bitterheads</option>
-      <option value="Meatpack" {% if tienda == 'Meatpack' %}selected{% endif %}>Meatpack</option>
-      <option value="La Grieta" {% if tienda == 'La Grieta' %}selected{% endif %}>La Grieta</option>
-      <option value="Premium Trendy" {% if tienda == 'Premium Trendy' %}selected{% endif %}>Premium Trendy</option>
-    </select>
+    <div>
+      <label for="marca">Marca:</label><br>
+      <input type="text" name="marca" placeholder="Ej. adidas, nike" value="{{ marca or '' }}">
+    </div>
+
+    <div>
+      <label for="tienda">Tienda:</label><br>
+      <select name="tienda">
+        <option value="">Todas</option>
+        <option value="Adidas" {% if tienda == 'Adidas' %}selected{% endif %}>Adidas</option>
+        <option value="Kicks" {% if tienda == 'Kicks' %}selected{% endif %}>Kicks</option>
+        <option value="Bitterheads" {% if tienda == 'Bitterheads' %}selected{% endif %}>Bitterheads</option>
+        <option value="Meatpack" {% if tienda == 'Meatpack' %}selected{% endif %}>Meatpack</option>
+        <option value="La Grieta" {% if tienda == 'La Grieta' %}selected{% endif %}>La Grieta</option>
+        <option value="Premium Trendy" {% if tienda == 'Premium Trendy' %}selected{% endif %}>Premium Trendy</option>
+      </select>
+    </div>
 
     <button type="submit">Buscar</button>
   </form>
 
   {% if productos is not defined %}
-    <div class="loader">🔍 Ingresá una talla para iniciar la búsqueda.</div>
+    <div class="loader">🔍 Ingresá al menos una talla o marca para buscar.</div>
 
   {% elif productos is defined and productos is not none and productos|length == 0 %}
-    <div class="loader">❌ No se encontraron resultados para esa talla.</div>
+    <div class="loader">❌ No se encontraron resultados con esos filtros.</div>
 
   {% elif productos is defined and productos is not none and productos|length > 0 %}
     <div class="card-container">
