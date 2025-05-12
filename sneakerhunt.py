@@ -32,8 +32,10 @@ def get_json(url, headers=None, params=None):
 
 def inferir_marca(nombre):
     nombre = nombre.lower()
-    if "sl 72" in nombre:
+    if "sl 72" in nombre or "GAZELLE" in nombre:
         return "adidas"
+    if "Classic Slip-On" in nombre or "Old Skool" in nombre or "sk8-hi" in nombre:
+        return "vans"
     if "slip on" in nombre or "sk8-hi" in nombre:
         return "vans"
     return ""
