@@ -254,60 +254,58 @@ def obtener_kicks(talla_buscada):
             })
     return resultados
 
-def buscar_todos(talla="9.5", tienda=""):
+def buscar_todos(talla="", tienda="", marca=""):
+    from pandas import DataFrame
+
+    print(f"\n🔎 Buscando productos talla {talla or '[cualquiera]'} en tienda: {tienda or 'Todas'} con marca: {marca or 'Todas'}")
+
     resultados = []
 
-    if not tienda or tienda == "Adidas":
+    if tienda in ("", "Adidas"):
         try:
             resultados += obtener_adidas(talla)
         except Exception as e:
             print(f"❌ Error en Adidas: {e}")
 
-    if not tienda or tienda == "Kicks":
+    if tienda in ("", "Kicks"):
         try:
             resultados += obtener_kicks(talla)
         except Exception as e:
             print(f"❌ Error en Kicks: {e}")
 
-    if not tienda or tienda == "Bitterheads":
+    if tienda in ("", "Bitterheads"):
         try:
             resultados += obtener_bitterheads(talla)
         except Exception as e:
             print(f"❌ Error en Bitterheads: {e}")
 
-    if not tienda or tienda == "Meatpack":
+    if tienda in ("", "Meatpack"):
         try:
-            resultados += obtener_shopify(
-                "https://meatpack.com/collections/special-price/products.json",
-                "Meatpack", talla
-            )
+            resultados += obtener_meatpack(talla)
         except Exception as e:
             print(f"❌ Error en Meatpack: {e}")
 
-    if not tienda or tienda == "La Grieta":
+    if tienda in ("", "La Grieta"):
         try:
-            resultados += obtener_shopify(
-                "https://lagrieta.gt/collections/ultimas-tallas/products.json",
-                "La Grieta", talla
-            )
+            resultados += obtener_lagrieta(talla)
         except Exception as e:
             print(f"❌ Error en La Grieta: {e}")
 
-    if not tienda or tienda == "Premium Trendy":
+    if tienda in ("", "Premium Trendy"):
         try:
             resultados += obtener_premiumtrendy(talla)
         except Exception as e:
             print(f"❌ Error en Premium Trendy: {e}")
 
-    print(f"🔢 Total resultados encontrados: {len(resultados)}")
+    # Filtrar por marca si se indicó
+    if marca:
+        marca = marca.strip().lower()
+        resultados = [p for p in resultados if p.get("Marca", "").lower() == marca]
 
     try:
-        df = pd.DataFrame(resultados)
-        if not df.empty and "Precio" in df.columns:
-            return df.sort_values(by="Precio")
-        return df  # Vacío, pero válido
-    except Exception as err:
-        print(f"⚠️ Error al convertir resultados a DataFrame: {err}")
+        return DataFrame(resultados).sort_values(by="Precio").to_dict("records")
+    except Exception as e:
+        print("❌ Error final al ordenar/convertir:", str(e))
         return []
 
 
