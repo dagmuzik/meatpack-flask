@@ -300,5 +300,14 @@ def buscar_todos(talla="9.5", tienda=""):
             print(f"❌ Error en Premium Trendy: {e}")
 
     print(f"🔢 Total resultados encontrados: {len(resultados)}")
-    return pd.DataFrame(resultados).sort_values(by="Precio")
+
+    try:
+        df = pd.DataFrame(resultados)
+        if not df.empty and "Precio" in df.columns:
+            return df.sort_values(by="Precio")
+        return df  # Vacío, pero válido
+    except Exception as err:
+        print(f"⚠️ Error al convertir resultados a DataFrame: {err}")
+        return []
+
 
