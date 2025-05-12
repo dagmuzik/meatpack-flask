@@ -102,18 +102,19 @@ def obtener_premiumtrendy():
     page = 1
     while True:
         data = get_json("https://premiumtrendygt.com/wp-json/wc/store/products", params={"on_sale": "true", "page": page, "per_page": 100})
-        if not data: break
+        if not data:
+            break
         for p in data:
             productos.append({
                 "Producto": p["name"],
                 "Talla": "Única",
                 "Precio": int(p["prices"]["sale_price"]) / 100,
                 "URL": p["permalink"],
-                "Imagen": p.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+                "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
             })
         page += 1
     return productos
-
+    
 def obtener_kicks(talla_buscada):
     skus = {}
     pagina = 1
