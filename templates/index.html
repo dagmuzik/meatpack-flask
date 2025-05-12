@@ -8,21 +8,25 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      background: #d7f0f1;
     }
+
     header {
       display: flex;
       align-items: center;
       padding: 20px;
     }
+
     header img {
       height: 50px;
       margin-right: 15px;
     }
+
     header h1 {
       margin: 0;
       font-size: 24px;
     }
+
     header p {
       margin: 0;
       font-size: 14px;
@@ -37,10 +41,12 @@
       margin: 30px auto;
       max-width: 900px;
     }
+
     form label {
       font-weight: bold;
       display: block;
     }
+
     form input,
     form select {
       padding: 10px;
@@ -48,6 +54,7 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
+
     button {
       background: black;
       color: white;
@@ -61,17 +68,34 @@
       text-align: center;
       margin-top: 50px;
       animation: fadeIn 0.6s ease-in-out;
+      transition: opacity 0.5s ease;
     }
+
     .logo-centered img {
-      width: 180px;
-      max-width: 80%;
+      width: 260px;
+      max-width: 90%;
+    }
+
+    .logo-centered.hide {
+      opacity: 0;
+      visibility: hidden;
+      height: 0;
+      margin: 0;
     }
 
     .loader {
       text-align: center;
-      color: #888;
       margin-top: 20px;
-      font-size: 16px;
+      display: none;
+    }
+
+    .loader.active {
+      display: block;
+    }
+
+    .loader img {
+      width: 60px;
+      height: 60px;
     }
 
     .card-container {
@@ -81,6 +105,7 @@
       gap: 20px;
       padding: 20px;
     }
+
     .card {
       background: white;
       border-radius: 10px;
@@ -89,23 +114,28 @@
       overflow: hidden;
       text-align: center;
     }
+
     .card img {
       width: 100%;
       height: 200px;
       object-fit: contain;
       background: #fff;
     }
+
     .card-body {
       padding: 15px;
     }
+
     .card-body h4 {
       font-size: 16px;
       margin: 5px 0;
     }
+
     .card-body p {
       margin: 4px 0;
       color: #555;
     }
+
     .card-body .store {
       font-size: 12px;
       color: #888;
@@ -165,7 +195,6 @@
         <option value="saucony" {% if marca == 'saucony' %}selected{% endif %}>Saucony</option>
         <option value="converse" {% if marca == 'converse' %}selected{% endif %}>Converse</option>
         <option value="stepney" {% if marca == 'stepney' %}selected{% endif %}>Stepney</option>
-        <!-- Agregá más marcas si lo necesitás -->
       </select>
     </div>
     <div>
@@ -184,16 +213,18 @@
   </form>
 
   {% if productos is not defined or productos is none %}
-    <div class="logo-centered">
+    <div class="logo-centered" id="mainLogo">
       <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="SneakerHunter Logo">
     </div>
   {% elif productos|length == 0 %}
     <div class="logo-centered">
       <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="SneakerHunter Logo">
     </div>
-    <div class="loader">❌ No se encontraron resultados con esos filtros.</div>
+    <div class="loader active">
+      <p>❌ No se encontraron resultados con esos filtros.</p>
+    </div>
   {% else %}
-    <div class="card-container">
+    <div class="card-container" id="resultsSection">
       {% for p in productos %}
       <div class="card">
         <img src="{{ p.Imagen }}" alt="{{ p.Producto }}">
@@ -213,5 +244,17 @@
     <p>Buscá, compará y cazá tu próximo par</p>
     <p>© 2024 SneakerHunter GT. Todos los derechos reservados.</p>
   </footer>
+
+  <script>
+    const form = document.getElementById("filtros");
+    const loader = document.getElementById("loader");
+    const logo = document.getElementById("mainLogo");
+
+    form.addEventListener("submit", () => {
+      if (loader) loader.classList.add("active");
+      if (logo) logo.classList.add("hide");
+    });
+  </script>
+
 </body>
 </html>
