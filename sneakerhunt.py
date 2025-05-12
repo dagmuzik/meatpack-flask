@@ -249,27 +249,51 @@ def obtener_kicks(talla_buscada):
             })
     return resultados
 
-def buscar_todos(talla="9.5"):
+def buscar_todos(talla="9.5", tienda=""):
     resultados = []
-    try:
-        resultados += obtener_adidas(talla)
-    except Exception as e:
-        print(f"❌ Error en Adidas: {e}")
-    try:
-        resultados += obtener_kicks(talla)
-    except Exception as e:
-        print(f"❌ Error en Kicks: {e}")
-    try:
-        resultados += obtener_bitterheads(talla)
-    except Exception as e:
-        print(f"❌ Error en Bitterheads: {e}")
-    try:
-        resultados += obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
-        resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
-    except Exception as e:
-        print(f"❌ Error en Shopify: {e}")
-    try:
-        resultados += obtener_premiumtrendy(talla)
-    except Exception as e:
-        print(f"❌ Error en Premium Trendy: {e}")
+
+    if not tienda or tienda == "Adidas":
+        try:
+            resultados += obtener_adidas(talla)
+        except Exception as e:
+            print(f"❌ Error en Adidas: {e}")
+
+    if not tienda or tienda == "Kicks":
+        try:
+            resultados += obtener_kicks(talla)
+        except Exception as e:
+            print(f"❌ Error en Kicks: {e}")
+
+    if not tienda or tienda == "Bitterheads":
+        try:
+            resultados += obtener_bitterheads(talla)
+        except Exception as e:
+            print(f"❌ Error en Bitterheads: {e}")
+
+    if not tienda or tienda == "Meatpack":
+        try:
+            resultados += obtener_shopify(
+                "https://meatpack.com/collections/special-price/products.json",
+                "Meatpack", talla
+            )
+        except Exception as e:
+            print(f"❌ Error en Meatpack: {e}")
+
+    if not tienda or tienda == "La Grieta":
+        try:
+            resultados += obtener_shopify(
+                "https://lagrieta.gt/collections/ultimas-tallas/products.json",
+                "La Grieta", talla
+            )
+        except Exception as e:
+            print(f"❌ Error en La Grieta: {e}")
+
+    if not tienda or tienda == "Premium Trendy":
+        try:
+            resultados += obtener_premiumtrendy(talla)
+        except Exception as e:
+            print(f"❌ Error en Premium Trendy: {e}")
+
+    print(f"🔢 Total resultados encontrados: {len(resultados)}")
     return pd.DataFrame(resultados).sort_values(by="Precio")
+
