@@ -34,6 +34,7 @@
 <div class="card-container">
   {% for p in productos %}
   <div class="card">
+    <img src="{{ p.Imagen or 'https://via.placeholder.com/240x200?text=Sneaker' }}" alt="{{ p.Producto }}">
     <div class="card-body">
       <h4>{{ p.Producto }}</h4>
       <p>Talla: {{ p.Talla }}</p>
