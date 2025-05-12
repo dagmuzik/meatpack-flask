@@ -14,7 +14,7 @@ def get_json(url, headers=None, params=None):
 
 def obtener_adidas(talla):
     productos = []
-    for page in range(10):
+    for page in range(2):  # máximo 2 páginas inicialmente
         url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={page*50}&_to={(page+1)*50-1}"
         productos.extend(get_json(url))
     resultados = []
