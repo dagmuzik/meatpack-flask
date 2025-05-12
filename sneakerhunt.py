@@ -30,15 +30,37 @@ def get_json(url, headers=None, params=None):
         print(f"⚠️ Error solicitando {url}: {e}")
         return {}
 
+def normalizar_talla(t):
+    return re.sub(r"[^\d]", "", str(t))
+
+def talla_coincide(talla_buscada, talla_encontrada):
+    return normalizar_talla(talla_buscada) == normalizar_talla(talla_encontrada)
+
 def inferir_marca(nombre):
     nombre = nombre.lower()
-    if "sl 72" in nombre or "GAZELLE" in nombre:
+    if "sl 72" in nombre:
         return "adidas"
-    if "Classic Slip-On" in nombre or "Old Skool" in nombre or "sk8-hi" in nombre:
-        return "vans"
     if "slip on" in nombre or "sk8-hi" in nombre:
         return "vans"
     return ""
+
+def obtener_shopify(url, tienda, talla):
+    data = get_json(url)
+    productos = []
+    for prod in data.get("products", []):
+        img = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+        for var in prod.get("variants", []):
+            if talla_coincide(talla, var.get("title", "")) and var.get("available"):
+                precio = float(var["price"])
+                productos.append({
+                    "Producto": prod["title"],
+                    "Talla": var["title"],
+                    "Precio": precio,
+                    "Marca": inferir_marca(prod["title"]),
+                    "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
+                    "Imagen": img
+                })
+    return productos
 
 def obtener_adidas(talla):
     productos = []
@@ -54,53 +76,19 @@ def obtener_adidas(talla):
         product_id = producto.get("productId")
         variaciones = get_json(f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}")
         for sku in variaciones.get("skus", []):
-            if talla in sku["dimensions"].get("Talla", "") and sku.get("available", False):
+            talla_sku = sku["dimensions"].get("Talla", "")
+            if talla_coincide(talla, talla_sku) and sku.get("available", False):
                 resultados.append({
                     "Producto": producto["productName"],
-                    "Talla": sku["dimensions"]["Talla"],
+                    "Talla": talla_sku,
                     "Precio": sku["bestPrice"] / 100,
+                    "Marca": "adidas",
                     "URL": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
                     "Imagen": producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
                 })
     return resultados
 
-def obtener_shopify(url, tienda, talla):
-    data = get_json(url)
-    productos = []
-    for prod in data.get("products", []):
-        img = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
-        for var in prod.get("variants", []):
-            if talla in var.get("title", "") and var.get("available"):
-                precio = float(var["price"])
-                productos.append({
-                    "Producto": prod["title"],
-                    "Talla": var["title"],
-                    "Precio": precio,
-                    "Marca": inferir_marca(prod["title"]),
-                    "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
-                    "Imagen": img
-                })
-    return productos
-
-def obtener_bitterheads(talla):
-    productos = []
-    for page in range(1, 3):
-        url = f"https://www.bitterheads.com/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps=24&pg={page}"
-        prods = get_json(url)
-        for p in prods:
-            tallas_disp = get_json(f"https://www.bitterheads.com/api/catalog_system/pub/products/variations/{p['productId']}")
-            tallas = [sku["dimensions"]["Talla"] for sku in tallas_disp.get("skus", []) if sku.get("available")]
-            if talla in tallas:
-                productos.append({
-                    "Producto": p["productName"],
-                    "Talla": talla,
-                    "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"] * 100,
-                    "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
-                    "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
-                })
-    return productos
-
-def obtener_premiumtrendy():
+def obtener_premiumtrendy(talla):
     productos = []
     keywords = ["tenis", "sneaker", "zapatilla", "forum", "ultraboost", "nmd", "rivalry", "gazelle", "campus", "samba"]
     page = 1
@@ -111,14 +99,37 @@ def obtener_premiumtrendy():
         for p in data:
             nombre = p["name"].lower()
             if any(k in nombre for k in keywords):
-                productos.append({
-                    "Producto": p["name"],
-                    "Talla": "Única",
-                    "Precio": float(p["prices"]["sale_price"]) / 100,
-                    "URL": p["permalink"],
-                    "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
-                })
+                tallas = [t["name"] for t in p.get("attributes", []) if t.get("name", "").lower() == "talla"]
+                if any(talla_coincide(talla, t) for t in tallas):
+                    productos.append({
+                        "Producto": p["name"],
+                        "Talla": talla,
+                        "Precio": float(p["prices"]["sale_price"]) / 100,
+                        "Marca": inferir_marca(p["name"]),
+                        "URL": p["permalink"],
+                        "Imagen": p.get("images", [{}])[0].get("src") if p.get("images") else "https://via.placeholder.com/240x200?text=Sneaker"
+                    })
         page += 1
+    return productos
+
+def obtener_bitterheads(talla):
+    productos = []
+    for page in range(1, 3):
+        url = f"https://www.bitterheads.com/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps=24&pg={page}"
+        prods = get_json(url)
+        for p in prods:
+            tallas_disp = get_json(f"https://www.bitterheads.com/api/catalog_system/pub/products/variations/{p['productId']}")
+            for sku in tallas_disp.get("skus", []):
+                talla_sku = sku["dimensions"].get("Talla", "")
+                if talla_coincide(talla, talla_sku) and sku.get("available"):
+                    productos.append({
+                        "Producto": p["productName"],
+                        "Talla": talla_sku,
+                        "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"] * 100,
+                        "Marca": inferir_marca(p["productName"]),
+                        "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
+                        "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
+                    })
     return productos
 
 def obtener_kicks(talla_buscada):
@@ -140,7 +151,7 @@ def obtener_kicks(talla_buscada):
 
     resultados = []
     for i, (sku_padre, href) in enumerate(skus.items()):
-        if i >= 5:
+        if i >= 10:
             break
         padre_url = f"{BASE_KICKS_API}/products/{sku_padre}?storeCode=kicks_gt"
         data = get_json(padre_url)
@@ -156,7 +167,7 @@ def obtener_kicks(talla_buscada):
             attr = {a["attribute_code"]: a.get("value") for a in var.get("custom_attributes", [])}
             talla_id = attr.get("talla_calzado")
             talla_texto = MAPA_TALLAS.get(talla_id, talla_id)
-            if talla_texto != talla_buscada:
+            if not talla_coincide(talla_buscada, talla_texto):
                 continue
             special_price = attr.get("special_price")
             if not special_price:
@@ -167,6 +178,7 @@ def obtener_kicks(talla_buscada):
                 "Producto": nombre,
                 "Talla": talla_texto,
                 "Precio": precio,
+                "Marca": inferir_marca(nombre),
                 "URL": url_producto,
                 "Imagen": imagen
             })
@@ -183,17 +195,17 @@ def buscar_todos(talla="9.5"):
     except Exception as e:
         print(f"❌ Error en Kicks: {e}")
     try:
-        resultados += obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
-        resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
+        resultados += obtener_premiumtrendy(talla)
     except Exception as e:
-        print(f"❌ Error en Shopify: {e}")
-    return pd.DataFrame(resultados).sort_values(by="Precio")
+        print(f"❌ Error en Premium Trendy: {e}")
     try:
         resultados += obtener_bitterheads(talla)
     except Exception as e:
         print(f"❌ Error en Bitterheads: {e}")
     try:
-        resultados += obtener_premiumtrendy()
+        resultados += obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
+        resultados += obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
     except Exception as e:
-        print(f"❌ Error en Premium Trendy: {e}")
+        print(f"❌ Error en Shopify: {e}")
     return pd.DataFrame(resultados).sort_values(by="Precio")
+
