@@ -12,9 +12,15 @@ def index():
     if request.method == "POST":
         talla = request.form.get("talla", "").strip()
         tienda = request.form.get("tienda", "").strip()
+
         if talla:
             print(f"🔎 Buscando productos talla {talla} en tienda: {tienda or 'Todas'}")
-            productos = buscar_todos(talla, tienda)
+            df = buscar_todos(talla, tienda)
+
+            if hasattr(df, "to_dict"):  # Si es un DataFrame válido
+                productos = df.to_dict(orient="records")
+            else:
+                productos = []
         else:
             productos = []
 
