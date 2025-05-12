@@ -89,12 +89,17 @@ def obtener_meatpack(talla):
 def obtener_lagrieta(talla):
     return obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "La Grieta", talla)
 
+import requests
+from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
-    page = 1
     base_url = "https://premiumtrendygt.com"
     products_api = f"{base_url}/wp-json/wc/store/products"
     headers = {"User-Agent": "Mozilla/5.0"}
+    max_pages = 2
+    page = 1
 
     def detectar_atributo_talla(html):
         soup = BeautifulSoup(html, "html.parser")
@@ -104,7 +109,7 @@ def obtener_premiumtrendy(talla):
     def verificar_disponibilidad(product_url, atributo_talla, talla_objetivo):
         url_con_talla = f"{product_url}?{atributo_talla}={talla_objetivo}"
         try:
-            r = requests.get(url_con_talla, headers=headers, timeout=10)
+            r = requests.get(url_con_talla, headers=headers, timeout=6)
             if r.status_code != 200:
                 return False
             soup = BeautifulSoup(r.text, "html.parser")
@@ -113,45 +118,30 @@ def obtener_premiumtrendy(talla):
         except:
             return False
 
-    while True:
-        print(f"🔄 Premium Trendy página {page}...")
-        resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page})
-        if resp.status_code != 200:
-            print(f"❌ Error Premium Trendy: {resp.status_code}")
-            break
+    def procesar_producto(prod):
+        nombre = prod.get("name")
+        url = prod.get("permalink")
+        etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
+        if "sneakers" not in etiquetas:
+            print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
+            return None
 
-        productos = resp.json()
-        if not productos:
-            print("✅ Fin productos Premium Trendy")
-            break
-
-        for prod in productos:
-            nombre = prod.get("name")
-            url = prod.get("permalink")
-            etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
-            if "sneakers" not in etiquetas:
-                print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
-                continue
-
-            try:
-                html = requests.get(url, headers=headers, timeout=10).text
-                atributo = detectar_atributo_talla(html)
-            except:
-                atributo = None
-
+        try:
+            html = requests.get(url, headers=headers, timeout=6).text
+            atributo = detectar_atributo_talla(html)
             if not atributo:
                 print(f"⏭️ {nombre} — Sin atributo de talla")
-                continue
+                return None
 
             if not verificar_disponibilidad(url, atributo, talla):
                 print(f"❌ {nombre} — Talla {talla} no disponible")
-                continue
+                return None
 
             precios = prod.get("prices", {})
             regular = int(precios.get("regular_price", 0)) / 100
             oferta = int(precios.get("sale_price", 0)) / 100
 
-            productos_disponibles.append({
+            return {
                 "Producto": nombre,
                 "Talla": talla,
                 "Precio": oferta if oferta > 0 else regular,
@@ -159,7 +149,33 @@ def obtener_premiumtrendy(talla):
                 "Imagen": prod.get("images", [{}])[0].get("src", ""),
                 "Tienda": "Premium Trendy",
                 "Marca": inferir_marca(nombre)
-            })
+            }
+        except Exception as e:
+            print(f"⚠️ Error procesando {nombre}: {e}")
+            return None
+
+    while page <= max_pages:
+        print(f"🔄 Premium Trendy página {page}...")
+        try:
+            resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=10)
+            if resp.status_code != 200:
+                print(f"❌ Error HTTP {resp.status_code} en página {page}")
+                break
+            productos = resp.json()
+        except Exception as e:
+            print(f"❌ Error solicitando productos: {e}")
+            break
+
+        if not productos:
+            print("✅ Fin productos Premium Trendy")
+            break
+
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = [executor.submit(procesar_producto, prod) for prod in productos]
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    productos_disponibles.append(result)
 
         page += 1
 
