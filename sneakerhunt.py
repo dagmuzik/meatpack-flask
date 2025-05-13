@@ -92,68 +92,70 @@ def obtener_lagrieta(talla):
 def obtener_premiumtrendy(talla):
     import requests
 
-    url_json = "https://premiumtrendygt.com/wp-json/sneakerhunter/json"
     headers = {"User-Agent": "Mozilla/5.0"}
-    talla_buscada = talla.replace(".", "-").strip()
+    base_url = "https://premiumtrendygt.com"
+    api_url = f"{base_url}/wp-json/wc/store/products"
     productos_disponibles = []
+    talla_buscada = talla.replace(".", "-").strip()
+    page = 1
 
-    try:
-        response = requests.get(url_json, headers=headers, timeout=10)
-        data = response.json()
+    while True:
+        print(f"🔄 Premium Trendy página {page}...")
+        try:
+            response = requests.get(api_url, headers=headers, params={
+                "on_sale": "true",
+                "per_page": 100,
+                "page": page
+            }, timeout=10)
 
-        # DEBUG: detecta si es lista o diccionario con productos
-        if isinstance(data, dict) and "products" in data:
-            productos = data["products"]
-        elif isinstance(data, list):
-            productos = data
-        else:
-            print("❌ Error en Premium Trendy: el JSON no es una lista ni contiene 'products'.")
-            print(f"Contenido recibido: {str(data)[:300]}...")  # para log corto
-            return []
+            if response.status_code != 200:
+                print(f"❌ Error Premium Trendy página {page}: {response.status_code}")
+                break
 
-    except Exception as e:
-        print(f"❌ Error al obtener JSON de Premium Trendy: {e}")
-        return []
+            productos = response.json()
+            if not isinstance(productos, list) or not productos:
+                print("✅ Fin productos Premium Trendy")
+                break
 
-    for prod in productos:
-        if not isinstance(prod, dict):
-            continue
+        except Exception as e:
+            print(f"❌ Error al obtener datos Premium Trendy: {e}")
+            break
 
-        nombre = prod.get("name", "")
-        url = prod.get("permalink", "")
-        imagenes = prod.get("images", [])
-        variaciones = prod.get("variations", [])
-        etiquetas = set(tag.get("name", "").lower() for tag in prod.get("tags", []))
+        for prod in productos:
+            nombre = prod.get("name", "")
+            url = prod.get("permalink", "")
+            variaciones = prod.get("variations", [])
+            imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+            etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
 
-        if not variaciones or not imagenes or "sneakers" not in etiquetas:
-            continue
+            if "sneakers" not in etiquetas or etiquetas & {"clothing", "hombre", "ralph lauren", "true"}:
+                print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
+                continue
 
-        if etiquetas & {"clothing", "true", "hombre", "ralph lauren"}:
-            print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
-            continue
+            precios = prod.get("prices", {})
+            regular = int(precios.get("regular_price", 0)) / 100
+            oferta = int(precios.get("sale_price", 0)) / 100
+            precio_final = oferta if oferta > 0 else regular
 
-        imagen = imagenes[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
-        precios = prod.get("prices", {})
-        regular = int(precios.get("regular_price", 0)) / 100
-        oferta = int(precios.get("sale_price", 0)) / 100
-        precio_final = oferta if oferta > 0 else regular
+            if precio_final == 0:
+                continue
 
-        if precio_final == 0:
-            continue
+            # Verificar si la talla está disponible
+            for var in variaciones:
+                for attr in var.get("attributes", []):
+                    if "talla" in attr.get("name", "").lower() and attr.get("value", "").strip() == talla_buscada:
+                        productos_disponibles.append({
+                            "Producto": nombre,
+                            "Talla": talla,
+                            "Precio": precio_final,
+                            "URL": url,
+                            "Imagen": imagen,
+                            "Tienda": "Premium Trendy",
+                            "Marca": inferir_marca(nombre)
+                        })
+                        break
 
-        for var in variaciones:
-            for attr in var.get("attributes", []):
-                if "talla" in attr.get("name", "").lower() and attr.get("value", "").strip() == talla_buscada:
-                    productos_disponibles.append({
-                        "Producto": nombre,
-                        "Talla": talla,
-                        "Precio": precio_final,
-                        "URL": url,
-                        "Imagen": imagen,
-                        "Tienda": "Premium Trendy",
-                        "Marca": inferir_marca(nombre)
-                    })
-                    break
+        page += 1
 
     return productos_disponibles
         
