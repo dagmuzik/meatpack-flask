@@ -103,9 +103,13 @@ def obtener_premiumtrendy(talla):
     etiquetas_invalidas = {"clothing", "accesorios", "birkenstock", "blackclover", "ralph lauren", "true"}
 
     def detectar_atributo_talla(html):
-        soup = BeautifulSoup(html, "html.parser")
-        select = soup.find("select", {"name": lambda x: x and "attribute_pa_talla" in x})
-        return select["name"] if select else None
+        try:
+            soup = BeautifulSoup(html, "html.parser")
+            select = soup.find("select", {"name": lambda x: x and "attribute_pa_talla" in x})
+            return select["name"] if select else None
+        except Exception as e:
+            print(f"⚠️ Error al analizar HTML para atributo de talla: {e}")
+            return None
 
     def producto_valido(prod):
         nombre = prod.get("name")
@@ -116,23 +120,29 @@ def obtener_premiumtrendy(talla):
             return None
 
         try:
-            html = requests.get(url, headers=headers, timeout=8).text
-            atributo = detectar_atributo_talla(html)
-            if not atributo:
-                print(f"⏭️ {nombre} — Sin atributo de talla")
-                return None
+            html = requests.get(url, headers=headers, timeout=6).text
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ Error obteniendo HTML de {nombre}: {e}")
+            return None
 
-            url_con_talla = f"{url}?{atributo}={talla}"
-            r = requests.get(url_con_talla, headers=headers, timeout=8)
+        atributo = detectar_atributo_talla(html)
+        if not atributo:
+            print(f"⏭️ {nombre} — Sin atributo de talla")
+            return None
+
+        url_con_talla = f"{url}?{atributo}={talla}"
+        try:
+            r = requests.get(url_con_talla, headers=headers, timeout=6)
             if r.status_code != 200:
+                print(f"⚠️ {nombre} — respuesta {r.status_code}")
                 return None
             soup = BeautifulSoup(r.text, "html.parser")
             boton = soup.select_one("button.single_add_to_cart_button")
             if not boton or "disabled" in boton.get("class", []):
                 print(f"❌ {nombre} — Talla {talla} no disponible")
                 return None
-        except Exception as e:
-            print(f"⚠️ Error verificando {nombre}: {e}")
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ Timeout u error al verificar {nombre}: {e}")
             return None
 
         precios = prod.get("prices", {})
@@ -160,8 +170,8 @@ def obtener_premiumtrendy(talla):
                 print(f"❌ Error HTTP {resp.status_code} en página {page}")
                 break
             productos = resp.json()
-        except Exception as e:
-            print(f"❌ Error solicitando productos: {e}")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error solicitando productos en página {page}: {e}")
             break
 
         if not productos:
@@ -171,7 +181,6 @@ def obtener_premiumtrendy(talla):
         for prod in productos:
             if len(productos_disponibles) >= 10:
                 return productos_disponibles
-
             resultado = producto_valido(prod)
             if resultado:
                 productos_disponibles.append(resultado)
