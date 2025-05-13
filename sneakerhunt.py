@@ -97,7 +97,7 @@ import gc
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
     page = 1
-    max_pages = 3  # Evita recorrer demasiado y agotar recursos
+    max_pages = 2  # Reducido para prevenir timeouts
     base_url = "https://premiumtrendygt.com"
     products_api = f"{base_url}/wp-json/wc/store/products"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -170,7 +170,10 @@ def obtener_premiumtrendy(talla):
             print("✅ Fin productos Premium Trendy")
             break
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        # Filtro previo para aliviar la carga del executor
+        productos = [p for p in productos if "sneakers" in {tag["name"].lower() for tag in p.get("tags", [])}]
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [executor.submit(verificar_producto, prod) for prod in productos]
             for future in as_completed(futures, timeout=40):
                 try:
