@@ -99,10 +99,16 @@ def obtener_premiumtrendy(talla):
 
     try:
         response = requests.get(url_json, headers=headers, timeout=10)
-        productos = response.json()
-        if not isinstance(productos, list):
-            print("❌ Error en Premium Trendy: el JSON no es una lista.")
+        data = response.json()
+
+        if isinstance(data, dict) and "products" in data:
+            productos = data["products"]
+        elif isinstance(data, list):
+            productos = data
+        else:
+            print("❌ Error en Premium Trendy: el JSON no contiene lista de productos.")
             return []
+
     except Exception as e:
         print(f"❌ Error al obtener JSON de Premium Trendy: {e}")
         return []
@@ -148,7 +154,7 @@ def obtener_premiumtrendy(talla):
                     break
 
     return productos_disponibles
-
+        
 def obtener_bitterheads(talla):
     productos = []
     vistos = set()
