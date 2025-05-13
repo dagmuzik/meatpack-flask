@@ -1,260 +1,189 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>SneakerHunter</title>
   <style>
     body {
+      font-family: 'Helvetica Neue', sans-serif;
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      padding: 0;
+      background: #f2f2f2;
     }
-
     header {
       display: flex;
       align-items: center;
+      background: #000;
+      color: white;
+      padding: 10px 20px;
+    }
+    header img {
+      height: 40px;
+      margin-right: 12px;
+    }
+    header h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
       padding: 20px;
     }
-
-    header img {
-      height: 50px;
-      margin-right: 15px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    header p {
-      margin: 0;
-      font-size: 14px;
-      color: #666;
-    }
-
     form {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
       justify-content: center;
-      gap: 15px;
-      margin: 30px auto;
-      max-width: 900px;
+      margin-bottom: 30px;
     }
-
-    form label {
-      font-weight: bold;
-      display: block;
-    }
-
-    form input,
-    form select {
-      padding: 10px;
-      width: 200px;
-      border-radius: 6px;
+    input, select, button {
+      padding: 8px;
       border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
     }
-
     button {
       background: black;
       color: white;
-      padding: 10px 20px;
-      border-radius: 6px;
-      border: none;
       cursor: pointer;
     }
-
-    .logo-centered {
-      text-align: center;
-      margin-top: 50px;
-      animation: fadeIn 0.6s ease-in-out;
-      transition: opacity 0.5s ease;
+    button:hover {
+      background: #333;
     }
-
-    .logo-centered img {
-      width: 260px;
-      max-width: 90%;
-    }
-
-    .logo-centered.hide {
-      opacity: 0;
-      visibility: hidden;
-      height: 0;
-      margin: 0;
-    }
-
     .loader {
-      text-align: center;
-      margin-top: 20px;
       display: none;
+      text-align: center;
+      margin: 40px 0;
     }
-
-    .loader.active {
-      display: block;
-    }
-
     .loader img {
-      width: 60px;
-      height: 60px;
+      width: 100px;
+      height: auto;
     }
-
     .card-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
-      padding: 20px;
     }
-
     .card {
       background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       width: 230px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
-      text-align: center;
+      transition: transform 0.2s ease;
     }
-
+    .card:hover {
+      transform: scale(1.02);
+    }
     .card img {
       width: 100%;
-      height: 200px;
-      object-fit: contain;
-      background: #fff;
+      height: 220px;
+      object-fit: cover;
     }
-
     .card-body {
-      padding: 15px;
-    }
-
-    .card-body h4 {
-      font-size: 16px;
-      margin: 5px 0;
-    }
-
-    .card-body p {
-      margin: 4px 0;
-      color: #555;
-    }
-
-    .card-body .store {
-      font-size: 12px;
-      color: #888;
-      font-style: italic;
-    }
-
-    footer {
-      text-align: center;
-      padding: 40px 20px 20px;
-      color: #666;
+      padding: 12px;
       font-size: 14px;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .card-body h4 {
+      margin: 0 0 6px;
+      font-size: 15px;
     }
-
-    @media screen and (max-width: 600px) {
-      form {
-        flex-direction: column;
-        align-items: center;
-      }
-      form input,
-      form select {
+    .card-body p {
+      margin: 4px 0;
+    }
+    .card-body .btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 12px;
+      background: #000;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      padding: 20px;
+      background: #000;
+      color: white;
+      font-size: 14px;
+    }
+    @media (max-width: 600px) {
+      .card {
         width: 100%;
-        max-width: 300px;
       }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <a href="/">
-      <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="Logo">
-    </a>
-    <div>
-      <h1>SneakerHunter</h1>
-      <p>Buscador de sneakers en oferta en tiendas online de Guatemala</p>
-    </div>
-  </header>
+<header>
+  <a href="/"><img src="/static/hunter_logo.png" alt="SneakerHunter"></a>
+  <h1>SneakerHunter</h1>
+</header>
 
-  <form method="POST" id="filtros">
-    <div>
-      <label for="talla">Talla:</label>
-      <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
-    </div>
-    <div>
-      <label for="marca">Marca:</label>
-      <select name="marca">
-        <option value="">Todas</option>
-        <option value="adidas" {% if marca == 'adidas' %}selected{% endif %}>Adidas</option>
-        <option value="nike" {% if marca == 'nike' %}selected{% endif %}>Nike</option>
-        <option value="vans" {% if marca == 'vans' %}selected{% endif %}>Vans</option>
-        <option value="new balance" {% if marca == 'new balance' %}selected{% endif %}>New Balance</option>
-        <option value="saucony" {% if marca == 'saucony' %}selected{% endif %}>Saucony</option>
-        <option value="converse" {% if marca == 'converse' %}selected{% endif %}>Converse</option>
-        <option value="stepney" {% if marca == 'stepney' %}selected{% endif %}>Stepney</option>
-      </select>
-    </div>
-    <div>
-      <label for="tienda">Tienda:</label>
-      <select name="tienda">
-        <option value="">Todas</option>
-        <option value="Kicks" {% if tienda == 'Kicks' %}selected{% endif %}>Kicks</option>
-        <option value="Meatpack" {% if tienda == 'Meatpack' %}selected{% endif %}>Meatpack</option>
-        <option value="Bitterheads" {% if tienda == 'Bitterheads' %}selected{% endif %}>Bitterheads</option>
-        <option value="La Grieta" {% if tienda == 'La Grieta' %}selected{% endif %}>La Grieta</option>
-        <option value="Adidas" {% if tienda == 'Adidas' %}selected{% endif %}>Adidas</option>
-        <option value="Premium Trendy" {% if tienda == 'Premium Trendy' %}selected{% endif %}>Premium Trendy</option>
-      </select>
-    </div>
+<div class="container">
+  <form method="post" onsubmit="mostrarLoader()">
+    <input type="text" name="talla" placeholder="Talla (Ej. 9, 9.5)" value="{{ talla or '' }}">
+    <select name="tienda">
+      <option value="">Todas las tiendas</option>
+      <option value="Adidas" {% if tienda=='Adidas' %}selected{% endif %}>Adidas</option>
+      <option value="Kicks" {% if tienda=='Kicks' %}selected{% endif %}>Kicks</option>
+      <option value="Meatpack" {% if tienda=='Meatpack' %}selected{% endif %}>Meatpack</option>
+      <option value="La Grieta" {% if tienda=='La Grieta' %}selected{% endif %}>La Grieta</option>
+      <option value="Bitterheads" {% if tienda=='Bitterheads' %}selected{% endif %}>Bitterheads</option>
+      <option value="Premium Trendy" {% if tienda=='Premium Trendy' %}selected{% endif %}>Premium Trendy</option>
+    </select>
+    <select name="marca">
+      <option value="">Todas las marcas</option>
+      {% for m in ['adidas', 'nike', 'new balance', 'vans', 'puma', 'saucony', 'converse', 'stepney'] %}
+        <option value="{{ m }}" {% if marca==m %}selected{% endif %}>{{ m|capitalize }}</option>
+      {% endfor %}
+    </select>
     <button type="submit">Buscar</button>
   </form>
 
-  {% if productos is not defined or productos is none %}
-    <div class="logo-centered" id="mainLogo">
-      <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="SneakerHunter Logo">
-    </div>
-  {% elif productos|length == 0 %}
-    <div class="logo-centered">
-      <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="SneakerHunter Logo">
-    </div>
-    <div class="loader active">
-      <p>❌ No se encontraron resultados con esos filtros.</p>
-    </div>
-  {% else %}
-    <div class="card-container" id="resultsSection">
-      {% for p in productos %}
-      <div class="card">
-        <img src="{{ p.Imagen }}" alt="{{ p.Producto }}">
-        <div class="card-body">
-          <p class="store">{{ p.Marca|title }} · {{ p.Tienda }}</p>
-          <h4>{{ p.Producto }}</h4>
-          <p>Talla: {{ p.Talla }}</p>
-          <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
-          <a href="{{ p.URL }}" class="btn" target="_blank">Ver producto</a>
-        </div>
+  <div class="loader" id="loader">
+    <img src="/static/sneakerhunt.gif" alt="Buscando...">
+    <p>Buscando ofertas...</p>
+  </div>
+
+  {% if productos is not none %}
+    {% if productos|length == 0 %}
+      <p style="text-align:center;">❌ No se encontraron resultados con esos filtros</p>
+    {% else %}
+      <div class="card-container">
+        {% for p in productos %}
+          <div class="card">
+            <img src="{{ p.Imagen }}" alt="{{ p.Producto }}">
+            <div class="card-body">
+              <h4>{{ p.Producto }}</h4>
+              <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
+              <p>Talla: {{ p.Talla }}</p>
+              <p><em>{{ p.Tienda }}</em></p>
+              <a class="btn" href="{{ p.URL }}" target="_blank">Ver producto</a>
+            </div>
+          </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
+    {% endif %}
   {% endif %}
+</div>
 
-  <footer>
-    <p>Buscá, compará y cazá tu próximo par</p>
-    <p>© 2024 SneakerHunter GT. Todos los derechos reservados.</p>
-  </footer>
+<footer>
+  <p>Buscá, compará y cazá tu próximo par</p>
+  <p>&copy; 2025 SneakerHunter. Todos los derechos reservados.</p>
+</footer>
 
-  <script>
-    const form = document.getElementById("filtros");
-    const loader = document.getElementById("loader");
-    const logo = document.getElementById("mainLogo");
-
-    form.addEventListener("submit", () => {
-      if (loader) loader.classList.add("active");
-      if (logo) logo.classList.add("hide");
-    });
-  </script>
+<script>
+  function mostrarLoader() {
+    document.getElementById("loader").style.display = "block";
+  }
+</script>
 
 </body>
 </html>
