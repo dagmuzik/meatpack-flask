@@ -107,7 +107,7 @@ def obtener_premiumtrendy(talla):
     def verificar_disponibilidad(product_url, atributo_talla, talla_objetivo):
         url_con_talla = f"{product_url}?{atributo_talla}={talla_objetivo}"
         try:
-            r = requests.get(url_con_talla, headers=headers, timeout=6)
+            r = requests.get(url_con_talla, headers=headers, timeout=5)
             if r.status_code != 200:
                 return False
             soup = BeautifulSoup(r.text, "html.parser")
@@ -116,7 +116,7 @@ def obtener_premiumtrendy(talla):
         except:
             return False
 
-    while page <= 2:
+    while page <= 2 and len(productos_disponibles) < 5:
         print(f"🔄 Premium Trendy página {page}...")
         try:
             resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=6)
@@ -130,6 +130,9 @@ def obtener_premiumtrendy(talla):
             break
 
         for prod in productos:
+            if len(productos_disponibles) >= 5:
+                break
+
             nombre = prod.get("name")
             url = prod.get("permalink")
             etiquetas = {tag["name"].lower() for tag in prod.get("tags", [])}
@@ -146,7 +149,7 @@ def obtener_premiumtrendy(talla):
             precio_final = oferta if oferta > 0 else regular
 
             try:
-                html = requests.get(url, headers=headers, timeout=6).text
+                html = requests.get(url, headers=headers, timeout=5).text
                 atributo = detectar_atributo_talla(html)
             except:
                 print(f"⏭️ {nombre} — No se pudo obtener atributo de talla")
