@@ -91,13 +91,11 @@ def obtener_lagrieta(talla):
 
 import requests
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import gc
 
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
     page = 1
-    max_pages = 2  # Máximo 2 páginas para evitar timeout
+    max_pages = 2
     base_url = "https://premiumtrendygt.com"
     products_api = f"{base_url}/wp-json/wc/store/products"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -109,7 +107,7 @@ def obtener_premiumtrendy(talla):
         select = soup.find("select", {"name": lambda x: x and "attribute_pa_talla" in x})
         return select["name"] if select else None
 
-    def verificar_producto(prod):
+    def producto_valido(prod):
         nombre = prod.get("name")
         url = prod.get("permalink")
         etiquetas = {tag["name"].lower() for tag in prod.get("tags", [])}
@@ -170,21 +168,14 @@ def obtener_premiumtrendy(talla):
             print("✅ Fin productos Premium Trendy")
             break
 
-        productos = [p for p in productos if "sneakers" in {tag["name"].lower() for tag in p.get("tags", [])}]
+        for prod in productos:
+            if len(productos_disponibles) >= 10:
+                return productos_disponibles
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            futures = [executor.submit(verificar_producto, prod) for prod in productos]
-            for future in as_completed(futures, timeout=30):
-                try:
-                    result = future.result(timeout=8)
-                    if result:
-                        productos_disponibles.append(result)
-                        if len(productos_disponibles) >= 10:
-                            return productos_disponibles
-                except Exception as e:
-                    print(f"⚠️ Tarea interrumpida o lenta: {e}")
+            resultado = producto_valido(prod)
+            if resultado:
+                productos_disponibles.append(resultado)
 
-        gc.collect()
         page += 1
 
     return productos_disponibles
