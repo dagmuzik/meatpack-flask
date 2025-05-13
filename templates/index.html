@@ -134,7 +134,13 @@
 <body>
 
 <header>
-  <a href="/"><img src="/static/img/hunter_logo.png" alt="SneakerHunter" /></a>
+  <a href="/">
+    <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="Logo">
+  </a>
+  <div>
+    <h1>SneakerHunter</h1>
+    <p>Buscador de sneakers en oferta en tiendas online de Guatemala</p>
+  </div>
 </header>
 
 <div class="container">
