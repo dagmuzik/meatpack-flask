@@ -97,7 +97,7 @@ import gc
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
     page = 1
-    max_pages = 3  # Límite preventivo para evitar timeout
+    max_pages = 3  # Evita recorrer demasiado y agotar recursos
     base_url = "https://premiumtrendygt.com"
     products_api = f"{base_url}/wp-json/wc/store/products"
     headers = {"User-Agent": "Mozilla/5.0"}
