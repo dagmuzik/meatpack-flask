@@ -9,19 +9,16 @@ def index():
     talla = ""
     tienda = ""
     marca = ""
+    genero = ""
 
     if request.method == "POST":
         talla = request.form.get("talla", "").strip()
         tienda = request.form.get("tienda", "").strip()
         marca = request.form.get("marca", "").strip()
+        genero = request.form.get("genero", "").strip()
+        productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero)
 
-        try:
-            productos = buscar_todos(talla=talla, tienda=tienda, marca=marca)
-        except Exception as e:
-            print("❌ Error en búsqueda:", str(e))
-            productos = []
-
-    return render_template("index.html", productos=productos, talla=talla, tienda=tienda, marca=marca)
+    return render_template("index.html", productos=productos, talla=talla, tienda=tienda, marca=marca, genero=genero)
 
 if __name__ == "__main__":
     app.run(debug=True)
