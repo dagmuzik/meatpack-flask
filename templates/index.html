@@ -133,8 +133,13 @@
 <body>
 
 <header>
-  <a href="/"><img src="/static/img/hunter_logo.png" alt="SneakerHunter" /></a>
-</header>
+    <a href="/">
+      <img src="{{ url_for('static', filename='img/hunter_logo.png') }}" alt="Logo">
+    </a>
+    <div>
+      <h1>SneakerHunter</h1>
+    </div>
+  </header>
 
 <div class="container">
   <div class="center-logo">
