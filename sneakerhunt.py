@@ -69,11 +69,15 @@ def obtener_shopify(url, tienda, talla):
             if talla_coincide(talla, var.get("title", "")) and var.get("available"):
                 try:
                     precio = float(var["price"])
+                    nombre = prod["title"]
+                    genero = inferir_genero(nombre)
+
                     productos.append({
-                        "Producto": prod["title"],
+                        "Producto": nombre,
                         "Talla": var["title"],
                         "Precio": precio,
-                        "Marca": inferir_marca(prod["title"]),
+                        "Marca": inferir_marca(nombre),
+                        "Genero": genero,
                         "Tienda": tienda,
                         "URL": f'https://{url.split("/")[2]}/products/{prod["handle"]}',
                         "Imagen": img
@@ -81,7 +85,6 @@ def obtener_shopify(url, tienda, talla):
                 except Exception as e:
                     print(f"⚠️ Error al procesar producto {prod.get('title')}: {e}")
     return productos
-
 
 def obtener_meatpack(talla):
     return obtener_shopify("https://meatpack.com/collections/special-price/products.json", "Meatpack", talla)
