@@ -55,6 +55,16 @@ def inferir_marca(nombre):
         return "puma"
     return ""
 
+def inferir_genero(nombre):
+    nombre = nombre.lower()
+    if "mujer" in nombre:
+        return "mujer"
+    if "hombre" in nombre:
+        return "hombre"
+    if "unisex" in nombre:
+        return "unisex"
+    return ""  # No identificado
+
 def obtener_shopify(url, tienda, talla):
     try:
         data = get_json(url)
