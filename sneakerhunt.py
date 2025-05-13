@@ -122,38 +122,48 @@ def obtener_premiumtrendy(talla):
             break
 
         for prod in productos:
-            nombre = prod.get("name", "")
-            url = prod.get("permalink", "")
-            variaciones = prod.get("variations", [])
-            imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
-            etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
+            try:
+                nombre = prod.get("name", "")
+                url = prod.get("permalink", "")
+                variaciones = prod.get("variations", [])
+                imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+                etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
 
-            if "sneakers" not in etiquetas or etiquetas & {"clothing", "hombre", "ralph lauren", "true"}:
-                print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
-                continue
+                if "sneakers" not in etiquetas or etiquetas & {"clothing", "hombre", "ralph lauren", "true"}:
+                    print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
+                    continue
 
-            precios = prod.get("prices", {})
-            regular = int(precios.get("regular_price", 0)) / 100
-            oferta = int(precios.get("sale_price", 0)) / 100
-            precio_final = oferta if oferta > 0 else regular
+                precios = prod.get("prices", {})
+                regular = int(precios.get("regular_price", 0)) / 100
+                oferta = int(precios.get("sale_price", 0)) / 100
+                precio_final = oferta if oferta > 0 else regular
 
-            if precio_final == 0:
-                continue
+                if precio_final == 0:
+                    continue
 
-            # Verificar si la talla está disponible
-            for var in variaciones:
-                for attr in var.get("attributes", []):
-                    if "talla" in attr.get("name", "").lower() and attr.get("value", "").strip() == talla_buscada:
-                        productos_disponibles.append({
-                            "Producto": nombre,
-                            "Talla": talla,
-                            "Precio": precio_final,
-                            "URL": url,
-                            "Imagen": imagen,
-                            "Tienda": "Premium Trendy",
-                            "Marca": inferir_marca(nombre)
-                        })
+                talla_encontrada = False
+                for var in variaciones:
+                    for attr in var.get("attributes", []):
+                        if "talla" in attr.get("name", "").lower() and attr.get("value", "").strip() == talla_buscada:
+                            talla_encontrada = True
+                            break
+                    if talla_encontrada:
                         break
+
+                if talla_encontrada:
+                    productos_disponibles.append({
+                        "Producto": nombre,
+                        "Talla": talla,
+                        "Precio": precio_final,
+                        "URL": url,
+                        "Imagen": imagen,
+                        "Tienda": "Premium Trendy",
+                        "Marca": inferir_marca(nombre)
+                    })
+
+            except Exception as e:
+                print(f"⚠️ Error procesando producto: {e}")
+                continue
 
         page += 1
 
