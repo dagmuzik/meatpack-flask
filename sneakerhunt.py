@@ -283,10 +283,10 @@ def obtener_kicks(talla_buscada):
             })
     return resultados
 
-def buscar_todos(talla="", tienda="", marca=""):
+def buscar_todos(talla="", tienda="", marca="", genero=""):
     from pandas import DataFrame
 
-    print(f"\n🔎 Buscando productos talla {talla or '[cualquiera]'} en tienda: {tienda or 'Todas'} con marca: {marca or 'Todas'}")
+    print(f"\n🔎 Buscando productos talla {talla or '[cualquiera]'} en tienda: {tienda or 'Todas'} con marca: {marca or 'Todas'} con género: {genero or 'Todos'}")
 
     resultados = []
 
@@ -321,10 +321,13 @@ def buscar_todos(talla="", tienda="", marca=""):
         marca = marca.strip().lower()
         resultados = [p for p in resultados if p.get("Marca", "").lower() == marca]
 
+    # Filtrar por género si se indicó
+    if genero:
+        genero = genero.strip().lower()
+        resultados = [p for p in resultados if p.get("Genero", "").lower() == genero]
+
     try:
         return DataFrame(resultados).sort_values(by="Precio").to_dict("records")
     except Exception as e:
         print("❌ Error final al ordenar/convertir:", str(e))
         return []
-
-
