@@ -92,14 +92,13 @@ def obtener_lagrieta(talla):
 def obtener_premiumtrendy(talla):
     import requests
 
-    url_json = "https://premiumtrendygt.com/wp-json/sneakerhunter/json"  # reemplazar si cambia
+    url_json = "https://premiumtrendygt.com/wp-json/sneakerhunter/json"
     headers = {"User-Agent": "Mozilla/5.0"}
-
     talla_buscada = talla.replace(".", "-").strip()
     productos_disponibles = []
 
     try:
-        response = requests.get(url_json, headers=headers, timeout=6)
+        response = requests.get(url_json, headers=headers, timeout=10)
         productos = response.json()
     except Exception as e:
         print(f"❌ Error al obtener JSON de Premium Trendy: {e}")
@@ -110,8 +109,13 @@ def obtener_premiumtrendy(talla):
         url = prod.get("permalink", "")
         imagenes = prod.get("images", [])
         variaciones = prod.get("variations", [])
+        etiquetas = set(tag.get("name", "").lower() for tag in prod.get("tags", []))
 
-        if not variaciones or not imagenes:
+        if not variaciones or not imagenes or "sneakers" not in etiquetas:
+            continue
+
+        if any(b in etiquetas for b in ["clothing", "true", "hombre", "ralph lauren"]):
+            print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
             continue
 
         imagen = imagenes[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
