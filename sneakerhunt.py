@@ -97,7 +97,7 @@ import gc
 def obtener_premiumtrendy(talla):
     productos_disponibles = []
     page = 1
-    max_pages = 2  # Reducido para prevenir timeouts
+    max_pages = 2  # Máximo 2 páginas para evitar timeout
     base_url = "https://premiumtrendygt.com"
     products_api = f"{base_url}/wp-json/wc/store/products"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -157,7 +157,7 @@ def obtener_premiumtrendy(talla):
     while page <= max_pages:
         print(f"🔄 Premium Trendy página {page}...")
         try:
-            resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=10)
+            resp = requests.get(products_api, headers=headers, params={"on_sale": "true", "per_page": 40, "page": page}, timeout=10)
             if resp.status_code != 200:
                 print(f"❌ Error HTTP {resp.status_code} en página {page}")
                 break
@@ -170,16 +170,17 @@ def obtener_premiumtrendy(talla):
             print("✅ Fin productos Premium Trendy")
             break
 
-        # Filtro previo para aliviar la carga del executor
         productos = [p for p in productos if "sneakers" in {tag["name"].lower() for tag in p.get("tags", [])}]
 
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [executor.submit(verificar_producto, prod) for prod in productos]
-            for future in as_completed(futures, timeout=40):
+            for future in as_completed(futures, timeout=30):
                 try:
                     result = future.result(timeout=8)
                     if result:
                         productos_disponibles.append(result)
+                        if len(productos_disponibles) >= 10:
+                            return productos_disponibles
                 except Exception as e:
                     print(f"⚠️ Tarea interrumpida o lenta: {e}")
 
