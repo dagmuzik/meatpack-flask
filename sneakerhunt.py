@@ -310,41 +310,31 @@ def buscar_todos(talla="", tienda="", marca=""):
 
     resultados = []
 
-    if tienda in ("", "Adidas"):
+    def agregar(funcion, nombre):
         try:
-            resultados += obtener_adidas(talla)
+            print(f"🔍 Revisando {nombre}...")
+            datos = funcion(talla)
+            resultados.extend(datos)
         except Exception as e:
-            print(f"❌ Error en Adidas: {e}")
+            print(f"❌ Error en {nombre}: {e}")
+
+    if tienda in ("", "Adidas"):
+        agregar(obtener_adidas, "Adidas")
 
     if tienda in ("", "Kicks"):
-        try:
-            resultados += obtener_kicks(talla)
-        except Exception as e:
-            print(f"❌ Error en Kicks: {e}")
+        agregar(obtener_kicks, "Kicks")
 
     if tienda in ("", "Bitterheads"):
-        try:
-            resultados += obtener_bitterheads(talla)
-        except Exception as e:
-            print(f"❌ Error en Bitterheads: {e}")
+        agregar(obtener_bitterheads, "Bitterheads")
 
     if tienda in ("", "Meatpack"):
-        try:
-            resultados += obtener_meatpack(talla)
-        except Exception as e:
-            print(f"❌ Error en Meatpack: {e}")
+        agregar(obtener_meatpack, "Meatpack")
 
     if tienda in ("", "La Grieta"):
-        try:
-            resultados += obtener_lagrieta(talla)
-        except Exception as e:
-            print(f"❌ Error en La Grieta: {e}")
+        agregar(obtener_lagrieta, "La Grieta")
 
     if tienda in ("", "Premium Trendy"):
-        try:
-            resultados += obtener_premiumtrendy(talla)
-        except Exception as e:
-            print(f"❌ Error en Premium Trendy: {e}")
+        agregar(obtener_premiumtrendy, "Premium Trendy")
 
     # Filtrar por marca si se indicó
     if marca:
