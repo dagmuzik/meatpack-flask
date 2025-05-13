@@ -6,23 +6,24 @@
   <style>
     body {
       font-family: 'Helvetica Neue', sans-serif;
+      background: #f6f7f9;
       margin: 0;
       padding: 0;
-      background: #f2f2f2;
+      color: #333;
     }
     header {
       display: flex;
       align-items: center;
-      background: #000;
-      color: white;
-      padding: 10px 20px;
+      padding: 12px 20px;
+      background: white;
+      border-bottom: 1px solid #ccc;
     }
     header img {
-      height: 40px;
-      margin-right: 12px;
+      height: 32px;
+      margin-right: 10px;
     }
     header h1 {
-      font-size: 20px;
+      font-size: 18px;
       margin: 0;
     }
     .container {
@@ -33,24 +34,25 @@
     form {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
       justify-content: center;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
     input, select, button {
-      padding: 8px;
+      padding: 10px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
       font-size: 14px;
     }
     button {
       background: black;
       color: white;
+      font-weight: bold;
       cursor: pointer;
     }
     button:hover {
-      background: #333;
+      background: #222;
     }
     .loader {
       display: none;
@@ -58,8 +60,13 @@
       margin: 40px 0;
     }
     .loader img {
-      width: 100px;
+      width: 80px;
       height: auto;
+    }
+    .hero-logo {
+      display: block;
+      margin: 0 auto 30px auto;
+      max-width: 180px;
     }
     .card-container {
       display: flex;
@@ -69,14 +76,14 @@
     }
     .card {
       background: white;
-      width: 230px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 240px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
       overflow: hidden;
       transition: transform 0.2s ease;
     }
     .card:hover {
-      transform: scale(1.02);
+      transform: translateY(-4px);
     }
     .card img {
       width: 100%;
@@ -84,37 +91,43 @@
       object-fit: cover;
     }
     .card-body {
-      padding: 12px;
-      font-size: 14px;
+      padding: 14px;
     }
     .card-body h4 {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       font-size: 15px;
     }
     .card-body p {
       margin: 4px 0;
+      font-size: 13px;
     }
     .card-body .btn {
       display: inline-block;
-      margin-top: 8px;
+      margin-top: 10px;
       padding: 6px 12px;
-      background: #000;
+      background: black;
       color: white;
       text-decoration: none;
       border-radius: 4px;
+      font-size: 13px;
       font-weight: bold;
     }
     footer {
-      margin-top: 40px;
       text-align: center;
-      padding: 20px;
-      background: #000;
-      color: white;
+      padding: 24px;
       font-size: 14px;
+      color: #666;
     }
-    @media (max-width: 600px) {
+    footer p {
+      margin: 6px 0;
+    }
+    @media (max-width: 640px) {
+      form {
+        flex-direction: column;
+        align-items: stretch;
+      }
       .card {
-        width: 100%;
+        width: 90%;
       }
     }
   </style>
@@ -122,13 +135,13 @@
 <body>
 
 <header>
-  <a href="/"><img src="/static/hunter_logo.png" alt="SneakerHunter"></a>
+  <a href="/"><img src="/static/logo.png" alt="SneakerHunter"></a>
   <h1>SneakerHunter</h1>
 </header>
 
 <div class="container">
   <form method="post" onsubmit="mostrarLoader()">
-    <input type="text" name="talla" placeholder="Talla (Ej. 9, 9.5)" value="{{ talla or '' }}">
+    <input type="text" name="talla" placeholder="Talla (Ej. 9)" value="{{ talla or '' }}">
     <select name="tienda">
       <option value="">Todas las tiendas</option>
       <option value="Adidas" {% if tienda=='Adidas' %}selected{% endif %}>Adidas</option>
@@ -147,9 +160,13 @@
     <button type="submit">Buscar</button>
   </form>
 
+  {% if not productos %}
+    <img class="hero-logo" src="/static/logo.png" alt="SneakerHunter">
+  {% endif %}
+
   <div class="loader" id="loader">
     <img src="/static/sneakerhunt.gif" alt="Buscando...">
-    <p>Buscando ofertas...</p>
+    <p>Cazando sneakers en oferta...</p>
   </div>
 
   {% if productos is not none %}
