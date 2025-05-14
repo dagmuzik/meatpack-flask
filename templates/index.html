@@ -233,10 +233,10 @@
     </select>
 <label for="tienda">Tienda:</label>
 <select name="tienda">
-<option value="">Todas</option>
-     {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
-       <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
-      {% endfor %}
+  <option value="">Todas</option>
+  {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
+    <option value="{{ m }}" {% if tienda == m %}selected{% endif %}>{{ m.title() }}</option>
+  {% endfor %}
     </select>
 <label for="genero">Género:</label>
 <select name="genero">
