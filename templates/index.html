@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,14 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SneakerHunter</title>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background-color: #f9f9f9; }
-    header { background: #fff; padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid #ddd; flex-wrap: wrap; }
-    header img { height: 40px; margin-right: 10px; }
-    .title-container { display: flex; flex-direction: column; }
-    .title-container h1 { margin: 0; font-size: 24px; }
-    .title-container span { font-size: 14px; color: #666; }
-    main { padding: 20px; text-align: center; }
-    #loader { display: none; margin: 20px auto; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    header {
+      background: #fff;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      flex-wrap: wrap;
+    }
+
+    header img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .title-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-container h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .title-container span {
+      font-size: 14px;
+      color: #666;
+    }
+
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+
+    #loader {
+      display: none;
+      margin: 20px auto;
+    }
+
     form {
       display: flex;
       flex-wrap: wrap;
@@ -22,10 +58,12 @@
       gap: 10px;
       margin-top: 20px;
     }
+
     form input, form select {
       padding: 8px;
       font-size: 14px;
     }
+
     form button {
       background: #000;
       color: white;
@@ -33,6 +71,7 @@
       padding: 8px 16px;
       cursor: pointer;
     }
+
     .card-container {
       display: flex;
       flex-wrap: wrap;
@@ -40,6 +79,7 @@
       justify-content: center;
       margin-top: 20px;
     }
+
     .card {
       width: 220px;
       background: white;
@@ -49,17 +89,20 @@
       display: flex;
       flex-direction: column;
     }
+
     .card img {
       width: 100%;
       height: 220px;
       object-fit: contain;
       background: #f2f2f2;
     }
+
     .card-body {
       padding: 10px;
       font-size: 14px;
       text-align: left;
     }
+
     .btn {
       display: inline-block;
       margin-top: 10px;
@@ -70,12 +113,14 @@
       border-radius: 4px;
       text-decoration: none;
     }
+
     footer {
       text-align: center;
       margin-top: 40px;
       font-size: 13px;
       color: #777;
     }
+
     #modalTallas {
       display: none;
       position: fixed;
@@ -86,6 +131,7 @@
       justify-content: center;
       align-items: center;
     }
+
     #modalTallas .contenido {
       background: white;
       padding: 30px 20px;
@@ -96,18 +142,42 @@
       position: relative;
       text-align: center;
     }
+
     #modalTallas .contenido table {
       border-collapse: collapse;
-      margin: 10px auto;
+      margin: 10px auto 20px;
     }
+
     #modalTallas .contenido th, td {
       border: 1px solid #ccc;
       padding: 6px 10px;
     }
+
+    #modalTallas .cerrar {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      cursor: pointer;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
     .logo-modal {
       width: 100px;
       margin: 0 auto 10px;
     }
+
+    .boton-cerrar-movil {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     #popup-tip {
       display:none;
       position:fixed;
@@ -121,13 +191,22 @@
       max-width: 300px;
       z-index:9999;
     }
+
     @media (max-width: 600px) {
-      form { flex-direction: column; }
-      #modalTallas .contenido { padding: 20px 10px; }
+      form {
+        flex-direction: column;
+      }
+      .boton-cerrar-movil {
+        display: inline-block;
+      }
+      #modalTallas .contenido {
+        padding: 20px 10px;
+      }
     }
   </style>
 </head>
 <body>
+
 <header>
   <img src="/static/img/sneakerhunter_logo.png" alt="Logo">
   <div class="title-container">
@@ -135,16 +214,47 @@
     <span>Buscador de sneakers en oferta en tiendas Online de Guatemala</span>
   </div>
 </header>
+
 <main>
+  <img src="/static/img/sneakerhunter_logo.png" alt="Logo Central" style="width: 160px; margin-top: 30px;">
+  
   <form method="post" onsubmit="mostrarLoader()">
     <label for="talla">Talla:</label>
     <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
+
+    <label for="marca">Marca:</label>
+    <select name="marca">
+      <option value="">Todas</option>
+      {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
+        <option value="{{ m }}" {% if marca==m %}selected{% endif %}>{{ m.title() }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="tienda">Tienda:</label>
+    <select name="tienda">
+      <option value="">Todas</option>
+      {% for t in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy'] %}
+        <option value="{{ t }}" {% if tienda==t %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="genero">Género:</label>
+    <select name="genero">
+      <option value="">Todos</option>
+      <option value="hombre">Hombre</option>
+      <option value="mujer">Mujer</option>
+      <option value="unisex">Unisex</option>
+    </select>
+
     <button type="submit">Buscar</button>
   </form>
+
   <div style="margin: 30px 0;">
     <button onclick="abrirModalTallas()">Consulta tu talla</button>
   </div>
+
   <img id="loader" src="/static/img/sneakerhunt.gif" alt="Cargando..." width="60">
+
   {% if productos is not none %}
     {% if productos|length == 0 %}
       <p>❌ No se encontraron resultados con esos filtros</p>
@@ -157,6 +267,9 @@
               <strong>{{ p.Marca.upper() }} · {{ p.Tienda }}</strong>
               <h4>{{ p.Producto }}</h4>
               <p>Talla: {{ p.Talla }}</p>
+              {% if p.get('Genero') %}
+                <p style="color: #555;">Género: {{ p.Genero|string|title }}</p>
+              {% endif %}
               <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
               <a href="{{ p.URL }}" target="_blank" class="btn">Ver producto</a>
             </div>
@@ -166,43 +279,51 @@
     {% endif %}
   {% endif %}
 </main>
+
 <footer>
   <p>Buscá, compará y cazá tu próximo par</p>
   <p>© 2025 SneakerHunter. Todos los derechos reservados.</p>
 </footer>
+
+<!-- Modal Tallas -->
 <div id="modalTallas">
   <div class="contenido">
-    <span class="cerrar" onclick="cerrarModalTallas()" style="position:absolute;top:10px;right:20px;font-size:20px;cursor:pointer;">&times;</span>
-    <img src="/static/img/sneakerhunter_logo.png" class="logo-modal" alt="Logo modal">
+    <span class="cerrar" onclick="cerrarModalTallas()">&times;</span>
+    <img src="/static/img/sneakerhunter_logo.png" alt="Logo" class="logo-modal">
     <h2>Consulta tu talla</h2>
     <p>Conversión general de tallas US a centímetros:</p>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-      <div><h3>Niños (Kids)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>10C</td><td>16.5</td></tr><tr><td>11C</td><td>17.5</td></tr><tr><td>12C</td><td>18</td></tr><tr><td>13C</td><td>19</td></tr><tr><td>1Y</td><td>20</td></tr><tr><td>2Y</td><td>21</td></tr><tr><td>3Y</td><td>22</td></tr></table></div>
-      <div><h3>Jóvenes (Youth)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>4Y</td><td>22.5</td></tr><tr><td>5Y</td><td>23.5</td></tr><tr><td>6Y</td><td>24</td></tr><tr><td>7Y</td><td>25</td></tr></table></div>
-      <div><h3>Hombres (Men)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>7</td><td>25</td></tr><tr><td>7.5</td><td>25.5</td></tr><tr><td>8</td><td>26</td></tr><tr><td>8.5</td><td>26.5</td></tr><tr><td>9</td><td>27</td></tr><tr><td>9.5</td><td>27.5</td></tr><tr><td>10</td><td>28</td></tr><tr><td>10.5</td><td>28.5</td></tr><tr><td>11</td><td>29</td></tr><tr><td>12</td><td>30</td></tr><tr><td>13</td><td>31</td></tr></table></div>
-      <div><h3>Mujeres (Women)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>5</td><td>22</td></tr><tr><td>5.5</td><td>22.5</td></tr><tr><td>6</td><td>23</td></tr><tr><td>6.5</td><td>23.5</td></tr><tr><td>7</td><td>24</td></tr><tr><td>7.5</td><td>24.5</td></tr><tr><td>8</td><td>25</td></tr><tr><td>8.5</td><td>25.5</td></tr><tr><td>9</td><td>26</td></tr><tr><td>9.5</td><td>26.5</td></tr><tr><td>10</td><td>27</td></tr></table></div>
-    </div>
+    <!-- ... Aquí podés seguir agregando la tabla si querés -->
+    <button class="boton-cerrar-movil" onclick="cerrarModalTallas()">Cerrar</button>
   </div>
 </div>
+
+<!-- Pop-up Tip -->
 <div id="popup-tip">
   <span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">&times;</span>
   <p id="contenido-tip" style="margin:0; font-size:14px; color:#333;"></p>
 </div>
+
+<!-- Scripts -->
 <script>
   function mostrarLoader() {
     document.getElementById("loader").style.display = "block";
   }
+
   function abrirModalTallas() {
     document.getElementById("modalTallas").style.display = "flex";
   }
+
   function cerrarModalTallas() {
     document.getElementById("modalTallas").style.display = "none";
   }
+
   function cerrarTip() {
     document.getElementById('popup-tip').style.display = 'none';
     sessionStorage.setItem('tipCerrado', '1');
   }
+
   window.addEventListener('DOMContentLoaded', function () {
+    // Tip aleatorio
     const tips = [
       "¿Sabías que los New Balance suelen tallar media talla más grande?",
       "Tip: Los adidas Forum suelen ser ajustados, mejor media talla arriba.",
@@ -210,6 +331,7 @@
       "Consejo: En Salomon, el ajuste puede variar si es modelo trail o urbano.",
       "¿Comprás sin probar? Verificá la equivalencia en CM, no solo US."
     ];
+
     if (!sessionStorage.getItem('tipCerrado')) {
       setTimeout(() => {
         const tip = tips[Math.floor(Math.random() * tips.length)];
@@ -217,11 +339,14 @@
         document.getElementById('popup-tip').style.display = 'block';
       }, 5000);
     }
+
+    // Cookie para talla
     const tallaInput = document.querySelector("input[name='talla']");
     const tallaCookie = document.cookie.split("; ").find(row => row.startsWith("talla="));
     if (tallaInput && tallaCookie) {
       tallaInput.value = decodeURIComponent(tallaCookie.split("=")[1]);
     }
+
     if (tallaInput) {
       tallaInput.addEventListener("change", function () {
         document.cookie = "talla=" + encodeURIComponent(tallaInput.value) + "; path=/; max-age=" + 60*60*24*30;
@@ -229,5 +354,6 @@
     }
   });
 </script>
+
 </body>
 </html>
