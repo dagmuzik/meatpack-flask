@@ -1,364 +1,173 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SneakerHunter</title>
-  <style>
-  <!-- Pop-up de ayuda / tip -->
-  <div id="popup-tip" style="display:none; position:fixed; bottom:20px; right:20px; background:white; border:1px solid #ccc; padding:15px 20px; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px; z-index:9999;">
-    <span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">&times;</span>
-    <p id="contenido-tip" style="margin:0; font-size:14px; color:#333;"></p>
-  </div>
-<script>
-  // Lista de tips
-  const tips = [
-    "¿Sabías que los New Balance suelen tallar media talla más grande?",
-    "Tip: Los adidas Forum suelen ser ajustados, mejor media talla arriba.",
-    "Nike y Jordan suelen tallar estándar, pero revisá cada modelo.",
-    "Consejo: En Salomon, el ajuste puede variar si es modelo trail o urbano.",
-    "¿Comprás sin probar? Verificá la equivalencia en CM, no solo US."
-  ];
-
-  // Mostrar tip aleatorio solo si no se cerró antes en esta sesión
-  window.addEventListener('DOMContentLoaded', function () {
-    if (!sessionStorage.getItem('tipCerrado')) {
-      setTimeout(() => {
-        const randomTip = tips[Math.floor(Math.random() * tips.length)];
-        document.getElementById('contenido-tip').textContent = randomTip;
-        document.getElementById('popup-tip').style.display = 'block';
-      }, 5000);
+<meta charset="utf-8"/>
+<title>SneakerHunter</title>
+<style>
+    body { font-family: sans-serif; padding: 20px; background: #fff; }
+    form, .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    label { font-weight: bold; }
+    input, button { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+    button { background: black; color: white; border: none; cursor: pointer; }
+    button:hover { background: #333; }
+    .btn-tab { margin-bottom: 20px; }
+    .card-container { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 40px; }
+    .card { width: 220px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 6px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+    .card img { width: 100%; height: auto; max-height: 240px; object-fit: contain; }
+    .card-body { padding: 10px; font-size: 14px; }
+    .card-body h4 { margin: 0 0 6px; }
+    .card-body .original { text-decoration: line-through; color: #888; }
+    .card-body .descuento { color: red; font-weight: bold; }
+    .card-body .btn, .favorito-btn {
+      margin-top: 8px; display: inline-block; padding: 6px 12px; border-radius: 4px; text-align: center;
+      text-decoration: none; background: black; color: white;
     }
-  });
-
-  function cerrarTip() {
-    document.getElementById('popup-tip').style.display = 'none';
-    sessionStorage.setItem('tipCerrado', '1');
-  }
-</script>
-  
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-    }
-
-    header {
-      background: #fff;
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      border-bottom: 1px solid #ddd;
-      flex-wrap: wrap;
-    }
-
-    header img {
-      height: 40px;
-      margin-right: 10px;
-    }
-
-    .title-container {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .title-container h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .title-container span {
-      font-size: 14px;
-      color: #666;
-    }
-
-    main {
-      padding: 20px;
-      text-align: center;
-    }
-
-    #loader {
-      display: none;
-      margin: 20px auto;
-    }
-
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    form input, form select {
-      padding: 8px;
-      font-size: 14px;
-    }
-
-    form button {
-      background: #000;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      cursor: pointer;
-    }
-
-    .card-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-
-    .card {
-      width: 220px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card img {
-      width: 100%;
-      height: 220px;
-      object-fit: contain;
-      background: #f2f2f2;
-    }
-
-    .card-body {
-      padding: 10px;
-      font-size: 14px;
-      text-align: left;
-    }
-
-    .btn {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 6px 12px;
-      background: black;
-      color: white;
-      text-align: center;
-      border-radius: 4px;
-      text-decoration: none;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 13px;
-      color: #777;
-    }
-
-    /* Modal */
-    #modalTallas {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #modalTallas .contenido {
-      background: white;
-      padding: 30px 20px;
-      max-width: 90%;
-      max-height: 90%;
-      overflow-y: auto;
-      border-radius: 10px;
-      position: relative;
-      text-align: center;
-    }
-
-    #modalTallas .contenido h2 {
-      margin-top: 10px;
-    }
-
-    #modalTallas .contenido table {
-      border-collapse: collapse;
-      margin: 10px auto 20px;
-    }
-
-    #modalTallas .contenido th, td {
-      border: 1px solid #ccc;
-      padding: 6px 10px;
-    }
-
-    #modalTallas .cerrar {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      cursor: pointer;
-      font-size: 26px;
-      font-weight: bold;
-    }
-
-    #modalTallas .logo-modal {
-      width: 100px;
-      margin: 0 auto 10px;
-    }
-
-    .boton-cerrar-movil {
-      display: none;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: black;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      form {
-        flex-direction: column;
-      }
-
-      .boton-cerrar-movil {
-        display: inline-block;
-      }
-
-      #modalTallas .contenido {
-        padding: 20px 10px;
-      }
+    .favorito-btn { background: gold; color: black; border: none; cursor: pointer; }
+    @media (max-width: 768px) {
+      .card-container { justify-content: center; }
+      .card { width: 100%; max-width: 300px; }
     }
   </style>
 </head>
 <body>
-
-<header>
-  <img src="/static/img/sneakerhunter_logo.png" alt="Logo">
-  <div class="title-container">
-    <h1>SneakerHunter</h1>
-    <span>Buscador de sneakers en oferta en tiendas Online de Guatemala</span>
-  </div>
-</header>
-
-<main>
-  <form method="post" onsubmit="mostrarLoader()">
-    <label for="talla">Talla:</label>
-    <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
-
-    <label for="marca">Marca:</label>
-    <select name="marca">
-      <option value="">Todas</option>
-      {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-        <option value="{{ m }}" {% if marca==m %}selected{% endif %}>{{ m.title() }}</option>
-      {% endfor %}
-    </select>
-
-    <label for="tienda">Tienda:</label>
-    <select name="tienda">
-      <option value="">Todas</option>
-      {% for t in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy'] %}
-        <option value="{{ t }}" {% if tienda==t %}selected{% endif %}>{{ t }}</option>
-      {% endfor %}
-    </select>
-
-    <label for="genero">Género:</label>
-    <select name="genero">
-      <option value="">Todos</option>
-      <option value="hombre">Hombre</option>
-      <option value="mujer">Mujer</option>
-      <option value="unisex">Unisex</option>
-    </select>
-
-    <button type="submit">Buscar</button>
-  </form>
-
-  <!-- BOTÓN DEL MODAL -->
-  <div style="margin: 30px 0;">
-    <button onclick="abrirModalTallas()">Consulta tu talla</button>
-  </div>
-
-  <img id="loader" src="/static/img/sneakerhunt.gif" alt="Cargando..." width="60">
-
-  {% if productos is not none %}
-    {% if productos|length == 0 %}
-      <p>❌ No se encontraron resultados con esos filtros</p>
-    {% else %}
-      <div class="card-container">
-        {% for p in productos %}
-          <div class="card">
-            <img src="{{ p.Imagen }}" alt="{{ p.Producto }}">
-            <div class="card-body">
-              <strong>{{ p.Marca.upper() }} · {{ p.Tienda }}</strong>
-              <h4>{{ p.Producto }}</h4>
-              <p>Talla: {{ p.Talla }}</p>
-              {% if p.get('Genero') %}
-                <p style="color: #555;">Género: {{ p.Genero|string|title }}</p>
-              {% endif %}
-              <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
-              <a href="{{ p.URL }}" target="_blank" class="btn">Ver producto</a>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endif %}
-</main>
-
-<footer>
-  <p>Buscá, compará y cazá tu próximo par</p>
-  <p>© 2025 SneakerHunter. Todos los derechos reservados.</p>
-</footer>
-
-<!-- MODAL DE TALLAS -->
-<div id="modalTallas">
-  <div class="contenido">
-    <span class="cerrar" onclick="cerrarModalTallas()">&times;</span>
-    <img src="/static/img/sneakerhunter_logo.png" alt="Logo" class="logo-modal">
-    <h2>Consulta tu talla</h2>
-    <p>Conversión general de tallas US a centímetros:</p>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-      <div>
-        <h3>Niños (Kids)</h3>
-        <table><tr><th>US</th><th>CM</th></tr><tr><td>10C</td><td>16.5</td></tr><tr><td>11C</td><td>17.5</td></tr><tr><td>12C</td><td>18</td></tr><tr><td>13C</td><td>19</td></tr><tr><td>1Y</td><td>20</td></tr><tr><td>2Y</td><td>21</td></tr><tr><td>3Y</td><td>22</td></tr></table>
-      </div>
-      <div>
-        <h3>Jóvenes (Youth)</h3>
-        <table><tr><th>US</th><th>CM</th></tr><tr><td>4Y</td><td>22.5</td></tr><tr><td>5Y</td><td>23.5</td></tr><tr><td>6Y</td><td>24</td></tr><tr><td>7Y</td><td>25</td></tr></table>
-      </div>
-      <div>
-        <h3>Hombres (Men)</h3>
-        <table><tr><th>US</th><th>CM</th></tr><tr><td>7</td><td>25</td></tr><tr><td>7.5</td><td>25.5</td></tr><tr><td>8</td><td>26</td></tr><tr><td>8.5</td><td>26.5</td></tr><tr><td>9</td><td>27</td></tr><tr><td>9.5</td><td>27.5</td></tr><tr><td>10</td><td>28</td></tr><tr><td>10.5</td><td>28.5</td></tr><tr><td>11</td><td>29</td></tr><tr><td>12</td><td>30</td></tr><tr><td>13</td><td>31</td></tr></table>
-      </div>
-      <div>
-        <h3>Mujeres (Women)</h3>
-        <table><tr><th>US</th><th>CM</th></tr><tr><td>5</td><td>22</td></tr><tr><td>5.5</td><td>22.5</td></tr><tr><td>6</td><td>23</td></tr><tr><td>6.5</td><td>23.5</td></tr><tr><td>7</td><td>24</td></tr><tr><td>7.5</td><td>24.5</td></tr><tr><td>8</td><td>25</td></tr><tr><td>8.5</td><td>25.5</td></tr><tr><td>9</td><td>26</td></tr><tr><td>9.5</td><td>26.5</td></tr><tr><td>10</td><td>27</td></tr></table>
-      </div>
-    </div>
-    <button class="boton-cerrar-movil" onclick="cerrarModalTallas()">Cerrar</button>
+<div style="text-align: center; margin-bottom: 30px;">
+<img alt="SneakerHunter Logo" src="static/img/sneakerhunter_logo_only.png" style="width: 240px; border-radius: 10px;"/>
+<h1>SneakerHunter</h1>
+<p style="color: #555;">El radar que te muestra las mejores opciones en Guatemala</p>
+</div>
+<div class="btn-tab">
+<button onclick="mostrarFavoritos()">🧡 Ver favoritos</button>
+<button onclick="volverABusqueda()">🔍 Volver a búsqueda</button>
+</div>
+<div class="filters">
+<strong>Talla:</strong>
+  {% for t in ["7", "8", "9", "9.5", "10", "10.5", "11"] %}
+    <a href="?talla={{ t }}" style="margin-right:5px;">[{{ t }}]</a>
+  {% endfor %}
+</div>
+<div class="filters">
+<strong>Precio:</strong>
+<a href="?min_price=0&amp;max_price=399">[&lt; Q400]</a>
+<a href="?min_price=400&amp;max_price=700">[Q400–700]</a>
+<a href="?min_price=701&amp;max_price=1000">[Q700–1000]</a>
+<a href="?min_price=1001&amp;max_price=9999">[&gt; Q1000]</a>
+</div>
+<h2>¿Qué querés buscar hoy?</h2>
+<form method="post">
+<label for="talla">Talla:</label>
+<input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
+<label for="min_price">Precio mínimo:</label>
+<input name="min_price" step="0.01" type="number" value="{{ min_price or '' }}"/>
+<label for="max_price">Precio máximo:</label>
+<input name="max_price" step="0.01" type="number" value="{{ max_price or '' }}"/>
+<button type="submit">Buscar</button>
+</form>
+<div id="resultados">
+<div class="card-container">
+    {% for p in productos %}
+      <div class="card">
+<img alt="{{ p.nombre }}" src="{{ p.imagen }}"/>
+<div class="card-body">
+<h4>{{ p.marca }}</h4>
+<p>{{ p.nombre }}</p>
+<p><strong>Q{{ '%.2f' | format(p.precio_final) }}</strong></p>
+          {% if p.precio_original %}
+            <p class="original">Antes: Q{{ '%.2f' | format(p.precio_original) }}</p>
+          {% endif %}
+          {% if p.descuento %}
+            <p class="descuento">{{ p.descuento }} OFF</p>
+          {% endif %}
+          <p>Talla: {{ p.talla }}</p>
+<p>Tienda: {{ p.tienda }}</p>
+<a class="btn" href="{{ p.url }}" target="_blank">Ver producto</a>
+<button class="favorito-btn" onclick="guardarFavorito('{{ p.url }}')">⭐ Guardar</button>
+</div>
+</div>
+    {% endfor %}
   </div>
 </div>
-
+<div id="favoritos" style="display: none;">
+<h2>Mis favoritos</h2>
+<div class="card-container" id="cards-favoritos"></div>
+</div>
 <script>
-  function mostrarLoader() {
-    document.getElementById("loader").style.display = "block";
-  }
-
-  window.onload = function () {
-    const loader = document.getElementById("loader");
-    const resultados = document.querySelectorAll(".card").length;
-    if (resultados > 0) {
-      loader.style.display = "none";
+  function guardarFavorito(url) {
+    let favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+    if (!favoritos.includes(url)) {
+      favoritos.push(url);
+      localStorage.setItem('favoritos', JSON.stringify(favoritos));
+      alert("Producto guardado como favorito");
+    } else {
+      alert("Ya está en favoritos");
     }
-  };
-
-  function abrirModalTallas() {
-    document.getElementById("modalTallas").style.display = "flex";
   }
 
-  function cerrarModalTallas() {
-    document.getElementById("modalTallas").style.display = "none";
+  function mostrarFavoritos() {
+    let favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+    if (!favoritos.length) {
+      alert("No tenés productos guardados.");
+      return;
+    }
+
+    document.getElementById("resultados").style.display = "none";
+    document.getElementById("favoritos").style.display = "block";
+
+    let contenedor = document.getElementById("cards-favoritos");
+    contenedor.innerHTML = favoritos.map(url => `
+      <div class="card">
+        <img src="https://via.placeholder.com/220x200?text=Sneaker" alt="Favorito">
+        <div class="card-body">
+          <h4>Favorito</h4>
+          <p><a href="${url}" target="_blank" class="btn">Ver producto</a></p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function volverABusqueda() {
+    document.getElementById("favoritos").style.display = "none";
+    document.getElementById("resultados").style.display = "block";
   }
 </script>
+<div id="popup-tip" style="display:none; position:fixed; bottom:20px; right:20px; background:white; border:1px solid #ccc; padding:15px 20px; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px; z-index:9999;"><span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">×</span><p id="contenido-tip" style="margin:0; font-size:14px; color:#333;"></p></div><script>
+// Tips aleatorios y recordatorio de talla
+const tips = [
+  "¿Sabías que los New Balance suelen tallar media talla más grande?",
+  "Tip: Los adidas Forum suelen ser ajustados, mejor media talla arriba.",
+  "Nike y Jordan suelen tallar estándar, pero revisá cada modelo.",
+  "Consejo: En Salomon, el ajuste puede variar si es modelo trail o urbano.",
+  "¿Comprás sin probar? Verificá la equivalencia en CM, no solo US."
+];
 
-</body>
+window.addEventListener('DOMContentLoaded', function () {
+  // Mostrar tip aleatorio si no se cerró antes
+  if (!sessionStorage.getItem('tipCerrado')) {
+    setTimeout(() => {
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+      document.getElementById('contenido-tip').textContent = randomTip;
+      document.getElementById('popup-tip').style.display = 'block';
+    }, 5000);
+  }
+
+  // Autocompletar talla desde cookie
+  const tallaInput = document.querySelector("input[name='talla']");
+  const tallaCookie = document.cookie.split("; ").find(row => row.startsWith("talla="));
+  if (tallaInput && tallaCookie) {
+    tallaInput.value = decodeURIComponent(tallaCookie.split("=")[1]);
+  }
+
+  // Guardar cookie cuando cambia la talla
+  if (tallaInput) {
+    tallaInput.addEventListener("change", function () {
+      document.cookie = "talla=" + encodeURIComponent(tallaInput.value) + "; path=/; max-age=" + 60*60*24*30;
+    });
+  }
+});
+
+function cerrarTip() {
+  document.getElementById('popup-tip').style.display = 'none';
+  sessionStorage.setItem('tipCerrado', '1');
+}
+</script></body>
 </html>
