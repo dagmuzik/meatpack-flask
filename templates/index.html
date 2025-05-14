@@ -213,6 +213,10 @@
 <h1>SneakerHunter</h1>
 <span>Buscador de sneakers en oferta en tiendas Online de Guatemala</span>
 </div>
+
+<div style="margin-left:auto;">
+<button onclick="abrirModalEtiqueta()" style="padding: 6px 12px; margin-left: 10px; background: black; color: white; border: none; border-radius: 6px; cursor: pointer;">¿Cómo leer una etiqueta de caja?</button>
+</div>
 </header>
 <main>
 <form method="post" onsubmit="mostrarLoader()">
@@ -221,16 +225,16 @@
 <label for="marca">Marca:</label>
 <select name="marca">
 <option value="">Todas</option>
-       {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-        <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
-       {% endfor %}
+      {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
+        <option %}="" %}selected{%="" endif="" if="" marca="m" value="{{ m }}" {%="">{{ m.title() }}</option>
+      {% endfor %}
     </select>
 <label for="tienda">Tienda:</label>
 <select name="tienda">
 <option value="">Todas</option>
-       {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-        <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
-       {% endfor %}
+      {% for t in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy'] %}
+        <option %}="" %}selected{%="" endif="" if="" tienda="t" value="{{ t }}" {%="">{{ t }}</option>
+      {% endfor %}
     </select>
 <label for="genero">Género:</label>
 <select name="genero">
@@ -287,7 +291,6 @@
 <div><h3>Hombres (Men)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>7</td><td>25</td></tr><tr><td>7.5</td><td>25.5</td></tr><tr><td>8</td><td>26</td></tr><tr><td>8.5</td><td>26.5</td></tr><tr><td>9</td><td>27</td></tr><tr><td>9.5</td><td>27.5</td></tr><tr><td>10</td><td>28</td></tr><tr><td>10.5</td><td>28.5</td></tr><tr><td>11</td><td>29</td></tr><tr><td>12</td><td>30</td></tr><tr><td>13</td><td>31</td></tr></table></div>
 <div><h3>Mujeres (Women)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>5</td><td>22</td></tr><tr><td>5.5</td><td>22.5</td></tr><tr><td>6</td><td>23</td></tr><tr><td>6.5</td><td>23.5</td></tr><tr><td>7</td><td>24</td></tr><tr><td>7.5</td><td>24.5</td></tr><tr><td>8</td><td>25</td></tr><tr><td>8.5</td><td>25.5</td></tr><tr><td>9</td><td>26</td></tr><tr><td>9.5</td><td>26.5</td></tr><tr><td>10</td><td>27</td></tr></table></div>
 </div>
-
 <!-- ... Aquí podés seguir agregando la tabla si querés -->
 <button class="boton-cerrar-movil" onclick="cerrarModalTallas()">Cerrar</button>
 </div>
@@ -348,7 +351,6 @@
     }
   });
 </script>
-
 <div id="compare-box" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #ccc;padding:10px 20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:9998;display:none;">
 <button onclick="mostrarComparacion()">Comparar productos seleccionados</button>
 </div>
@@ -359,7 +361,6 @@
 <div id="compare-results" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;"></div>
 </div>
 </div>
-
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const checkboxes = document.getElementsByClassName('compare-check');
@@ -397,6 +398,33 @@
     });
 
     document.getElementById('compare-modal').style.display = 'flex';
+  }
+</script>
+
+<div id="modalEtiqueta" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1001; justify-content:center; align-items:center;">
+<div style="background:white; padding:20px; border-radius:10px; max-width:600px; max-height:90%; overflow-y:auto; text-align:left; position:relative;">
+<span onclick="cerrarModalEtiqueta()" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:24px; font-weight:bold;">×</span>
+<h2>¿Cómo leer una etiqueta de caja?</h2>
+<p>Las etiquetas en las cajas de sneakers contienen información importante. Aquí te explicamos los elementos más comunes:</p>
+<ul>
+<li><strong>Modelo:</strong> Nombre del sneaker.</li>
+<li><strong>Colorway:</strong> Combinación de colores oficiales.</li>
+<li><strong>SKU / Código:</strong> Código único (ej: DD1391-100).</li>
+<li><strong>Tallas:</strong> Mostradas en US, UK, CM y EUR.</li>
+<li><strong>Fecha de Producción:</strong> Periodo de fabricación.</li>
+<li><strong>Fábrica:</strong> Código de planta de manufactura.</li>
+</ul>
+<p style="margin-top: 10px;">Verificá estos detalles si comprás o revendés sneakers para asegurarte de su autenticidad.</p>
+<img alt="Etiqueta ejemplo" src="/static/img/ejemplo_etiqueta.png" style="width:100%; margin-top:15px; border:1px solid #ccc;"/>
+</div>
+</div>
+
+<script>
+  function abrirModalEtiqueta() {
+    document.getElementById("modalEtiqueta").style.display = "flex";
+  }
+  function cerrarModalEtiqueta() {
+    document.getElementById("modalEtiqueta").style.display = "none";
   }
 </script>
 </body>
