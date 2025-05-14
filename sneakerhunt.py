@@ -118,7 +118,6 @@ def obtener_premiumtrendy(talla):
     page = 1
 
     while True:
-        print(f"🔄 Premium Trendy página {page}...")
         try:
             response = requests.get(api_url, headers=headers, params={
                 "on_sale": "true",
@@ -127,16 +126,13 @@ def obtener_premiumtrendy(talla):
             }, timeout=10)
 
             if response.status_code != 200:
-                print(f"❌ Error Premium Trendy página {page}: {response.status_code}")
                 break
 
             productos = response.json()
             if not isinstance(productos, list) or not productos:
-                print("✅ Fin productos Premium Trendy")
                 break
 
         except Exception as e:
-            print(f"❌ Error al obtener datos Premium Trendy: {e}")
             break
 
         for prod in productos:
@@ -148,7 +144,6 @@ def obtener_premiumtrendy(talla):
                 etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
 
                 if "sneakers" not in etiquetas or etiquetas & {"clothing", "hombre", "ralph lauren", "true"}:
-                    print(f"⏭️ {nombre} — Ignorado por etiquetas: {etiquetas}")
                     continue
 
                 precios = prod.get("prices", {})
@@ -180,7 +175,6 @@ def obtener_premiumtrendy(talla):
                     })
 
             except Exception as e:
-                print(f"⚠️ Error procesando producto: {e}")
                 continue
 
         page += 1
