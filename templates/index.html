@@ -234,7 +234,7 @@
 <label for="tienda">Tienda:</label>
 <select name="tienda">
 <option value="">Todas</option>
-     {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
+     {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
        <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
       {% endfor %}
     </select>
