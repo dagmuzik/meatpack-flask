@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SneakerHunter</title>
   <style>
     body {
@@ -134,13 +134,11 @@
   <img src="/static/img/sneakerhunter_logo.png" alt="Logo">
   <div class="title-container">
     <h1>SneakerHunter</h1>
-    <span>Buscador de sneakers en oferta en tiendas online de Guatemala</span>
+    <span>Buscador de sneakers en oferta en tiendas Online de Guatemala</span>
   </div>
 </header>
 
 <main>
-  <img src="/static/img/sneakerhunter_logo.png" alt="Logo Central" style="width: 160px; margin-top: 30px;">
-  
   <form method="post" onsubmit="mostrarLoader()">
     <label for="talla">Talla:</label>
     <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
@@ -186,7 +184,7 @@
               <h4>{{ p.Producto }}</h4>
               <p>Talla: {{ p.Talla }}</p>
               {% if p.get('Genero') %}
-                <p style="color: #555;">Género: {{ p.Genero.title() }}</p>
+                <p style="color: #555;">Género: {{ p.Genero|string|title }}</p>
               {% endif %}
               <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
               <a href="{{ p.URL }}" target="_blank" class="btn">Ver producto</a>
@@ -209,9 +207,10 @@
   }
 
   window.onload = function () {
-    const productos = {{ productos | length if productos else 0 }};
-    if (productos > 0) {
-      document.getElementById("loader").style.display = "none";
+    const loader = document.getElementById("loader");
+    const resultados = document.querySelectorAll(".card").length;
+    if (resultados > 0) {
+      loader.style.display = "none";
     }
   };
 </script>
