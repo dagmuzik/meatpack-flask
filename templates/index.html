@@ -161,9 +161,10 @@
 
     <label for="genero">Género:</label>
     <select name="genero">
-      <option value="">Ambos</option>
-      <option value="hombre" {% if genero=="hombre" %}selected{% endif %}>Hombre</option>
-      <option value="mujer" {% if genero=="mujer" %}selected{% endif %}>Mujer</option>
+      <option value="">Todos</option>
+      <option value="hombre">Hombre</option>
+      <option value="mujer">Mujer</option>
+      <option value="unisex">Unisex</option>
     </select>
 
     <button type="submit">Buscar</button>
