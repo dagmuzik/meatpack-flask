@@ -55,13 +55,20 @@ def inferir_marca(nombre):
 
 def inferir_genero(nombre):
     nombre = nombre.lower()
-    if "mujer" in nombre:
-        return "mujer"
-    if "hombre" in nombre:
+
+    # Detectar Hombre
+    if any(palabra in nombre for palabra in [" hombre", " para hombre", " de hombre"]):
         return "hombre"
+
+    # Detectar Mujer
+    if any(palabra in nombre for palabra in [" mujer", " para mujer", " de mujer"]):
+        return "mujer"
+
+    # Detectar Unisex
     if "unisex" in nombre:
         return "unisex"
-    return ""  # No identificado
+
+    return ""
 
 def obtener_shopify(url, tienda, talla):
     try:
