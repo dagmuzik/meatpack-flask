@@ -121,6 +121,52 @@
       color: #777;
     }
 
+    /* Modal styles */
+    #modalTallas {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #modalTallas .contenido {
+      background: white;
+      padding: 30px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow-y: auto;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    #modalTallas .contenido h2 {
+      margin-top: 0;
+    }
+
+    #modalTallas .contenido table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    #modalTallas .contenido th, #modalTallas .contenido td {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+    }
+
+    #modalTallas .contenido span.cerrar {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      cursor: pointer;
+      font-size: 24px;
+    }
+
     @media (max-width: 600px) {
       form {
         flex-direction: column;
@@ -170,6 +216,11 @@
     <button type="submit">Buscar</button>
   </form>
 
+  <!-- BOTÓN PARA MODAL -->
+  <div style="margin-top: 20px;">
+    <button onclick="abrirModalTallas()">Consulta tu talla</button>
+  </div>
+
   <img id="loader" src="/static/img/sneakerhunt.gif" alt="Cargando..." width="60">
 
   {% if productos is not none %}
@@ -202,6 +253,74 @@
   <p>© 2025 SneakerHunter. Todos los derechos reservados.</p>
 </footer>
 
+<!-- MODAL HTML -->
+<div id="modalTallas">
+  <div class="contenido">
+    <span class="cerrar" onclick="cerrarModalTallas()">&times;</span>
+    <h2>Consulta tu talla</h2>
+    <p>Conversión general de tallas US a centímetros:</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+      <div>
+        <h3>Niños (Kids)</h3>
+        <table>
+          <tr><th>US</th><th>CM</th></tr>
+          <tr><td>10C</td><td>16.5</td></tr>
+          <tr><td>11C</td><td>17.5</td></tr>
+          <tr><td>12C</td><td>18</td></tr>
+          <tr><td>13C</td><td>19</td></tr>
+          <tr><td>1Y</td><td>20</td></tr>
+          <tr><td>2Y</td><td>21</td></tr>
+          <tr><td>3Y</td><td>22</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Jóvenes (Youth)</h3>
+        <table>
+          <tr><th>US</th><th>CM</th></tr>
+          <tr><td>4Y</td><td>22.5</td></tr>
+          <tr><td>5Y</td><td>23.5</td></tr>
+          <tr><td>6Y</td><td>24</td></tr>
+          <tr><td>7Y</td><td>25</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Hombres (Men)</h3>
+        <table>
+          <tr><th>US</th><th>CM</th></tr>
+          <tr><td>7</td><td>25</td></tr>
+          <tr><td>7.5</td><td>25.5</td></tr>
+          <tr><td>8</td><td>26</td></tr>
+          <tr><td>8.5</td><td>26.5</td></tr>
+          <tr><td>9</td><td>27</td></tr>
+          <tr><td>9.5</td><td>27.5</td></tr>
+          <tr><td>10</td><td>28</td></tr>
+          <tr><td>10.5</td><td>28.5</td></tr>
+          <tr><td>11</td><td>29</td></tr>
+          <tr><td>12</td><td>30</td></tr>
+          <tr><td>13</td><td>31</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Mujeres (Women)</h3>
+        <table>
+          <tr><th>US</th><th>CM</th></tr>
+          <tr><td>5</td><td>22</td></tr>
+          <tr><td>5.5</td><td>22.5</td></tr>
+          <tr><td>6</td><td>23</td></tr>
+          <tr><td>6.5</td><td>23.5</td></tr>
+          <tr><td>7</td><td>24</td></tr>
+          <tr><td>7.5</td><td>24.5</td></tr>
+          <tr><td>8</td><td>25</td></tr>
+          <tr><td>8.5</td><td>25.5</td></tr>
+          <tr><td>9</td><td>26</td></tr>
+          <tr><td>9.5</td><td>26.5</td></tr>
+          <tr><td>10</td><td>27</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   function mostrarLoader() {
     document.getElementById("loader").style.display = "block";
@@ -214,6 +333,14 @@
       loader.style.display = "none";
     }
   };
+
+  function abrirModalTallas() {
+    document.getElementById("modalTallas").style.display = "flex";
+  }
+
+  function cerrarModalTallas() {
+    document.getElementById("modalTallas").style.display = "none";
+  }
 </script>
 
 </body>
