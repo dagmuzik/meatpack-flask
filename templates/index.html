@@ -5,6 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SneakerHunter</title>
   <style>
+  <!-- Pop-up de ayuda / tip -->
+  <div id="popup-tip" style="display:none; position:fixed; bottom:20px; right:20px; background:white; border:1px solid #ccc; padding:15px 20px; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px; z-index:9999;">
+    <span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">&times;</span>
+    <p id="contenido-tip" style="margin:0; font-size:14px; color:#333;"></p>
+  </div>
+<script>
+  // Lista de tips
+  const tips = [
+    "¿Sabías que los New Balance suelen tallar media talla más grande?",
+    "Tip: Los adidas Forum suelen ser ajustados, mejor media talla arriba.",
+    "Nike y Jordan suelen tallar estándar, pero revisá cada modelo.",
+    "Consejo: En Salomon, el ajuste puede variar si es modelo trail o urbano.",
+    "¿Comprás sin probar? Verificá la equivalencia en CM, no solo US."
+  ];
+
+  // Mostrar tip aleatorio solo si no se cerró antes en esta sesión
+  window.addEventListener('DOMContentLoaded', function () {
+    if (!sessionStorage.getItem('tipCerrado')) {
+      setTimeout(() => {
+        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+        document.getElementById('contenido-tip').textContent = randomTip;
+        document.getElementById('popup-tip').style.display = 'block';
+      }, 5000);
+    }
+  });
+
+  function cerrarTip() {
+    document.getElementById('popup-tip').style.display = 'none';
+    sessionStorage.setItem('tipCerrado', '1');
+  }
+</script>
+  
     body {
       margin: 0;
       font-family: Arial, sans-serif;
