@@ -425,6 +425,9 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if tienda in ("", "Premium Trendy"):
         agregar(obtener_premiumtrendy, "Premium Trendy")
 
+    if tienda in ("", "Veinte Avenida"):
+        agregar(obtener_veinteavenida, "Veinte Avenida")
+
     # Filtrar por marca si se indicó
     if marca:
         marca = marca.strip().lower()
