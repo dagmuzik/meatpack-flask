@@ -116,30 +116,30 @@ def obtener_premiumtrendy(talla):
     productos_disponibles = []
     talla_buscada = talla.replace(".", "-").strip()
     page = 1
-    max_pages = 3  # 🔒 Máximo 3 páginas por ahora
 
-    while page <= max_pages:
+    while True:
         try:
-            resp = requests.get(api_url, headers=headers, params={
+            response = requests.get(api_url, headers=headers, params={
                 "on_sale": "true",
                 "per_page": 100,
                 "page": page
-            }, timeout=4)  # ⏱️ Timeout reducido
+            }, timeout=10)
 
-            if resp.status_code != 200:
+            if response.status_code != 200:
                 break
 
-            productos = resp.json()
-            if not productos or not isinstance(productos, list):
+            productos = response.json()
+            if not isinstance(productos, list) or not productos:
                 break
 
-        except Exception:
+        except Exception as e:
             break
 
         for prod in productos:
             try:
                 nombre = prod.get("name", "")
                 url = prod.get("permalink", "")
+                variaciones = prod.get("variations", [])
                 imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
                 etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
 
@@ -154,13 +154,14 @@ def obtener_premiumtrendy(talla):
                 if precio_final == 0:
                     continue
 
-                variaciones = prod.get("variations", [])
-                talla_encontrada = any(
-                    attr.get("value", "").strip() == talla_buscada
-                    for var in variaciones
-                    for attr in var.get("attributes", [])
-                    if "talla" in attr.get("name", "").lower()
-                )
+                talla_encontrada = False
+                for var in variaciones:
+                    for attr in var.get("attributes", []):
+                        if "talla" in attr.get("name", "").lower() and attr.get("value", "").strip() == talla_buscada:
+                            talla_encontrada = True
+                            break
+                    if talla_encontrada:
+                        break
 
                 if talla_encontrada:
                     productos_disponibles.append({
@@ -170,11 +171,10 @@ def obtener_premiumtrendy(talla):
                         "URL": url,
                         "Imagen": imagen,
                         "Tienda": "Premium Trendy",
-                        "Marca": inferir_marca(nombre),
-                        "Genero": inferir_genero(nombre)
+                        "Marca": inferir_marca(nombre)
                     })
 
-            except:
+            except Exception as e:
                 continue
 
         page += 1
