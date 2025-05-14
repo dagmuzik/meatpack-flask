@@ -181,6 +181,85 @@ def obtener_premiumtrendy(talla):
 
     return productos_disponibles
         
+def obtener_veinteavenida(talla):
+    import time
+
+    base_url = "https://veinteavenida.com"
+    productos = []
+    for page in range(1, 4):
+        url = f"{base_url}/product-category/sale/page/{page}/"
+        try:
+            res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+            if res.status_code != 200:
+                print(f"❌ No se pudo cargar página {page}")
+                break
+            soup = BeautifulSoup(res.text, "html.parser")
+            items = soup.select("li.product")
+            if not items:
+                break
+        except Exception as e:
+            print(f"❌ Error cargando página {page}: {e}")
+            break
+
+        for item in items:
+            try:
+                nombre_tag = item.select_one("a.product-loop-title h3.woocommerce-loop-product__title")
+                url_tag = item.select_one("a.product-loop-title")
+                img_tag = item.select_one("img.wp-post-image")
+
+                if not (nombre_tag and url_tag and img_tag):
+                    continue
+
+                nombre = nombre_tag.text.strip()
+                url_producto = url_tag["href"]
+                imagen = img_tag["src"]
+
+                # Cargar detalles individuales
+                try:
+                    detalle = requests.get(url_producto, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+                    detalle_soup = BeautifulSoup(detalle.text, "html.parser")
+
+                    precios = detalle_soup.select("p.price span.woocommerce-Price-amount")
+                    if len(precios) >= 2:
+                        precio_final = precios[1].text.strip().replace("Q", "").replace(",", "")
+                    elif len(precios) == 1:
+                        precio_final = precios[0].text.strip().replace("Q", "").replace(",", "")
+                    else:
+                        continue
+
+                    try:
+                        precio_float = float(precio_final)
+                    except:
+                        continue
+
+                    tallas = []
+                    for div in detalle_soup.select(".tfwctool-varation-swatch-preview"):
+                        talla_html = div.get("data-bs-original-title") or div.text.strip()
+                        if talla_coincide(talla, talla_html):
+                            tallas.append(talla_html)
+
+                    if not tallas:
+                        continue
+
+                    productos.append({
+                        "Producto": nombre,
+                        "Talla": ", ".join(tallas),
+                        "Precio": precio_float,
+                        "URL": url_producto,
+                        "Imagen": imagen,
+                        "Tienda": "Veinte Avenida",
+                        "Marca": inferir_marca(nombre),
+                        "Genero": inferir_genero(nombre)
+                    })
+                except Exception as e:
+                    print(f"⚠️ Error enriqueciendo {nombre}: {e}")
+            except:
+                continue
+
+        time.sleep(0.5)
+
+    return productos
+        
 def obtener_bitterheads(talla):
     import time
 
