@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SneakerHunter</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SneakerHunter</title>
+<style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -206,54 +207,44 @@
   </style>
 </head>
 <body>
-
 <header>
-  <img src="/static/img/sneakerhunter_logo.png" alt="Logo">
-  <div class="title-container">
-    <h1>SneakerHunter</h1>
-    <span>Buscador de sneakers en oferta en tiendas Online de Guatemala</span>
-  </div>
+<img alt="Logo" src="/static/img/sneakerhunter_logo.png"/>
+<div class="title-container">
+<h1>SneakerHunter</h1>
+<span>Buscador de sneakers en oferta en tiendas Online de Guatemala</span>
+</div>
 </header>
-
 <main>
-  <img src="/static/img/sneakerhunter_logo.png" alt="Logo Central" style="width: 160px; margin-top: 30px;">
-  
-  <form method="post" onsubmit="mostrarLoader()">
-    <label for="talla">Talla:</label>
-    <input type="text" name="talla" placeholder="Ej. 9.5" value="{{ talla or '' }}">
-
-    <label for="marca">Marca:</label>
-    <select name="marca">
-      <option value="">Todas</option>
+<form method="post" onsubmit="mostrarLoader()">
+<label for="talla">Talla:</label>
+<input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
+<label for="marca">Marca:</label>
+<select name="marca">
+<option value="">Todas</option>
       {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-        <option value="{{ m }}" {% if marca==m %}selected{% endif %}>{{ m.title() }}</option>
+        <option %}="" %}selected{%="" endif="" if="" marca="m" value="{{ m }}" {%="">{{ m.title() }}</option>
       {% endfor %}
     </select>
-
-    <label for="tienda">Tienda:</label>
-    <select name="tienda">
-      <option value="">Todas</option>
+<label for="tienda">Tienda:</label>
+<select name="tienda">
+<option value="">Todas</option>
       {% for t in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy'] %}
-        <option value="{{ t }}" {% if tienda==t %}selected{% endif %}>{{ t }}</option>
+        <option %}="" %}selected{%="" endif="" if="" tienda="t" value="{{ t }}" {%="">{{ t }}</option>
       {% endfor %}
     </select>
-
-    <label for="genero">Género:</label>
-    <select name="genero">
-      <option value="">Todos</option>
-      <option value="hombre">Hombre</option>
-      <option value="mujer">Mujer</option>
-      <option value="unisex">Unisex</option>
-    </select>
-
-    <button type="submit">Buscar</button>
-  </form>
-
-  <div style="margin: 30px 0;">
-    <button onclick="abrirModalTallas()">Consulta tu talla</button>
-  </div>
-
-  <img id="loader" src="/static/img/sneakerhunt.gif" alt="Cargando..." width="60">
+<label for="genero">Género:</label>
+<select name="genero">
+<option value="">Todos</option>
+<option value="hombre">Hombre</option>
+<option value="mujer">Mujer</option>
+<option value="unisex">Unisex</option>
+</select>
+<button type="submit">Buscar</button>
+</form>
+<div style="margin: 30px 0;">
+<button onclick="abrirModalTallas()">Consulta tu talla</button>
+</div>
+<img alt="Cargando..." id="loader" src="/static/img/sneakerhunt.gif" width="60"/>
 
   {% if productos is not none %}
     {% if productos|length == 0 %}
@@ -262,47 +253,50 @@
       <div class="card-container">
         {% for p in productos %}
           <div class="card">
-            <img src="{{ p.Imagen }}" alt="{{ p.Producto }}">
-            <div class="card-body">
-              <strong>{{ p.Marca.upper() }} · {{ p.Tienda }}</strong>
-              <h4>{{ p.Producto }}</h4>
-              <p>Talla: {{ p.Talla }}</p>
+<img alt="{{ p.Producto }}" src="{{ p.Imagen }}"/>
+<div class="card-body">
+<strong>{{ p.Marca.upper() }} · {{ p.Tienda }}</strong>
+<h4>{{ p.Producto }}</h4>
+<p>Talla: {{ p.Talla }}</p>
               {% if p.get('Genero') %}
                 <p style="color: #555;">Género: {{ p.Genero|string|title }}</p>
               {% endif %}
               <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
-              <a href="{{ p.URL }}" target="_blank" class="btn">Ver producto</a>
-            </div>
-          </div>
+<a class="btn" href="{{ p.URL }}" target="_blank">Ver producto</a>
+<div style="margin-top: 8px;"><label><input class="compare-check" data-img="{{ p.Imagen }}" data-nombre="{{ p.Producto }}" data-precio="{{ p.Precio }}" data-tienda="{{ p.Tienda }}" data-url="{{ p.URL }}" type="checkbox"/> Comparar</label></div></div>
+</div>
         {% endfor %}
       </div>
     {% endif %}
   {% endif %}
 </main>
-
 <footer>
-  <p>Buscá, compará y cazá tu próximo par</p>
-  <p>© 2025 SneakerHunter. Todos los derechos reservados.</p>
+<p>Buscá, compará y cazá tu próximo par</p>
+<p>© 2025 SneakerHunter. Todos los derechos reservados.</p>
 </footer>
-
 <!-- Modal Tallas -->
 <div id="modalTallas">
-  <div class="contenido">
-    <span class="cerrar" onclick="cerrarModalTallas()">&times;</span>
-    <img src="/static/img/sneakerhunter_logo.png" alt="Logo" class="logo-modal">
-    <h2>Consulta tu talla</h2>
-    <p>Conversión general de tallas US a centímetros:</p>
-    <!-- ... Aquí podés seguir agregando la tabla si querés -->
-    <button class="boton-cerrar-movil" onclick="cerrarModalTallas()">Cerrar</button>
-  </div>
+<div class="contenido">
+<span class="cerrar" onclick="cerrarModalTallas()">×</span>
+<img alt="Logo" class="logo-modal" src="/static/img/sneakerhunter_logo.png"/>
+<h2>Consulta tu talla</h2>
+<p>Conversión general de tallas US a centímetros:</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+<div><h3>Niños (Kids)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>10C</td><td>16.5</td></tr><tr><td>11C</td><td>17.5</td></tr><tr><td>12C</td><td>18</td></tr><tr><td>13C</td><td>19</td></tr><tr><td>1Y</td><td>20</td></tr><tr><td>2Y</td><td>21</td></tr><tr><td>3Y</td><td>22</td></tr></table></div>
+<div><h3>Jóvenes (Youth)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>4Y</td><td>22.5</td></tr><tr><td>5Y</td><td>23.5</td></tr><tr><td>6Y</td><td>24</td></tr><tr><td>7Y</td><td>25</td></tr></table></div>
+<div><h3>Hombres (Men)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>7</td><td>25</td></tr><tr><td>7.5</td><td>25.5</td></tr><tr><td>8</td><td>26</td></tr><tr><td>8.5</td><td>26.5</td></tr><tr><td>9</td><td>27</td></tr><tr><td>9.5</td><td>27.5</td></tr><tr><td>10</td><td>28</td></tr><tr><td>10.5</td><td>28.5</td></tr><tr><td>11</td><td>29</td></tr><tr><td>12</td><td>30</td></tr><tr><td>13</td><td>31</td></tr></table></div>
+<div><h3>Mujeres (Women)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>5</td><td>22</td></tr><tr><td>5.5</td><td>22.5</td></tr><tr><td>6</td><td>23</td></tr><tr><td>6.5</td><td>23.5</td></tr><tr><td>7</td><td>24</td></tr><tr><td>7.5</td><td>24.5</td></tr><tr><td>8</td><td>25</td></tr><tr><td>8.5</td><td>25.5</td></tr><tr><td>9</td><td>26</td></tr><tr><td>9.5</td><td>26.5</td></tr><tr><td>10</td><td>27</td></tr></table></div>
 </div>
 
+<!-- ... Aquí podés seguir agregando la tabla si querés -->
+<button class="boton-cerrar-movil" onclick="cerrarModalTallas()">Cerrar</button>
+</div>
+</div>
 <!-- Pop-up Tip -->
 <div id="popup-tip">
-  <span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">&times;</span>
-  <p id="contenido-tip" style="margin:0; font-size:14px; color:#333;"></p>
+<span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">×</span>
+<p id="contenido-tip" style="margin:0; font-size:14px; color:#333;"></p>
 </div>
-
 <!-- Scripts -->
 <script>
   function mostrarLoader() {
@@ -354,6 +348,54 @@
     }
   });
 </script>
+<div id="compare-box" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #ccc;padding:10px 20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:9998;display:none;">
+<button onclick="mostrarComparacion()">Comparar productos seleccionados</button>
+</div>
+<div id="compare-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.8);z-index:9999;justify-content:center;align-items:center;">
+<div style="background:white;padding:20px;border-radius:8px;max-width:90%;max-height:80%;overflow:auto;">
+<span onclick="document.getElementById('compare-modal').style.display='none'" style="float:right;cursor:pointer;font-size:18px;">×</span>
+<h3>Comparación</h3>
+<div id="compare-results" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;"></div>
+</div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.getElementsByClassName('compare-check');
+    for (let checkbox of checkboxes) {
+      checkbox.addEventListener('change', () => {
+        const selected = Array.from(checkboxes).filter(cb => cb.checked);
+        document.getElementById('compare-box').style.display = selected.length >= 2 ? 'block' : 'none';
+      });
+    }
+  });
 
+  function mostrarComparacion() {
+    const selected = Array.from(document.getElementsByClassName('compare-check')).filter(cb => cb.checked);
+    if (selected.length < 2 || selected.length > 3) {
+      alert('Selecciona entre 2 y 3 productos para comparar.');
+      return;
+    }
+
+    const container = document.getElementById('compare-results');
+    container.innerHTML = "";
+    selected.forEach(cb => {
+      const div = document.createElement('div');
+      div.style.border = '1px solid #ccc';
+      div.style.padding = '10px';
+      div.style.borderRadius = '6px';
+      div.style.width = '200px';
+      div.innerHTML = `
+        <img src="${cb.dataset.img}" style="width:100%;height:160px;object-fit:contain;background:#f2f2f2">
+        <h4 style="font-size:14px;">${cb.dataset.nombre}</h4>
+        <p><strong>Q${parseFloat(cb.dataset.precio).toFixed(2)}</strong></p>
+        <p style="font-size:13px;color:#777;">${cb.dataset.tienda}</p>
+        <a href="${cb.dataset.url}" target="_blank">Ver producto</a>
+      `;
+      container.appendChild(div);
+    });
+
+    document.getElementById('compare-modal').style.display = 'flex';
+  }
+</script>
 </body>
 </html>
