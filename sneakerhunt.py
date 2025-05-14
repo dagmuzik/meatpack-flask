@@ -116,14 +116,15 @@ def obtener_premiumtrendy(talla):
     productos_disponibles = []
     talla_buscada = talla.replace(".", "-").strip()
     page = 1
+    max_pages = 3  # 🔒 Máximo 3 páginas por ahora
 
-    while True:
+    while page <= max_pages:
         try:
             resp = requests.get(api_url, headers=headers, params={
                 "on_sale": "true",
                 "per_page": 100,
                 "page": page
-            }, timeout=6)  # ⏱️ Tiempo reducido para evitar bloqueos
+            }, timeout=4)  # ⏱️ Timeout reducido
 
             if resp.status_code != 200:
                 break
@@ -136,50 +137,45 @@ def obtener_premiumtrendy(talla):
             break
 
         for prod in productos:
-            nombre = prod.get("name", "")
-            url = prod.get("permalink", "")
-            imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
-            etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
-
-            # 🧼 Filtro de irrelevantes
-            if "sneakers" not in etiquetas or etiquetas.intersection({"clothing", "hombre", "ralph lauren", "true"}):
-                continue
-
-            precios = prod.get("prices", {})
             try:
+                nombre = prod.get("name", "")
+                url = prod.get("permalink", "")
+                imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+                etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
+
+                if "sneakers" not in etiquetas or etiquetas & {"clothing", "hombre", "ralph lauren", "true"}:
+                    continue
+
+                precios = prod.get("prices", {})
                 regular = int(precios.get("regular_price", 0)) / 100
                 oferta = int(precios.get("sale_price", 0)) / 100
-            except (ValueError, TypeError):
+                precio_final = oferta if oferta > 0 else regular
+
+                if precio_final == 0:
+                    continue
+
+                variaciones = prod.get("variations", [])
+                talla_encontrada = any(
+                    attr.get("value", "").strip() == talla_buscada
+                    for var in variaciones
+                    for attr in var.get("attributes", [])
+                    if "talla" in attr.get("name", "").lower()
+                )
+
+                if talla_encontrada:
+                    productos_disponibles.append({
+                        "Producto": nombre,
+                        "Talla": talla,
+                        "Precio": precio_final,
+                        "URL": url,
+                        "Imagen": imagen,
+                        "Tienda": "Premium Trendy",
+                        "Marca": inferir_marca(nombre),
+                        "Genero": inferir_genero(nombre)
+                    })
+
+            except:
                 continue
-
-            precio_final = oferta if oferta > 0 else regular
-            if precio_final == 0:
-                continue
-
-            variaciones = prod.get("variations", [])
-            if not variaciones:
-                continue
-
-            if any(
-                attr.get("value", "").strip() == talla_buscada
-                for var in variaciones
-                for attr in var.get("attributes", [])
-                if "talla" in attr.get("name", "").lower()
-            ):
-                productos_disponibles.append({
-                    "Producto": nombre,
-                    "Talla": talla,
-                    "Precio": precio_final,
-                    "URL": url,
-                    "Imagen": imagen,
-                    "Tienda": "Premium Trendy",
-                    "Marca": inferir_marca(nombre),
-                    "Genero": inferir_genero(nombre)
-                })
-
-        # 🧤 No avanzar indefinidamente si no hay más productos
-        if len(productos) < 100:
-            break
 
         page += 1
 
