@@ -20,9 +20,7 @@ BASE_KICKS_WEB = "https://www.kicks.com.gt"
 
 def get_json(url, headers=None, params=None):
     try:
-        headers = headers or {}
-        headers.update(HEADERS)
-        response = requests.get(url, headers=headers, params=params, timeout=5)
+        response = requests.get(url, headers=headers or HEADERS, params=params, timeout=4)
         response.raise_for_status()
         return response.json()
     except Exception as e:
@@ -183,30 +181,48 @@ def obtener_premiumtrendy(talla):
     return productos_disponibles
         
 def obtener_bitterheads(talla):
-    productos = []
-    vistos = set()
-    for page in range(1, 3):
-        url = f"https://www.bitterheads.com/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps=24&pg={page}"
-        prods = get_json(url)
-        for p in prods:
-            if p['productId'] in vistos:
-                continue
-            tallas_disp = get_json(f"https://www.bitterheads.com/api/catalog_system/pub/products/variations/{p['productId']}")
+    import time
+
+    url_base = "https://www.bitterheads.com"
+    search_url = f"{url_base}/api/catalog_system/pub/products/search?fq=specificationFilter_43:*&fq=specificationFilter_110:*&_from=0&_to=49"
+    productos = get_json(search_url)
+    resultados = []
+
+    for p in productos:
+        time.sleep(0.1)  # pausa para evitar saturación de requests
+
+        try:
+            tallas_disp = get_json(f"{url_base}/api/catalog_system/pub/products/variations/{p['productId']}")
+            tallas = []
             for sku in tallas_disp.get("skus", []):
-                talla_sku = sku["dimensions"].get("Talla", "")
-                if talla_coincide(talla, talla_sku) and sku.get("available"):
-                    productos.append({
-                        "Producto": p["productName"],
-                        "Talla": talla_sku,
-                        "Precio": p["items"][0]["sellers"][0]["commertialOffer"]["Price"],
-                        "Marca": inferir_marca(p["productName"]),
-                        "Tienda": "Bitterheads",
-                        "URL": f"https://www.bitterheads.com/{p['linkText']}/p",
-                        "Imagen": p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
-                    })
-                    vistos.add(p['productId'])
-                    break
-    return productos
+                stock = sku.get("availableQuantity", 0)
+                talla_actual = sku.get("dimensions", {}).get("Talla")
+                if stock > 0 and talla_coincide(talla, talla_actual):
+                    tallas.append(talla_actual)
+
+            if not tallas:
+                continue
+
+            precio = int(p["items"][0]["sellers"][0]["commertialOffer"]["Price"])
+            imagen = p.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "")
+            if not imagen:
+                imagen = "https://via.placeholder.com/240x200?text=Sneaker"
+
+            resultados.append({
+                "Producto": p["productName"],
+                "Talla": ", ".join(tallas),
+                "Precio": precio,
+                "URL": f'{url_base}/{p["linkText"]}/p',
+                "Imagen": imagen,
+                "Tienda": "Bitterheads",
+                "Marca": inferir_marca(p["productName"]),
+                "Genero": inferir_genero(p["productName"])
+            })
+
+        except Exception as e:
+            print(f"⚠️ Error al procesar producto {p.get('productName')}: {e}")
+
+    return resultados
 
 def obtener_adidas(talla):
     productos = []
