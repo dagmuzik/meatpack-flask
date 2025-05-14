@@ -20,11 +20,11 @@ BASE_KICKS_WEB = "https://www.kicks.com.gt"
 
 def get_json(url, headers=None, params=None):
     try:
-        response = requests.get(url, headers=headers or HEADERS, params=params, timeout=4)
+        response = requests.get(url, headers=headers or HEADERS, params=params, timeout=10)
         response.raise_for_status()
         return response.json()
-    except Exception as e:
-        print(f"⚠️ Error solicitando {url}: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️ Error al obtener JSON desde {url}: {e}")
         return {}
 
 def normalizar_talla(t):
