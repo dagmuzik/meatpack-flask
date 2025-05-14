@@ -221,16 +221,16 @@
 <label for="marca">Marca:</label>
 <select name="marca">
 <option value="">Todas</option>
-      {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-        <option %}="" %}selected{%="" endif="" if="" marca="m" value="{{ m }}" {%="">{{ m.title() }}</option>
-      {% endfor %}
+       {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
+        <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
+       {% endfor %}
     </select>
 <label for="tienda">Tienda:</label>
 <select name="tienda">
 <option value="">Todas</option>
-      {% for t in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy'] %}
-        <option %}="" %}selected{%="" endif="" if="" tienda="t" value="{{ t }}" {%="">{{ t }}</option>
-      {% endfor %}
+       {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
+        <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
+       {% endfor %}
     </select>
 <label for="genero">Género:</label>
 <select name="genero">
