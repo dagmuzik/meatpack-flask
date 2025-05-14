@@ -277,10 +277,11 @@
 </main>
 <!-- Agregar al final del body del archivo index.html antes del cierre de </body> -->
 
-<!-- Footer -->
+<!-- Footer actualizado -->
 <footer style="text-align: center; margin-top: 60px; font-size: 14px; color: #666;">
   © 2025 SneakerHunter. Todos los derechos reservados. |
-  <a href="#" onclick="mostrarModalTerminos()" style="color: #666;">Términos y condiciones</a>
+  <a href="#" onclick="mostrarModalTerminos()" style="color: #666;">Términos y condiciones</a> |
+  <a href="#" onclick="mostrarModalPrivacidad()" style="color: #666;">Política de privacidad</a>
 </footer>
 <!-- Modal de Términos -->
 <div id="modal-terminos" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999;">
@@ -296,13 +297,34 @@
     <p><strong>6. Contacto:</strong> Para consultas, escribinos a <a href="mailto:tato89@gmail.com">tato89@gmail.com</a>.</p>
   </div>
 </div>
-
+<!-- Modal Política de Privacidad -->
+<div id="modal-privacidad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999;">
+  <div style="background:white; padding:30px; max-width:700px; margin:60px auto; border-radius:8px; position:relative;">
+    <button onclick="cerrarModalPrivacidad()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:18px;">✖</button>
+    <h2>Política de Privacidad</h2>
+    <p><strong>Última actualización:</strong> mayo 2025</p>
+    <p><strong>1. Información que recopilamos:</strong> No solicitamos datos personales. Podemos recolectar información anónima como IP, navegador o páginas visitadas para mejorar el sitio.</p>
+    <p><strong>2. Uso de cookies:</strong> Usamos cookies para recordar productos guardados y analizar el uso del sitio. Podés desactivarlas desde tu navegador.</p>
+    <p><strong>3. Favoritos y almacenamiento local:</strong> Los productos guardados se almacenan en tu navegador. No accedemos a esa información.</p>
+    <p><strong>4. Compartición de datos:</strong> No compartimos ni vendemos datos. Los enlaces externos tienen sus propias políticas.</p>
+    <p><strong>5. Seguridad:</strong> Aplicamos medidas para mantener la seguridad del sitio, aunque no manejamos datos sensibles.</p>
+    <p><strong>6. Cambios:</strong> Podremos actualizar esta política ocasionalmente.</p>
+    <p><strong>7. Contacto:</strong> Escribinos a <a href="mailto:tato89@gmail.com">tato89@gmail.com</a> si tenés preguntas.</p>
+  </div>
+</div>
+<!-- Scripts -->
 <script>
   function mostrarModalTerminos() {
     document.getElementById('modal-terminos').style.display = 'block';
   }
   function cerrarModalTerminos() {
     document.getElementById('modal-terminos').style.display = 'none';
+  }
+  function mostrarModalPrivacidad() {
+    document.getElementById('modal-privacidad').style.display = 'block';
+  }
+  function cerrarModalPrivacidad() {
+    document.getElementById('modal-privacidad').style.display = 'none';
   }
 </script>
 <!-- Modal Tallas -->
