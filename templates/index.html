@@ -1,53 +1,87 @@
 <!DOCTYPE html>
-
 <html lang="es">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>SneakerHunter</title>
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYC6HQ8B9J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   SneakersHunter
+  </title>
+  <link href="{{ url_for('static', filename='favicon.ico') }}" rel="icon" type="image/x-icon"/>
+  <!-- Google tag (gtag.js) -->
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-TYC6HQ8B9J">
+  </script>
+  <script>
+   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-TYC6HQ8B9J');
-</script>
-<!-- Modal Disclaimer -->
-<div id="modal-disclaimer" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:white; padding:20px; border-radius:8px; max-width:600px; text-align:left;">
-    <h2>Aviso legal</h2>
-    <p>SneakerHunter es una plataforma comparadora que busca mostrar productos disponibles públicamente en tiendas oficiales de Guatemala. No somos una tienda, ni vendemos directamente ningún producto.</p>
-    <p>No usamos imágenes, marcas ni textos oficiales de las tiendas sin autorización. Cada producto incluye un enlace directo a la tienda original.</p>
-    <p>Los precios, tallas y disponibilidad pueden cambiar sin previo aviso. Te recomendamos verificar siempre en la tienda antes de realizar tu compra.</p>
-    <p>Si representás alguna de las tiendas mostradas y deseás colaborar o solicitar alguna modificación, podés escribirnos directamente.</p>
-    <button onclick="cerrarDisclaimer()" style="margin-top: 10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">Aceptar</button>
+  </script>
+  <!-- Modal Disclaimer -->
+  <div id="modal-disclaimer" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+   <div style="background:white; padding:20px; border-radius:8px; max-width:600px; text-align:left;">
+    <h2>
+     Aviso legal
+    </h2>
+    <p>
+     SneakersHunter es una plataforma comparadora que busca mostrar productos disponibles públicamente en tiendas oficiales de Guatemala. No somos una tienda, ni vendemos directamente ningún producto.
+    </p>
+    <p>
+     No usamos imágenes, marcas ni textos oficiales de las tiendas sin autorización. Cada producto incluye un enlace directo a la tienda original.
+    </p>
+    <p>
+     Los precios, tallas y disponibilidad pueden cambiar sin previo aviso. Te recomendamos verificar siempre en la tienda antes de realizar tu compra.
+    </p>
+    <p>
+     Si representás alguna de las tiendas mostradas y deseás colaborar o solicitar alguna modificación, podés escribirnos directamente.
+    </p>
+    <button onclick="cerrarDisclaimer()" style="margin-top: 10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">
+     Aceptar
+    </button>
+   </div>
   </div>
-</div>
-<!-- Modal Privacidad -->
-<div id="modal-privacidad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:white; padding:20px; border-radius:8px; max-width:700px; max-height:90vh; overflow-y:auto;">
-    <h2>Política de Privacidad</h2>
-    <p>En SneakerHunter valoramos tu privacidad. No recolectamos datos personales sin tu consentimiento. Utilizamos cookies locales únicamente para guardar tus productos favoritos y recordar tus filtros de búsqueda.</p>
-    <p>No compartimos, vendemos ni cedemos información de usuarios a terceros. Si en el futuro integramos herramientas como Google Analytics o newsletters, serás notificado y podrás aceptar o rechazar.</p>
-    <p>Tu navegación en este sitio es segura, y podés usarlo sin registrarte ni iniciar sesión.</p>
-    <button onclick="cerrarModal('modal-privacidad')" style="margin-top:10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">Cerrar</button>
+  <!-- Modal Privacidad -->
+  <div id="modal-privacidad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+   <div style="background:white; padding:20px; border-radius:8px; max-width:700px; max-height:90vh; overflow-y:auto;">
+    <h2>
+     Política de Privacidad
+    </h2>
+    <p>
+     En SneakersHunter valoramos tu privacidad. No recolectamos datos personales sin tu consentimiento. Utilizamos cookies locales únicamente para guardar tus productos favoritos y recordar tus filtros de búsqueda.
+    </p>
+    <p>
+     No compartimos, vendemos ni cedemos información de usuarios a terceros. Si en el futuro integramos herramientas como Google Analytics o newsletters, serás notificado y podrás aceptar o rechazar.
+    </p>
+    <p>
+     Tu navegación en este sitio es segura, y podés usarlo sin registrarte ni iniciar sesión.
+    </p>
+    <button onclick="cerrarModal('modal-privacidad')" style="margin-top:10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">
+     Cerrar
+    </button>
+   </div>
   </div>
-</div>
-<!-- Modal Términos de Uso -->
-<div id="modal-uso" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:white; padding:20px; border-radius:8px; max-width:700px; max-height:90vh; overflow-y:auto;">
-    <h2>Términos de Uso</h2>
-    <p>SneakerHunter es una herramienta comparadora de productos de tiendas oficiales en Guatemala. No vendemos productos ni procesamos pagos. Toda la información mostrada (precios, tallas y disponibilidad) proviene de fuentes públicas de las tiendas.</p>
-    <p>Los enlaces redirigen al sitio original de cada tienda, donde se realiza la compra final. No garantizamos que los precios o existencias estén actualizados al segundo.</p>
-    <p>El uso de este sitio implica tu aceptación de estos términos.</p>
-    <button onclick="cerrarModal('modal-uso')" style="margin-top:10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">Cerrar</button>
+  <!-- Modal Términos de Uso -->
+  <div id="modal-uso" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+   <div style="background:white; padding:20px; border-radius:8px; max-width:700px; max-height:90vh; overflow-y:auto;">
+    <h2>
+     Términos de Uso
+    </h2>
+    <p>
+     SneakersHunter es una herramienta comparadora de productos de tiendas oficiales en Guatemala. No vendemos productos ni procesamos pagos. Toda la información mostrada (precios, tallas y disponibilidad) proviene de fuentes públicas de las tiendas.
+    </p>
+    <p>
+     Los enlaces redirigen al sitio original de cada tienda, donde se realiza la compra final. No garantizamos que los precios o existencias estén actualizados al segundo.
+    </p>
+    <p>
+     El uso de este sitio implica tu aceptación de estos términos.
+    </p>
+    <button onclick="cerrarModal('modal-uso')" style="margin-top:10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">
+     Cerrar
+    </button>
+   </div>
   </div>
-</div>
-<style>
-    body {
+  <style>
+   body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #f9f9f9;
@@ -256,121 +290,257 @@
       }
     }
   </style>
-</head>
-<body>
-<header>
-<img alt="Logo" src="/static/img/sneakerhunter_logo.png"/>
-<div class="title-container">
-<h1>SneakerHunter</h1>
-<span>Buscador de sneakers en oferta en tiendas Online de Guatemala</span>
-</div>
-
-<div style="margin-left:auto;">
-<button onclick="abrirModalEtiqueta()" style="padding: 6px 12px; margin-left: 10px; background: black; color: white; border: none; border-radius: 6px; cursor: pointer;">¿Cómo leer una etiqueta de caja?</button>
-</div>
-</header>
-<main>
-<img src="/static/img/sneakerhunter_logo.png" alt="Logo Central" style="width: 210px; margin-top: 30px;">
-<form method="post" onsubmit="mostrarLoader()">
-<label for="talla">Talla:</label>
-<input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
-<label for="marca">Marca:</label>
-<select name="marca">
-<option value="">Todas</option>
+ </head>
+ <body>
+  <header>
+   <img alt="Logo" src="/static/img/sneakerhunter_logo.png"/>
+   <div class="title-container">
+    <h1>
+     SneakersHunter
+    </h1>
+    <span>
+     Buscador de sneakers en oferta en tiendas Online de Guatemala
+    </span>
+   </div>
+   <div style="margin-left:auto;">
+    <button onclick="abrirModalEtiqueta()" style="padding: 6px 12px; margin-left: 10px; background: black; color: white; border: none; border-radius: 6px; cursor: pointer;">
+     ¿Cómo leer una etiqueta de caja?
+    </button>
+   </div>
+  </header>
+  <main>
+   <img alt="Logo Central" src="/static/img/sneakerhunter_logo.png" style="width: 210px; margin-top: 30px;"/>
+   <form method="post" onsubmit="mostrarLoader()">
+    <label for="talla">
+     Talla:
+    </label>
+    <input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
+    <label for="marca">
+     Marca:
+    </label>
+    <select name="marca">
+     <option value="">
+      Todas
+     </option>
      {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-       <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
-      {% endfor %}
+     <option %}="" %}selected{%="" endif="" if="" marca="m" value="{{ m }}" {%="">
+      {{ m.title() }}
+     </option>
+     {% endfor %}
     </select>
-<label for="tienda">Tienda:</label>
-<select name="tienda">
-  <option value="">Todas</option>
-  {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
-    <option value="{{ m }}" {% if tienda == m %}selected{% endif %}>{{ m.title() }}</option>
-  {% endfor %}
+    <label for="tienda">
+     Tienda:
+    </label>
+    <select name="tienda">
+     <option value="">
+      Todas
+     </option>
+     {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
+     <option %}="" %}selected{%="" endif="" if="" tienda="m" value="{{ m }}" {%="">
+      {{ m.title() }}
+     </option>
+     {% endfor %}
     </select>
-<label for="genero">Género:</label>
-<select name="genero">
-<option value="">Todos</option>
-<option value="hombre">Hombre</option>
-<option value="mujer">Mujer</option>
-<option value="unisex">Unisex</option>
-</select>
-<button type="submit">Buscar</button>
-</form>
-<div style="margin: 30px 0;">
-<button onclick="abrirModalTallas()">Consulta tu talla</button>
-</div>
-<img alt="Cargando..." id="loader" src="/static/img/sneakerhunt.gif" width="60"/>
-
-  {% if productos is not none %}
+    <label for="genero">
+     Género:
+    </label>
+    <select name="genero">
+     <option value="">
+      Todos
+     </option>
+     <option value="hombre">
+      Hombre
+     </option>
+     <option value="mujer">
+      Mujer
+     </option>
+     <option value="unisex">
+      Unisex
+     </option>
+    </select>
+    <button type="submit">
+     Buscar
+    </button>
+   </form>
+   <div style="margin: 30px 0;">
+    <button onclick="abrirModalTallas()">
+     Consulta tu talla
+    </button>
+   </div>
+   <img alt="Cargando..." id="loader" src="/static/img/sneakerhunt.gif" width="60">
+    {% if productos is not none %}
     {% if productos|length == 0 %}
-      <p>❌ No se encontraron resultados con esos filtros</p>
+    <p>
+     ❌ No se encontraron resultados con esos filtros
+    </p>
     {% else %}
-      <div class="card-container">
-        {% for p in productos %}
-          <div class="card">
-<img alt="{{ p.Producto }}" src="{{ p.Imagen }}"/>
-<div class="card-body">
-<strong>{{ p.Marca.upper() }} · {{ p.Tienda }}</strong>
-<h4>{{ p.Producto }}</h4>
-<p>Talla: {{ p.Talla }}</p>
-              {% if p.get('Genero') %}
-                <p style="color: #555;">Género: {{ p.Genero|string|title }}</p>
-              {% endif %}
-              <p><strong>Q{{ '%.2f' | format(p.Precio) }}</strong></p>
-<a class="btn" href="{{ p.URL }}" target="_blank">Ver producto</a>
-<div style="margin-top: 8px;"><label><input class="compare-check" data-img="{{ p.Imagen }}" data-nombre="{{ p.Producto }}" data-precio="{{ p.Precio }}" data-tienda="{{ p.Tienda }}" data-url="{{ p.URL }}" type="checkbox"/> Comparar</label></div></div>
-</div>
-        {% endfor %}
+    <div class="card-container">
+     {% for p in productos %}
+     <div class="card">
+      <img alt="{{ p.Producto }}" src="{{ p.Imagen }}"/>
+      <div class="card-body">
+       <strong>
+        {{ p.Marca.upper() }} · {{ p.Tienda }}
+       </strong>
+       <h4>
+        {{ p.Producto }}
+       </h4>
+       <p>
+        Talla: {{ p.Talla }}
+       </p>
+       {% if p.get('Genero') %}
+       <p style="color: #555;">
+        Género: {{ p.Genero|string|title }}
+       </p>
+       {% endif %}
+       <p>
+        <strong>
+         Q{{ '%.2f' | format(p.Precio) }}
+        </strong>
+       </p>
+       <a class="btn" href="{{ p.URL }}" target="_blank">
+        Ver producto
+       </a>
+       <div style="margin-top: 8px;">
+        <label>
+         <input class="compare-check" data-img="{{ p.Imagen }}" data-nombre="{{ p.Producto }}" data-precio="{{ p.Precio }}" data-tienda="{{ p.Tienda }}" data-url="{{ p.URL }}" type="checkbox"/>
+         Comparar
+        </label>
+       </div>
       </div>
+     </div>
+     {% endfor %}
+    </div>
     {% endif %}
   {% endif %}
-</main>
-<!-- Agregar al final del body del archivo index.html antes del cierre de </body> -->
-
-<!-- Footer actualizado -->
-<footer style="text-align: center; margin-top: 60px; font-size: 14px; color: #666;">
-  © 2025 SneakerHunter. Todos los derechos reservados. |
-  <a href="#" onclick="mostrarModalTerminos()" style="color: #666;">Términos y condiciones</a> |
-  <a href="#" onclick="mostrarModalPrivacidad()" style="color: #666;">Política de privacidad</a>
-</footer>
-<!-- Modal de Términos -->
-<div id="modal-terminos" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999;">
-  <div style="background:white; padding:30px; max-width:700px; margin:60px auto; border-radius:8px; position:relative;">
-    <button onclick="cerrarModalTerminos()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:18px;">✖</button>
-    <h2>Términos y Condiciones de Uso</h2>
-    <p><strong>Última actualización:</strong> mayo 2025</p>
-    <p><strong>1. Descripción del servicio:</strong> SneakerHunter es una plataforma que centraliza información pública sobre productos, precios y disponibilidad de sneakers en tiendas en línea de Guatemala. No vendemos productos directamente ni somos responsables de las transacciones entre los usuarios y las tiendas externas.</p>
-    <p><strong>2. Uso del sitio:</strong> Podés utilizar este sitio con fines personales e informativos. No está permitido: usar bots o scrapers sin permiso, copiar contenido con fines comerciales, ni comprometer el funcionamiento del sitio.</p>
-    <p><strong>3. Contenido externo:</strong> Los enlaces redirigen a sitios externos. SneakerHunter no se hace responsable de la veracidad o condiciones en tiendas externas.</p>
-    <p><strong>4. Propiedad intelectual:</strong> Todo el contenido original es propiedad de SneakerHunter. Su uso no autorizado está prohibido.</p>
-    <p><strong>5. Modificaciones:</strong> Podemos actualizar estos términos en cualquier momento. Te notificaremos cambios importantes.</p>
-    <p><strong>6. Contacto:</strong> Para consultas, escribinos a <a href="mailto:tato89@gmail.com">tato89@gmail.com</a>.</p>
+   </img>
+  </main>
+  <!-- Agregar al final del body del archivo index.html antes del cierre de </body> -->
+  <!-- Footer actualizado -->
+  <!-- Modal de Términos -->
+  <div id="modal-terminos" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999;">
+   <div style="background:white; padding:30px; max-width:700px; margin:60px auto; border-radius:8px; position:relative;">
+    <button onclick="cerrarModalTerminos()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:18px;">
+     ✖
+    </button>
+    <h2>
+     Términos y Condiciones de Uso
+    </h2>
+    <p>
+     <strong>
+      Última actualización:
+     </strong>
+     mayo 2025
+    </p>
+    <p>
+     <strong>
+      1. Descripción del servicio:
+     </strong>
+     SneakersHunter es una plataforma que centraliza información pública sobre productos, precios y disponibilidad de sneakers en tiendas en línea de Guatemala. No vendemos productos directamente ni somos responsables de las transacciones entre los usuarios y las tiendas externas.
+    </p>
+    <p>
+     <strong>
+      2. Uso del sitio:
+     </strong>
+     Podés utilizar este sitio con fines personales e informativos. No está permitido: usar bots o scrapers sin permiso, copiar contenido con fines comerciales, ni comprometer el funcionamiento del sitio.
+    </p>
+    <p>
+     <strong>
+      3. Contenido externo:
+     </strong>
+     Los enlaces redirigen a sitios externos. SneakerHunter no se hace responsable de la veracidad o condiciones en tiendas externas.
+    </p>
+    <p>
+     <strong>
+      4. Propiedad intelectual:
+     </strong>
+     Todo el contenido original es propiedad de SneakerHunter. Su uso no autorizado está prohibido.
+    </p>
+    <p>
+     <strong>
+      5. Modificaciones:
+     </strong>
+     Podemos actualizar estos términos en cualquier momento. Te notificaremos cambios importantes.
+    </p>
+    <p>
+     <strong>
+      6. Contacto:
+     </strong>
+     Para consultas, escribinos a
+     <a href="mailto:admin@sneakershunter.com">
+      admin@sneakershunter.com
+     </a>
+     .
+    </p>
+   </div>
   </div>
-</div>
-<!-- Modal Política de Privacidad -->
-<div id="modal-privacidad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999;">
-  <div style="background:white; padding:30px; max-width:700px; margin:60px auto; border-radius:8px; position:relative;">
-    <button onclick="cerrarModalPrivacidad()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:18px;">✖</button>
-    <h2>Política de Privacidad</h2>
-    <p><strong>Última actualización:</strong> mayo 2025</p>
-    <p><strong>1. Información que recopilamos:</strong> No solicitamos datos personales. Podemos recolectar información anónima como IP, navegador o páginas visitadas para mejorar el sitio.</p>
-    <p><strong>2. Uso de cookies:</strong> Usamos cookies para recordar productos guardados y analizar el uso del sitio. Podés desactivarlas desde tu navegador.</p>
-    <p><strong>3. Favoritos y almacenamiento local:</strong> Los productos guardados se almacenan en tu navegador. No accedemos a esa información.</p>
-    <p><strong>4. Compartición de datos:</strong> No compartimos ni vendemos datos. Los enlaces externos tienen sus propias políticas.</p>
-    <p><strong>5. Seguridad:</strong> Aplicamos medidas para mantener la seguridad del sitio, aunque no manejamos datos sensibles.</p>
-    <p><strong>6. Cambios:</strong> Podremos actualizar esta política ocasionalmente.</p>
-    <p><strong>7. Contacto:</strong> Escribinos a <a href="mailto:tato89@gmail.com">tato89@gmail.com</a> si tenés preguntas.</p>
+  <!-- Modal Política de Privacidad -->
+  <div id="modal-privacidad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999;">
+   <div style="background:white; padding:30px; max-width:700px; margin:60px auto; border-radius:8px; position:relative;">
+    <button onclick="cerrarModalPrivacidad()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:18px;">
+     ✖
+    </button>
+    <h2>
+     Política de Privacidad
+    </h2>
+    <p>
+     <strong>
+      Última actualización:
+     </strong>
+     mayo 2025
+    </p>
+    <p>
+     <strong>
+      1. Información que recopilamos:
+     </strong>
+     No solicitamos datos personales. Podemos recolectar información anónima como IP, navegador o páginas visitadas para mejorar el sitio.
+    </p>
+    <p>
+     <strong>
+      2. Uso de cookies:
+     </strong>
+     Usamos cookies para recordar productos guardados y analizar el uso del sitio. Podés desactivarlas desde tu navegador.
+    </p>
+    <p>
+     <strong>
+      3. Favoritos y almacenamiento local:
+     </strong>
+     Los productos guardados se almacenan en tu navegador. No accedemos a esa información.
+    </p>
+    <p>
+     <strong>
+      4. Compartición de datos:
+     </strong>
+     No compartimos ni vendemos datos. Los enlaces externos tienen sus propias políticas.
+    </p>
+    <p>
+     <strong>
+      5. Seguridad:
+     </strong>
+     Aplicamos medidas para mantener la seguridad del sitio, aunque no manejamos datos sensibles.
+    </p>
+    <p>
+     <strong>
+      6. Cambios:
+     </strong>
+     Podremos actualizar esta política ocasionalmente.
+    </p>
+    <p>
+     <strong>
+      7. Contacto:
+     </strong>
+     Escribinos a
+     <a href="mailto:admin@sneakershunter.com">
+      admin@sneakershunter.com
+     </a>
+     si tenés preguntas.
+    </p>
+   </div>
   </div>
-</div>
-<hr style="margin-top: 40px;">
-<div style="text-align: center; font-size: 14px; color: #777;">
-  <p>&copy; 2025 SneakerHunter. Todos los derechos reservados.</p>
-  <p><a href="#" onclick="mostrarDisclaimer()" style="color:#555; text-decoration:underline;">Leer aviso legal</a></p>
-</div>
-<!-- Scripts -->
-<script>
-  function mostrarModalTerminos() {
+  <hr style="margin-top: 40px;"/>
+  <!-- Scripts -->
+  <script>
+   function mostrarModalTerminos() {
     document.getElementById('modal-terminos').style.display = 'block';
   }
   function cerrarModalTerminos() {
@@ -382,32 +552,363 @@
   function cerrarModalPrivacidad() {
     document.getElementById('modal-privacidad').style.display = 'none';
   }
-</script>
-<!-- Modal Tallas -->
-<div id="modalTallas">
-<div class="contenido">
-<span class="cerrar" onclick="cerrarModalTallas()">×</span>
-<img alt="Logo" class="logo-modal" src="/static/img/sneakerhunter_logo.png"/>
-<h2>Consulta tu talla</h2>
-<p>Conversión general de tallas US a centímetros:</p>
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-<div><h3>Niños (Kids)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>10C</td><td>16.5</td></tr><tr><td>11C</td><td>17.5</td></tr><tr><td>12C</td><td>18</td></tr><tr><td>13C</td><td>19</td></tr><tr><td>1Y</td><td>20</td></tr><tr><td>2Y</td><td>21</td></tr><tr><td>3Y</td><td>22</td></tr></table></div>
-<div><h3>Jóvenes (Youth)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>4Y</td><td>22.5</td></tr><tr><td>5Y</td><td>23.5</td></tr><tr><td>6Y</td><td>24</td></tr><tr><td>7Y</td><td>25</td></tr></table></div>
-<div><h3>Hombres (Men)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>7</td><td>25</td></tr><tr><td>7.5</td><td>25.5</td></tr><tr><td>8</td><td>26</td></tr><tr><td>8.5</td><td>26.5</td></tr><tr><td>9</td><td>27</td></tr><tr><td>9.5</td><td>27.5</td></tr><tr><td>10</td><td>28</td></tr><tr><td>10.5</td><td>28.5</td></tr><tr><td>11</td><td>29</td></tr><tr><td>12</td><td>30</td></tr><tr><td>13</td><td>31</td></tr></table></div>
-<div><h3>Mujeres (Women)</h3><table><tr><th>US</th><th>CM</th></tr><tr><td>5</td><td>22</td></tr><tr><td>5.5</td><td>22.5</td></tr><tr><td>6</td><td>23</td></tr><tr><td>6.5</td><td>23.5</td></tr><tr><td>7</td><td>24</td></tr><tr><td>7.5</td><td>24.5</td></tr><tr><td>8</td><td>25</td></tr><tr><td>8.5</td><td>25.5</td></tr><tr><td>9</td><td>26</td></tr><tr><td>9.5</td><td>26.5</td></tr><tr><td>10</td><td>27</td></tr></table></div>
-</div>
-<!-- ... Aquí podés seguir agregando la tabla si querés -->
-<button class="boton-cerrar-movil" onclick="cerrarModalTallas()">Cerrar</button>
-</div>
-</div>
-<!-- Pop-up Tip -->
-<div id="popup-tip">
-<span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">×</span>
-<p id="contenido-tip" style="margin:0; font-size:14px; color:#333;"></p>
-</div>
-<!-- Scripts -->
-<script>
-  function mostrarLoader() {
+  </script>
+  <!-- Modal Tallas -->
+  <div id="modalTallas">
+   <div class="contenido">
+    <span class="cerrar" onclick="cerrarModalTallas()">
+     ×
+    </span>
+    <img alt="Logo" class="logo-modal" src="/static/img/sneakerhunter_logo.png"/>
+    <h2>
+     Consulta tu talla
+    </h2>
+    <p>
+     Conversión general de tallas US a centímetros:
+    </p>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+     <div>
+      <h3>
+       Niños (Kids)
+      </h3>
+      <table>
+       <tr>
+        <th>
+         US
+        </th>
+        <th>
+         CM
+        </th>
+       </tr>
+       <tr>
+        <td>
+         10C
+        </td>
+        <td>
+         16.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         11C
+        </td>
+        <td>
+         17.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         12C
+        </td>
+        <td>
+         18
+        </td>
+       </tr>
+       <tr>
+        <td>
+         13C
+        </td>
+        <td>
+         19
+        </td>
+       </tr>
+       <tr>
+        <td>
+         1Y
+        </td>
+        <td>
+         20
+        </td>
+       </tr>
+       <tr>
+        <td>
+         2Y
+        </td>
+        <td>
+         21
+        </td>
+       </tr>
+       <tr>
+        <td>
+         3Y
+        </td>
+        <td>
+         22
+        </td>
+       </tr>
+      </table>
+     </div>
+     <div>
+      <h3>
+       Jóvenes (Youth)
+      </h3>
+      <table>
+       <tr>
+        <th>
+         US
+        </th>
+        <th>
+         CM
+        </th>
+       </tr>
+       <tr>
+        <td>
+         4Y
+        </td>
+        <td>
+         22.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         5Y
+        </td>
+        <td>
+         23.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         6Y
+        </td>
+        <td>
+         24
+        </td>
+       </tr>
+       <tr>
+        <td>
+         7Y
+        </td>
+        <td>
+         25
+        </td>
+       </tr>
+      </table>
+     </div>
+     <div>
+      <h3>
+       Hombres (Men)
+      </h3>
+      <table>
+       <tr>
+        <th>
+         US
+        </th>
+        <th>
+         CM
+        </th>
+       </tr>
+       <tr>
+        <td>
+         7
+        </td>
+        <td>
+         25
+        </td>
+       </tr>
+       <tr>
+        <td>
+         7.5
+        </td>
+        <td>
+         25.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         8
+        </td>
+        <td>
+         26
+        </td>
+       </tr>
+       <tr>
+        <td>
+         8.5
+        </td>
+        <td>
+         26.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         9
+        </td>
+        <td>
+         27
+        </td>
+       </tr>
+       <tr>
+        <td>
+         9.5
+        </td>
+        <td>
+         27.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         10
+        </td>
+        <td>
+         28
+        </td>
+       </tr>
+       <tr>
+        <td>
+         10.5
+        </td>
+        <td>
+         28.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         11
+        </td>
+        <td>
+         29
+        </td>
+       </tr>
+       <tr>
+        <td>
+         12
+        </td>
+        <td>
+         30
+        </td>
+       </tr>
+       <tr>
+        <td>
+         13
+        </td>
+        <td>
+         31
+        </td>
+       </tr>
+      </table>
+     </div>
+     <div>
+      <h3>
+       Mujeres (Women)
+      </h3>
+      <table>
+       <tr>
+        <th>
+         US
+        </th>
+        <th>
+         CM
+        </th>
+       </tr>
+       <tr>
+        <td>
+         5
+        </td>
+        <td>
+         22
+        </td>
+       </tr>
+       <tr>
+        <td>
+         5.5
+        </td>
+        <td>
+         22.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         6
+        </td>
+        <td>
+         23
+        </td>
+       </tr>
+       <tr>
+        <td>
+         6.5
+        </td>
+        <td>
+         23.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         7
+        </td>
+        <td>
+         24
+        </td>
+       </tr>
+       <tr>
+        <td>
+         7.5
+        </td>
+        <td>
+         24.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         8
+        </td>
+        <td>
+         25
+        </td>
+       </tr>
+       <tr>
+        <td>
+         8.5
+        </td>
+        <td>
+         25.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         9
+        </td>
+        <td>
+         26
+        </td>
+       </tr>
+       <tr>
+        <td>
+         9.5
+        </td>
+        <td>
+         26.5
+        </td>
+       </tr>
+       <tr>
+        <td>
+         10
+        </td>
+        <td>
+         27
+        </td>
+       </tr>
+      </table>
+     </div>
+    </div>
+    <!-- ... Aquí podés seguir agregando la tabla si querés -->
+    <button class="boton-cerrar-movil" onclick="cerrarModalTallas()">
+     Cerrar
+    </button>
+   </div>
+  </div>
+  <!-- Pop-up Tip -->
+  <div id="popup-tip">
+   <span onclick="cerrarTip()" style="position:absolute; top:5px; right:10px; cursor:pointer; font-weight:bold;">
+    ×
+   </span>
+   <p id="contenido-tip" style="margin:0; font-size:14px; color:#333;">
+   </p>
+  </div>
+  <!-- Scripts -->
+  <script>
+   function mostrarLoader() {
     document.getElementById("loader").style.display = "block";
   }
 
@@ -455,19 +956,26 @@
       });
     }
   });
-</script>
-<div id="compare-box" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #ccc;padding:10px 20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:9998;display:none;">
-<button onclick="mostrarComparacion()">Comparar productos seleccionados</button>
-</div>
-<div id="compare-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.8);z-index:9999;justify-content:center;align-items:center;">
-<div style="background:white;padding:20px;border-radius:8px;max-width:90%;max-height:80%;overflow:auto;">
-<span onclick="document.getElementById('compare-modal').style.display='none'" style="float:right;cursor:pointer;font-size:18px;">×</span>
-<h3>Comparación</h3>
-<div id="compare-results" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;"></div>
-</div>
-</div>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
+  </script>
+  <div id="compare-box" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #ccc;padding:10px 20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:9998;display:none;">
+   <button onclick="mostrarComparacion()">
+    Comparar productos seleccionados
+   </button>
+  </div>
+  <div id="compare-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.8);z-index:9999;justify-content:center;align-items:center;">
+   <div style="background:white;padding:20px;border-radius:8px;max-width:90%;max-height:80%;overflow:auto;">
+    <span onclick="document.getElementById('compare-modal').style.display='none'" style="float:right;cursor:pointer;font-size:18px;">
+     ×
+    </span>
+    <h3>
+     Comparación
+    </h3>
+    <div id="compare-results" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+    </div>
+   </div>
+  </div>
+  <script>
+   document.addEventListener("DOMContentLoaded", function () {
     const checkboxes = document.getElementsByClassName('compare-check');
     for (let checkbox of checkboxes) {
       checkbox.addEventListener('change', () => {
@@ -504,45 +1012,73 @@
 
     document.getElementById('compare-modal').style.display = 'flex';
   }
-</script>
-
-<div id="modalEtiqueta" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1001; justify-content:center; align-items:center;">
-<div style="background:white; padding:20px; border-radius:10px; max-width:600px; max-height:90%; overflow-y:auto; text-align:left; position:relative;">
-<span onclick="cerrarModalEtiqueta()" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:24px; font-weight:bold;">×</span>
-<h2>¿Cómo leer una etiqueta de caja?</h2>
-<p>Las etiquetas en las cajas de sneakers contienen información importante. Aquí te explicamos los elementos más comunes:</p>
-<ul>
-<li><strong>Modelo:</strong> Nombre del sneaker.</li>
-<li><strong>Colorway:</strong> Combinación de colores oficiales.</li>
-<li><strong>SKU / Código:</strong> Código único (ej: DD1391-100).</li>
-<li><strong>Tallas:</strong> Mostradas en US, UK, CM y EUR.</li>
-<li><strong>Fecha de Producción:</strong> Periodo de fabricación.</li>
-<li><strong>Fábrica:</strong> Código de planta de manufactura.</li>
-</ul>
-<p style="margin-top: 10px;">Verificá estos detalles si comprás en tiendas no autorizadas.</p>
-<img alt="Etiqueta ejemplo" src="/static/img/ejemplo_etiqueta.png" style="width:100%; margin-top:15px; border:1px solid #ccc;"/>
-</div>
-</div>
-
-<hr style="margin-top: 40px;">
-<div style="text-align: center; font-size: 14px; color: #777;">
-  <p>&copy; 2025 SneakerHunter. Todos los derechos reservados.</p>
-  <p>
-    <a href="#" onclick="mostrarDisclaimer()" style="margin-right:10px; color:#555;">Aviso Legal</a> |
-    <a href="#" onclick="mostrarModal('modal-privacidad')" style="margin:0 10px; color:#555;">Política de Privacidad</a> |
-    <a href="#" onclick="mostrarModal('modal-uso')" style="margin-left:10px; color:#555;">Términos de Uso</a>
-  </p>
-</div>
-<script>
-  function abrirModalEtiqueta() {
+  </script>
+  <div id="modalEtiqueta" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1001; justify-content:center; align-items:center;">
+   <div style="background:white; padding:20px; border-radius:10px; max-width:600px; max-height:90%; overflow-y:auto; text-align:left; position:relative;">
+    <span onclick="cerrarModalEtiqueta()" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:24px; font-weight:bold;">
+     ×
+    </span>
+    <h2>
+     ¿Cómo leer una etiqueta de caja?
+    </h2>
+    <p>
+     Las etiquetas en las cajas de sneakers contienen información importante. Aquí te explicamos los elementos más comunes:
+    </p>
+    <ul>
+     <li>
+      <strong>
+       Modelo:
+      </strong>
+      Nombre del sneaker.
+     </li>
+     <li>
+      <strong>
+       Colorway:
+      </strong>
+      Combinación de colores oficiales.
+     </li>
+     <li>
+      <strong>
+       SKU / Código:
+      </strong>
+      Código único (ej: DD1391-100).
+     </li>
+     <li>
+      <strong>
+       Tallas:
+      </strong>
+      Mostradas en US, UK, CM y EUR.
+     </li>
+     <li>
+      <strong>
+       Fecha de Producción:
+      </strong>
+      Periodo de fabricación.
+     </li>
+     <li>
+      <strong>
+       Fábrica:
+      </strong>
+      Código de planta de manufactura.
+     </li>
+    </ul>
+    <p style="margin-top: 10px;">
+     Verificá estos detalles si comprás en tiendas no autorizadas.
+    </p>
+    <img alt="Etiqueta ejemplo" src="/static/img/ejemplo_etiqueta.png" style="width:100%; margin-top:15px; border:1px solid #ccc;"/>
+   </div>
+  </div>
+  <hr style="margin-top: 40px;"/>
+  <script>
+   function abrirModalEtiqueta() {
     document.getElementById("modalEtiqueta").style.display = "flex";
   }
   function cerrarModalEtiqueta() {
     document.getElementById("modalEtiqueta").style.display = "none";
   }
-</script>
-<script>
-  function cerrarDisclaimer() {
+  </script>
+  <script>
+   function cerrarDisclaimer() {
     localStorage.setItem("aceptoDisclaimer", "true");
     document.getElementById("modal-disclaimer").style.display = "none";
   }
@@ -561,6 +1097,25 @@
       document.getElementById("modal-disclaimer").style.display = "flex";
     }
   }
-</script>
-</body>
+  </script>
+  <hr style="margin-top: 40px;"/>
+  <footer style="text-align: center; font-size: 14px; color: #777; padding-bottom: 20px;">
+   <p>
+    © 2025 SneakersHunter. Todos los derechos reservados.
+   </p>
+   <p>
+    <a href="#" onclick="mostrarDisclaimer()" style="margin-right:10px; color:#555; text-decoration:underline;">
+     Aviso Legal
+    </a>
+    |
+    <a href="#" onclick="mostrarModal('modal-privacidad')" style="margin: 0 10px; color:#555; text-decoration:underline;">
+     Política de Privacidad
+    </a>
+    |
+    <a href="#" onclick="mostrarModal('modal-uso')" style="margin-left:10px; color:#555; text-decoration:underline;">
+     Términos de Uso
+    </a>
+   </p>
+  </footer>
+ </body>
 </html>
