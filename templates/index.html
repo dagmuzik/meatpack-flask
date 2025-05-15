@@ -517,6 +517,9 @@
     localStorage.setItem("aceptoDisclaimer", "true");
     document.getElementById("modal-disclaimer").style.display = "none";
   }
+  function mostrarDisclaimer() {
+  document.getElementById("modal-disclaimer").style.display = "flex";
+  }
 
   window.onload = function() {
     if (!localStorage.getItem("aceptoDisclaimer")) {
