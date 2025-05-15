@@ -322,36 +322,20 @@
     <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
   {% endfor %}
 </select>
-    <label for="tienda">
-     Tienda:
-    </label>
-    <select name="tienda">
-     <option value="">
-      Todas
-     </option>
-     {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
-     <option %}="" %}selected{%="" endif="" if="" tienda="m" value="{{ m }}" {%="">
-      {{ m.title() }}
-     </option>
-     {% endfor %}
-    </select>
-    <label for="genero">
-     Género:
-    </label>
-    <select name="genero">
-     <option value="">
-      Todos
-     </option>
-     <option value="hombre">
-      Hombre
-     </option>
-     <option value="mujer">
-      Mujer
-     </option>
-     <option value="unisex">
-      Unisex
-     </option>
-    </select>
+<label for="tienda">Tienda:</label>
+<select name="tienda">
+  <option value="">Todas</option>
+  {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
+    <option value="{{ m }}" {% if tienda == m %}selected{% endif %}>{{ m.title() }}</option>
+  {% endfor %}
+</select>
+   <label for="genero">Género:</label>
+<select name="genero">
+  <option value="" {% if genero == "" %}selected{% endif %}>Todos</option>
+  <option value="hombre" {% if genero == "hombre" %}selected{% endif %}>Hombre</option>
+  <option value="mujer" {% if genero == "mujer" %}selected{% endif %}>Mujer</option>
+  <option value="unisex" {% if genero == "unisex" %}selected{% endif %}>Unisex</option>
+</select>
     <button type="submit">
      Buscar
     </button>
