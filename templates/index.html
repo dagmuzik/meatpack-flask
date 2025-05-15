@@ -15,6 +15,17 @@
 
   gtag('config', 'G-TYC6HQ8B9J');
 </script>
+<!-- Modal Disclaimer -->
+<div id="modal-disclaimer" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:8px; max-width:600px; text-align:left;">
+    <h2>Aviso legal</h2>
+    <p>SneakerHunter es una plataforma comparadora que busca mostrar productos disponibles públicamente en tiendas oficiales de Guatemala. No somos una tienda, ni vendemos directamente ningún producto.</p>
+    <p>No usamos imágenes, marcas ni textos oficiales de las tiendas sin autorización. Cada producto incluye un enlace directo a la tienda original.</p>
+    <p>Los precios, tallas y disponibilidad pueden cambiar sin previo aviso. Te recomendamos verificar siempre en la tienda antes de realizar tu compra.</p>
+    <p>Si representás alguna de las tiendas mostradas y deseás colaborar o solicitar alguna modificación, podés escribirnos directamente.</p>
+    <button onclick="cerrarDisclaimer()" style="margin-top: 10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">Aceptar</button>
+  </div>
+</div>
 <style>
     body {
       margin: 0;
@@ -176,6 +187,16 @@
     .logo-modal {
       width: 100px;
       margin: 0 auto 10px;
+    }
+
+    #modal-disclaimer h2 {
+      margin-top: 0;
+      color: #222;
+    }
+    #modal-disclaimer p {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.5;
     }
 
     .boton-cerrar-movil {
@@ -484,6 +505,18 @@
   }
   function cerrarModalEtiqueta() {
     document.getElementById("modalEtiqueta").style.display = "none";
+  }
+</script>
+<script>
+  function cerrarDisclaimer() {
+    localStorage.setItem("aceptoDisclaimer", "true");
+    document.getElementById("modal-disclaimer").style.display = "none";
+  }
+
+  window.onload = function() {
+    if (!localStorage.getItem("aceptoDisclaimer")) {
+      document.getElementById("modal-disclaimer").style.display = "flex";
+    }
   }
 </script>
 </body>
