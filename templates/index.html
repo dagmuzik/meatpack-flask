@@ -315,19 +315,13 @@
      Talla:
     </label>
     <input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
-    <label for="marca">
-     Marca:
-    </label>
-    <select name="marca">
-     <option value="">
-      Todas
-     </option>
-     {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-     <option %}="" %}selected{%="" endif="" if="" marca="m" value="{{ m }}" {%="">
-      {{ m.title() }}
-     </option>
-     {% endfor %}
-    </select>
+<label for="marca">Marca:</label>
+<select name="marca">
+  <option value="">Todas</option>
+  {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
+    <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
+  {% endfor %}
+</select>
     <label for="tienda">
      Tienda:
     </label>
