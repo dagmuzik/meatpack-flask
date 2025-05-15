@@ -26,6 +26,26 @@
     <button onclick="cerrarDisclaimer()" style="margin-top: 10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">Aceptar</button>
   </div>
 </div>
+<!-- Modal Privacidad -->
+<div id="modal-privacidad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:8px; max-width:700px; max-height:90vh; overflow-y:auto;">
+    <h2>Política de Privacidad</h2>
+    <p>En SneakerHunter valoramos tu privacidad. No recolectamos datos personales sin tu consentimiento. Utilizamos cookies locales únicamente para guardar tus productos favoritos y recordar tus filtros de búsqueda.</p>
+    <p>No compartimos, vendemos ni cedemos información de usuarios a terceros. Si en el futuro integramos herramientas como Google Analytics o newsletters, serás notificado y podrás aceptar o rechazar.</p>
+    <p>Tu navegación en este sitio es segura, y podés usarlo sin registrarte ni iniciar sesión.</p>
+    <button onclick="cerrarModal('modal-privacidad')" style="margin-top:10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">Cerrar</button>
+  </div>
+</div>
+<!-- Modal Términos de Uso -->
+<div id="modal-uso" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:8px; max-width:700px; max-height:90vh; overflow-y:auto;">
+    <h2>Términos de Uso</h2>
+    <p>SneakerHunter es una herramienta comparadora de productos de tiendas oficiales en Guatemala. No vendemos productos ni procesamos pagos. Toda la información mostrada (precios, tallas y disponibilidad) proviene de fuentes públicas de las tiendas.</p>
+    <p>Los enlaces redirigen al sitio original de cada tienda, donde se realiza la compra final. No garantizamos que los precios o existencias estén actualizados al segundo.</p>
+    <p>El uso de este sitio implica tu aceptación de estos términos.</p>
+    <button onclick="cerrarModal('modal-uso')" style="margin-top:10px; background:black; color:white; padding:8px 12px; border:none; border-radius:4px;">Cerrar</button>
+  </div>
+</div>
 <style>
     body {
       margin: 0;
@@ -504,6 +524,15 @@
 </div>
 </div>
 
+<hr style="margin-top: 40px;">
+<div style="text-align: center; font-size: 14px; color: #777;">
+  <p>&copy; 2025 SneakerHunter. Todos los derechos reservados.</p>
+  <p>
+    <a href="#" onclick="mostrarDisclaimer()" style="margin-right:10px; color:#555;">Aviso Legal</a> |
+    <a href="#" onclick="mostrarModal('modal-privacidad')" style="margin:0 10px; color:#555;">Política de Privacidad</a> |
+    <a href="#" onclick="mostrarModal('modal-uso')" style="margin-left:10px; color:#555;">Términos de Uso</a>
+  </p>
+</div>
 <script>
   function abrirModalEtiqueta() {
     document.getElementById("modalEtiqueta").style.display = "flex";
@@ -520,7 +549,13 @@
   function mostrarDisclaimer() {
   document.getElementById("modal-disclaimer").style.display = "flex";
   }
-
+  function cerrarModal(id) {
+  document.getElementById(id).style.display = "none";
+  }
+  function mostrarModal(id) {
+  document.getElementById(id).style.display = "flex";
+  }
+  
   window.onload = function() {
     if (!localStorage.getItem("aceptoDisclaimer")) {
       document.getElementById("modal-disclaimer").style.display = "flex";
