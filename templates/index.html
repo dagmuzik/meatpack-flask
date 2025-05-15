@@ -315,27 +315,49 @@
      Talla:
     </label>
     <input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
-<label for="marca">Marca:</label>
-<select name="marca">
-  <option value="">Todas</option>
-  {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
-    <option value="{{ m }}" {% if marca == m %}selected{% endif %}>{{ m.title() }}</option>
-  {% endfor %}
-</select>
-<label for="tienda">Tienda:</label>
-<select name="tienda">
-  <option value="">Todas</option>
-  {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
-    <option value="{{ m }}" {% if tienda == m %}selected{% endif %}>{{ m.title() }}</option>
-  {% endfor %}
-</select>
-   <label for="genero">Género:</label>
-<select name="genero">
-  <option value="" {% if genero == "" %}selected{% endif %}>Todos</option>
-  <option value="hombre" {% if genero == "hombre" %}selected{% endif %}>Hombre</option>
-  <option value="mujer" {% if genero == "mujer" %}selected{% endif %}>Mujer</option>
-  <option value="unisex" {% if genero == "unisex" %}selected{% endif %}>Unisex</option>
-</select>
+    <label for="marca">
+     Marca:
+    </label>
+    <select name="marca">
+     <option value="">
+      Todas
+     </option>
+     {% for m in ['adidas', 'nike', 'vans', 'converse', 'new balance', 'puma', 'saucony', 'Stepney Workers Club'] %}
+     <option %}="" %}selected{%="" endif="" if="" marca="m" value="{{ m }}" {%="">
+      {{ m.title() }}
+     </option>
+     {% endfor %}
+    </select>
+    <label for="tienda">
+     Tienda:
+    </label>
+    <select name="tienda">
+     <option value="">
+      Todas
+     </option>
+     {% for m in ['Adidas', 'Kicks', 'Meatpack', 'La Grieta', 'Bitterheads', 'Premium Trendy', 'Veinte Avenida'] %}
+     <option %}="" %}selected{%="" endif="" if="" tienda="m" value="{{ m }}" {%="">
+      {{ m.title() }}
+     </option>
+     {% endfor %}
+    </select>
+    <label for="genero">
+     Género:
+    </label>
+    <select name="genero">
+     <option %}="" %}selected{%="" endif="" genero="" if="" value="" {%="">
+      Todos
+     </option>
+     <option %}="" %}selected{%="" endif="" genero="hombre" if="" value="hombre" {%="">
+      Hombre
+     </option>
+     <option %}="" %}selected{%="" endif="" genero="mujer" if="" value="mujer" {%="">
+      Mujer
+     </option>
+     <option %}="" %}selected{%="" endif="" genero="unisex" if="" value="unisex" {%="">
+      Unisex
+     </option>
+    </select>
     <button type="submit">
      Buscar
     </button>
@@ -345,17 +367,17 @@
      Consulta tu talla
     </button>
    </div>
-   <img alt="Cargando..." id="loader" src="/static/img/sneakerhunt.gif" width="60">
-    {% if productos is not none %}
+   <img alt="Cargando..." id="loader" src="/static/img/sneakerhunt.gif" width="60"/>
+   {% if productos is not none %}
     {% if productos|length == 0 %}
-    <p>
-     ❌ No se encontraron resultados con esos filtros
-    </p>
-    {% else %}
-    <div class="card-container">
-     {% for p in productos %}
-     <div class="card">
-      <img alt="{{ p.Producto }}" src="{{ p.Imagen }}"/>
+   <p>
+    ❌ No se encontraron resultados con esos filtros
+   </p>
+   {% else %}
+   <div class="card-container">
+    {% for p in productos %}
+    <div class="card">
+     <img alt="{{ p.Producto }}" src="{{ p.Imagen }}">
       <div class="card-body">
        <strong>
         {{ p.Marca.upper() }} · {{ p.Tienda }}
@@ -386,12 +408,12 @@
         </label>
        </div>
       </div>
-     </div>
-     {% endfor %}
+     </img>
     </div>
-    {% endif %}
+    {% endfor %}
+   </div>
+   {% endif %}
   {% endif %}
-   </img>
   </main>
   <!-- Agregar al final del body del archivo index.html antes del cierre de </body> -->
   <!-- Footer actualizado -->
@@ -1076,6 +1098,9 @@
   </script>
   <hr style="margin-top: 40px;"/>
   <footer style="text-align: center; font-size: 14px; color: #777; padding-bottom: 20px;">
+   <p style="margin-top: 10px; font-weight: bold; color: #444;">
+    Buscá, compará y Cazá tu próximo par
+   </p>
    <p>
     © 2025 SneakersHunter. Todos los derechos reservados.
    </p>
