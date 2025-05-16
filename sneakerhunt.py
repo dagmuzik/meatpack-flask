@@ -446,6 +446,7 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 
 import os
 import json
+from glob import glob
 from datetime import datetime
 
 def guardar_en_cache_local(resultados, folder="data"):
@@ -458,10 +459,47 @@ def guardar_en_cache_local(resultados, folder="data"):
             "productos": resultados
         }, f, ensure_ascii=False, indent=2)
     print(f"📝 Archivo guardado: {filename}")
+    return filename  # lo usamos después para comparar
+
+def cargar_archivo(path):
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+        return data.get("productos", [])
+
+def identificar_nuevos(anteriores, actuales):
+    anteriores_set = {(p["URL"], p.get("Tienda", "")) for p in anteriores}
+    nuevos = [p for p in actuales if (p["URL"], p.get("Tienda", "")) not in anteriores_set]
+    return nuevos
+
+def obtener_cache_anterior(reciente, folder="data"):
+    archivos = sorted(glob(os.path.join(folder, "cache_*.json")))
+    if len(archivos) < 2:
+        return None
+    anteriores = [f for f in archivos if f != reciente]
+    return anteriores[-1] if anteriores else None
 
 if __name__ == "__main__":
     print("⏳ Ejecutando scraping automático sin filtrar por talla")
     resultados = buscar_todos(talla="")  # sin filtro
     print(f"✅ Productos encontrados: {len(resultados)}")
-    guardar_en_cache_local(resultados)
 
+    archivo_reciente = guardar_en_cache_local(resultados)
+
+    archivo_anterior = obtener_cache_anterior(archivo_reciente)
+    if archivo_anterior:
+        anteriores = cargar_archivo(archivo_anterior)
+        nuevos = identificar_nuevos(anteriores, resultados)
+
+        if nuevos:
+            print(f"🆕 Nuevos productos detectados: {len(nuevos)}")
+            for p in nuevos[:10]:
+                print(f"- {p['Producto']} ({p.get('Tienda', '')}) ➜ {p['URL']}")
+
+            nombre_nuevos = archivo_reciente.replace("cache_", "nuevos_")
+            with open(nombre_nuevos, "w", encoding="utf-8") as f:
+                json.dump(nuevos, f, ensure_ascii=False, indent=2)
+            print(f"📦 Nuevos productos guardados en: {nombre_nuevos}")
+        else:
+            print("🟨 Sin productos nuevos.")
+    else:
+        print("⚠️ Primer archivo: no hay comparación disponible.")
