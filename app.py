@@ -197,3 +197,15 @@ def ver_conteo_por_tienda():
             }
     except Exception as e:
         return f"❌ Error leyendo el archivo: {e}"
+
+@app.route("/cron/scrap-adidas")
+def scrap_adidas():
+    try:
+        from sneakerhunt import obtener_adidas_estandarizado
+        productos = obtener_adidas_estandarizado()
+        return {
+            "total": len(productos),
+            "preview": productos[:3]
+        }
+    except Exception as e:
+        return f"❌ Error al scrapear Adidas: {e}"
