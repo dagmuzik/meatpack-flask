@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
-from sneakerhunt import buscar_todos, ejecutar_todo
-from cache_por_tienda import generar_cache_meatpack, generar_cache_lagrieta, generar_cache_adidas
+from sneakerhunt import buscar_todos, ejecutar_scraping_general, obtener_ultimo_cache_tienda
 import json
 import glob
 import os
