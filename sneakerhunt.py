@@ -9,6 +9,12 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from pandas import DataFrame
 
+__all__ = [
+    "buscar_todos",
+    "ejecutar_scraping_general",
+    "obtener_ultimo_cache_tienda"
+]
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
     "Accept": "application/json"
@@ -301,10 +307,22 @@ import glob
 import os
 
 def obtener_ultimo_cache_tienda(tienda):
-    """
-    Devuelve la ruta al archivo de cache más reciente para una tienda específica.
-    """
-    archivos = sorted(glob.glob(f"data/cache_{tienda.lower()}_*.json"))
+    import glob
+    import os
+
+    patrones = {
+        "meatpack": "data/cache_meatpack_*.json",
+        "lagrieta": "data/cache_lagrieta_*.json",
+        "adidas": "data/cache_adidas_*.json"
+    }
+
+    patron = patrones.get(tienda.lower())
+    if not patron:
+        return None
+
+    archivos = sorted(glob.glob(patron))
     if not archivos:
         return None
+
     return archivos[-1]
+
