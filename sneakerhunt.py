@@ -1,8 +1,3 @@
-# sneakerhunt.py generado automáticamente - versión unificada
-# ✅ Incluye scraping de todas las tiendas disponibles
-# ✅ Filtra productos con precio válido
-# ✅ Guarda un único archivo JSON unificado por ejecución
-
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -538,35 +533,51 @@ if __name__ == "__main__":
     else:
         print("⚠️ Primer archivo: no hay comparación disponible.")
 
-def scrap_raw_shopify():
-    import requests
+def generar_cache_estandar_desde_raw():
     import json
     import os
     from datetime import datetime
+    import glob
 
-    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    def standardize_products(raw_products, tienda):
+        standardized = []
+        for product in raw_products:
+            for variant in product.get("variants", []):
+                if not variant.get("available"):
+                    continue
+                entry = {
+                    "sku": variant.get("sku"),
+                    "nombre": product.get("title"),
+                    "precio": float(variant.get("price")),
+                    "talla": variant.get("option1"),
+                    "imagen": product.get("images", [{}])[0].get("src"),
+                    "link": f"https://{tienda}.com/products/{product.get('handle')}",
+                    "tienda": tienda,
+                    "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
+                    "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
+                }
+                standardized.append(entry)
+        return standardized
+
     os.makedirs("data", exist_ok=True)
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    cache_file = f"data/cache_{now}.json"
 
-    def get_json(url):
-        try:
-            print(f"🌐 GET {url}")
-            res = requests.get(url, timeout=10)
-            res.raise_for_status()
-            return res.json()
-        except Exception as e:
-            print(f"❌ Error al obtener {url}: {e}")
-            return {}
+    # Leer últimos archivos RAW
+    archivos_meat = sorted(glob.glob("data/raw_meatpack_*.json"))
+    archivos_grieta = sorted(glob.glob("data/raw_lagrieta_*.json"))
 
-    # ========== MEATPACK ==========
-    url_meatpack = "https://meatpack.com/collections/special-price/products.json"
-    data_meatpack = get_json(url_meatpack)
-    with open(f"data/raw_meatpack_{now}.json", "w", encoding="utf-8") as f:
-        json.dump(data_meatpack, f, ensure_ascii=False, indent=2)
-    print(f"✅ Guardado: data/raw_meatpack_{now}.json")
+    productos = []
 
-    # ========== LA GRIETA ==========
-    url_grieta = "https://lagrieta.gt/collections/ultimas-tallas/products.json"
-    data_grieta = get_json(url_grieta)
-    with open(f"data/raw_lagrieta_{now}.json", "w", encoding="utf-8") as f:
-        json.dump(data_grieta, f, ensure_ascii=False, indent=2)
-    print(f"✅ Guardado: data/raw_lagrieta_{now}.json")
+    if archivos_meat:
+        with open(archivos_meat[-1], encoding="utf-8") as f:
+            productos += standardize_products(json.load(f).get("products", []), "meatpack")
+
+    if archivos_grieta:
+        with open(archivos_grieta[-1], encoding="utf-8") as f:
+            productos += standardize_products(json.load(f).get("products", []), "lagrieta")
+
+    with open(cache_file, "w", encoding="utf-8") as f:
+        json.dump(productos, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
