@@ -163,3 +163,12 @@ def generar_cache_remoto():
         return "✅ Cache generado correctamente desde archivos RAW"
     except Exception as e:
         return f"❌ Error al generar cache: {e}"
+
+@app.route("/cron/ejecutar-todo")
+def ejecutar_todo_remoto():
+    try:
+        from sneakerhunt import ejecutar_todo
+        ejecutar_todo()
+        return "✅ Scrap y cache ejecutados correctamente"
+    except Exception as e:
+        return f"❌ Error en ejecutar_todo: {e}"
