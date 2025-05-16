@@ -424,8 +424,12 @@ def agregar(funcion, nombre):
         print(f"🔍 Revisando {nombre}...")
         datos = funcion(talla)
         print(f"🔎 {nombre} devolvió {len(datos)} productos")
-        for p in datos[:3]:  # mostrar solo los primeros 3
-            print(f" → {p.get('Producto')} | Precio: {p.get('Precio')} | Tienda: {p.get('Tienda')}")
+        for p in datos[:5]:  # mostrar solo los primeros 5 productos
+            print(f" → {p.get('Producto')}")
+            print(f"   Precio: {p.get('Precio')} ({type(p.get('Precio'))})")
+            print(f"   Talla: {p.get('Talla')}")
+            print(f"   Tienda: {p.get('Tienda')}")
+            print(" ")
         resultados.extend(datos)
     except Exception as e:
         print(f"❌ Error en {nombre}: {e}")
