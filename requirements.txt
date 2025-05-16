@@ -2,5 +2,4 @@ flask
 requests
 beautifulsoup4
 pandas
-gunicorn app:app --timeout 120
-
+gunicorn
