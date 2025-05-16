@@ -443,3 +443,15 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     except Exception as e:
         print("❌ Error final al ordenar/convertir:", str(e))
         return []
+
+import os
+import json
+from datetime import datetime
+
+def guardar_en_cache_local(resultados, filename="data/cache_productos.json"):
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump({
+            "timestamp": datetime.now().isoformat(),
+            "productos": resultados
+        }, f, ensure_ascii=False, indent=2)
