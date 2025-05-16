@@ -1,3 +1,8 @@
+# sneakerhunt.py generado automáticamente - versión unificada
+# ✅ Incluye scraping de todas las tiendas disponibles
+# ✅ Filtra productos con precio válido
+# ✅ Guarda un único archivo JSON unificado por ejecución
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
