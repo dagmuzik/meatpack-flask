@@ -449,34 +449,12 @@ import json
 from glob import glob
 from datetime import datetime
 
-def guardar_en_cache_local(resultados, folder="data"):
-    os.makedirs(folder, exist_ok=True)
-    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    filename = os.path.join(folder, f"cache_{now}.json")
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump({
-            "timestamp": datetime.now().isoformat(),
-            "productos": resultados
-        }, f, ensure_ascii=False, indent=2)
-    print(f"📝 Archivo guardado: {filename}")
-    return filename  # lo usamos después para comparar
+# ... tus imports y funciones existentes ...
 
-def cargar_archivo(path):
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
-        return data.get("productos", [])
-
-def identificar_nuevos(anteriores, actuales):
-    anteriores_set = {(p["URL"], p.get("Tienda", "")) for p in anteriores}
-    nuevos = [p for p in actuales if (p["URL"], p.get("Tienda", "")) not in anteriores_set]
-    return nuevos
-
-def obtener_cache_anterior(reciente, folder="data"):
-    archivos = sorted(glob(os.path.join(folder, "cache_*.json")))
-    if len(archivos) < 2:
-        return None
-    anteriores = [f for f in archivos if f != reciente]
-    return anteriores[-1] if anteriores else None
+def ejecutar_scraping_general():
+    print("⏳ Ejecutando scraping desde función externa (cron)")
+    resultados = buscar_todos(talla="")
+    guardar_en_cache_local(resultados)
 
 if __name__ == "__main__":
     print("⏳ Ejecutando scraping automático sin filtrar por talla")
