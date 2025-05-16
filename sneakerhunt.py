@@ -533,12 +533,43 @@ if __name__ == "__main__":
     else:
         print("⚠️ Primer archivo: no hay comparación disponible.")
 
-def generar_cache_estandar_desde_raw():
-    import json
-    import os
-    from datetime import datetime
-    import glob
+import requests
+import json
+import os
+from datetime import datetime
+import glob
 
+# ========== FUNCIONES ==========
+
+def scrap_raw_shopify():
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    os.makedirs("data", exist_ok=True)
+
+    def get_json(url):
+        try:
+            print(f"🌐 GET {url}")
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except Exception as e:
+            print(f"❌ Error al obtener {url}: {e}")
+            return {}
+
+    # MEATPACK
+    url_meatpack = "https://meatpack.com/collections/special-price/products.json"
+    data_meatpack = get_json(url_meatpack)
+    with open(f"data/raw_meatpack_{now}.json", "w", encoding="utf-8") as f:
+        json.dump(data_meatpack, f, ensure_ascii=False, indent=2)
+    print(f"✅ Guardado: data/raw_meatpack_{now}.json")
+
+    # LA GRIETA
+    url_grieta = "https://lagrieta.gt/collections/ultimas-tallas/products.json"
+    data_grieta = get_json(url_grieta)
+    with open(f"data/raw_lagrieta_{now}.json", "w", encoding="utf-8") as f:
+        json.dump(data_grieta, f, ensure_ascii=False, indent=2)
+    print(f"✅ Guardado: data/raw_lagrieta_{now}.json")
+
+def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
         standardized = []
         for product in raw_products:
@@ -563,7 +594,6 @@ def generar_cache_estandar_desde_raw():
     now = datetime.now().strftime("%Y-%m-%d_%H-%M")
     cache_file = f"data/cache_{now}.json"
 
-    # Leer últimos archivos RAW
     archivos_meat = sorted(glob.glob("data/raw_meatpack_*.json"))
     archivos_grieta = sorted(glob.glob("data/raw_lagrieta_*.json"))
 
@@ -581,3 +611,8 @@ def generar_cache_estandar_desde_raw():
         json.dump(productos, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
+
+def ejecutar_todo():
+    print("🚀 Ejecutando scrap + generar cache...")
+    scrap_raw_shopify()
+    generar_cache_estandar_desde_raw()
