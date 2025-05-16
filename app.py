@@ -154,3 +154,12 @@ def descargar_raw():
 
     archivo = archivos[-1]
     return send_file(archivo, as_attachment=True)
+
+@app.route("/cron/generar-cache")
+def generar_cache_remoto():
+    try:
+        from sneakerhunt import generar_cache_estandar_desde_raw
+        generar_cache_estandar_desde_raw()
+        return "✅ Cache generado correctamente desde archivos RAW"
+    except Exception as e:
+        return f"❌ Error al generar cache: {e}"
