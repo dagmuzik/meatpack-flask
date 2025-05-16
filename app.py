@@ -136,3 +136,21 @@ def ver_raw_shopify():
             }
 
     return preview
+
+from flask import send_file, request
+
+@app.route("/descargar-raw")
+def descargar_raw():
+    import glob
+    import os
+
+    tienda = request.args.get("tienda", "").lower()
+    if tienda not in ["meatpack", "lagrieta"]:
+        return "❌ Parámetro inválido. Usá ?tienda=meatpack o ?tienda=lagrieta"
+
+    archivos = sorted(glob.glob(f"data/raw_{tienda}_*.json"))
+    if not archivos:
+        return f"❌ No se encontraron archivos para la tienda '{tienda}'."
+
+    archivo = archivos[-1]
+    return send_file(archivo, as_attachment=True)
