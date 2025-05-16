@@ -419,13 +419,16 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 
     resultados = []
 
-    def agregar(funcion, nombre):
-        try:
-            print(f"🔍 Revisando {nombre}...")
-            datos = funcion(talla)
-            resultados.extend(datos)
-        except Exception as e:
-            print(f"❌ Error en {nombre}: {e}")
+def agregar(funcion, nombre):
+    try:
+        print(f"🔍 Revisando {nombre}...")
+        datos = funcion(talla)
+        print(f"🔎 {nombre} devolvió {len(datos)} productos")
+        for p in datos[:3]:  # mostrar solo los primeros 3
+            print(f" → {p.get('Producto')} | Precio: {p.get('Precio')} | Tienda: {p.get('Tienda')}")
+        resultados.extend(datos)
+    except Exception as e:
+        print(f"❌ Error en {nombre}: {e}")
 
     #if tienda in ("", "Adidas"):
     #    agregar(obtener_adidas, "Adidas")
