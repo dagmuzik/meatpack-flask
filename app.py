@@ -65,7 +65,10 @@ def ver_ultimo_cache():
     try:
         with open(ultimo, encoding="utf-8") as f:
             data = json.load(f)
-            productos = data.get("productos") or []
+            if isinstance(data, list):
+                productos = data
+            else:
+                productos = data.get("productos", [])
             return {
                 "archivo": os.path.basename(ultimo),
                 "total": len(productos),
@@ -73,6 +76,7 @@ def ver_ultimo_cache():
             }
     except Exception as e:
         return f"❌ Error leyendo el archivo: {e}"
+
 
 @app.route("/ver-errores")
 def ver_errores_sin_precio():
