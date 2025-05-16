@@ -420,7 +420,8 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     #if tienda in ("", "Kicks"):
         agregar(obtener_kicks, "Kicks")
 
-    if tienda in ("", "Bitterheads"):
+    # 🔧 Temporalmente desactivado por errores de conexión
+    #if tienda in ("", "Bitterheads"):
         agregar(obtener_bitterheads, "Bitterheads")
 
     if tienda in ("", "Meatpack"):
@@ -429,7 +430,8 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if tienda in ("", "La Grieta"):
         agregar(obtener_lagrieta, "La Grieta")
 
-    if tienda in ("", "Premium Trendy"):
+    # 🔧 Temporalmente desactivado por errores de conexión
+    #if tienda in ("", "Premium Trendy"):
         agregar(obtener_premiumtrendy, "Premium Trendy")
 
     if tienda in ("", "Veinte Avenida"):
