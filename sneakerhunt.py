@@ -148,15 +148,15 @@ def obtener_adidas_estandarizado():
     paso = 50
     base_url = "https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={inicio}&_to={fin}"
 
-    def get_variaciones(product_id):
-        url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
-        try:
-            res = requests.get(url, timeout=10)
-            res.raise_for_status()
-            return res.json()
-        except Exception as e:
-            print(f"❌ Error al obtener variaciones de {product_id}: {e}")
-            return {}
+def get_variaciones(product_id):
+    url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
+    try:
+        res = requests.get(url, timeout=10)
+        res.raise_for_status()
+        return res.json()
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️ Error al obtener variaciones para producto {product_id}: {e}")
+        return {}  # ⚠️ retornamos vacío y seguimos con el scraping
 
     while True:
         url = base_url.format(inicio=page * paso, fin=(page + 1) * paso - 1)
