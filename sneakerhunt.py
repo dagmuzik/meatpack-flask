@@ -70,10 +70,7 @@ def inferir_genero(nombre):
         return "unisex"
     return ""
 
-# ========== SCRAPERS POR TIENDA ==========
-# (reutilizaremos los ya limpios de meatpack, lagrieta y adidas en el próximo paso)
-
-# ========== FUNCIONES GENERALES ==========
+# ========== FUNCIONES DE SCRAPING Y CACHE ==========
 
 def guardar_en_cache_local(resultados, folder="data"):
     os.makedirs(folder, exist_ok=True)
@@ -83,11 +80,6 @@ def guardar_en_cache_local(resultados, folder="data"):
         json.dump(resultados, f, ensure_ascii=False, indent=2)
     print(f"📝 Archivo guardado: {filename}")
     return filename
-
-def ejecutar_scraping_general():
-    print("⏳ Ejecutando scraping desde función externa (cron)")
-    resultados = buscar_todos(talla="")
-    guardar_en_cache_local(resultados)
 
 def scrap_raw_shopify():
     now = datetime.now().strftime("%Y-%m-%d_%H-%M")
@@ -104,11 +96,6 @@ def scrap_raw_shopify():
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         print(f"✅ Guardado: {file_path}")
-
-def ejecutar_todo():
-    print("🚀 Ejecutando scrap + generar cache...")
-    scrap_raw_shopify()
-    generar_cache_estandar_desde_raw()
 
 def obtener_meatpack(talla):
     return obtener_shopify("https://meatpack.com/collections/special-price/products.json", "meatpack", talla)
@@ -148,15 +135,15 @@ def obtener_adidas_estandarizado():
     paso = 50
     base_url = "https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={inicio}&_to={fin}"
 
-def get_variaciones(product_id):
-    url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
-    try:
-        res = requests.get(url, timeout=10)
-        res.raise_for_status()
-        return res.json()
-    except requests.exceptions.RequestException as e:
-        print(f"⚠️ Error al obtener variaciones para producto {product_id}: {e}")
-        return {}  # ⚠️ retornamos vacío y seguimos con el scraping
+    def get_variaciones(product_id):
+        url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
+        try:
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ Error al obtener variaciones para producto {product_id}: {e}")
+            return {}
 
     while True:
         url = base_url.format(inicio=page * paso, fin=(page + 1) * paso - 1)
@@ -179,7 +166,7 @@ def get_variaciones(product_id):
                             "precio": offer["Price"],
                             "talla": item.get("name"),
                             "imagen": item.get("images", [{}])[0].get("imageUrl", ""),
-                            "link": f"https://www.adidas.com.gt/{producto.get("linkText")}/p",
+                            "link": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
                             "tienda": "adidas",
                             "marca": producto.get("brand", ""),
                             "genero": variaciones.get("Talle", {}).get(item.get("itemId"), "")
@@ -202,7 +189,7 @@ def generar_cache_estandar_desde_raw():
                     "precio": float(variant.get("price")),
                     "talla": variant.get("option1"),
                     "imagen": product.get("images", [{}])[0].get("src"),
-                    "link": f"https://{tienda}.com/products/{product.get("handle")}",
+                    "link": f"https://{tienda}.com/products/{product.get('handle')}",
                     "tienda": tienda,
                     "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
                     "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
@@ -235,6 +222,11 @@ def generar_cache_estandar_desde_raw():
 
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
 
+def ejecutar_todo():
+    print("🚀 Ejecutando scrap + generar cache...")
+    scrap_raw_shopify()
+    generar_cache_estandar_desde_raw()
+
 def cargar_ultimo_cache():
     archivos = sorted(glob.glob("data/cache_*.json"))
     if not archivos:
@@ -249,7 +241,6 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if not productos:
         return []
 
-    # Filtros aplicados
     if talla:
         talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
         productos = [p for p in productos if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")]
