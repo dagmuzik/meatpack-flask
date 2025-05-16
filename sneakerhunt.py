@@ -448,10 +448,20 @@ import os
 import json
 from datetime import datetime
 
-def guardar_en_cache_local(resultados, filename="data/cache_productos.json"):
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+def guardar_en_cache_local(resultados, folder="data"):
+    os.makedirs(folder, exist_ok=True)
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    filename = os.path.join(folder, f"cache_{now}.json")
     with open(filename, "w", encoding="utf-8") as f:
         json.dump({
             "timestamp": datetime.now().isoformat(),
             "productos": resultados
         }, f, ensure_ascii=False, indent=2)
+    print(f"📝 Archivo guardado: {filename}")
+
+if __name__ == "__main__":
+    print("⏳ Ejecutando scraping automático sin filtrar por talla")
+    resultados = buscar_todos(talla="")  # sin filtro
+    print(f"✅ Productos encontrados: {len(resultados)}")
+    guardar_en_cache_local(resultados)
+
