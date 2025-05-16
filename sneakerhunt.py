@@ -427,9 +427,9 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 def agregar(funcion, nombre):
     try:
         print(f"🔍 Revisando {nombre}...")
-        datos = funcion(talla)
+        datos = funcion("")  # sin filtro de talla
         print(f"🔎 {nombre} devolvió {len(datos)} productos")
-        for p in datos[:5]:  # mostrar solo los primeros 5 productos
+        for p in datos[:5]:  # mostrar solo los primeros 5
             print(f" → {p.get('Producto')}")
             print(f"   Precio: {p.get('Precio')} ({type(p.get('Precio'))})")
             print(f"   Talla: {p.get('Talla')}")
