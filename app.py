@@ -51,3 +51,18 @@ def ejecutar_scraper_remoto():
 if __name__ == "__main__":
     app.run(debug=True)
 
+@app.route("/ver-cache")
+def ver_ultimo_cache():
+    import glob
+    import json
+
+    archivos = sorted(glob.glob("data/cache_*.json"))
+    if not archivos:
+        return "No hay archivos de cache disponibles."
+
+    with open(archivos[-1], encoding="utf-8") as f:
+        contenido = json.load(f)
+        return {
+            "archivo": archivos[-1],
+            "productos": contenido.get("productos", [])[:5]  # solo muestra los primeros 5
+        }
