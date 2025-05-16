@@ -296,3 +296,15 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     except Exception as e:
         print(f"❌ Error ordenando productos: {e}")
         return productos_limpios
+
+import glob
+import os
+
+def obtener_ultimo_cache_tienda(tienda):
+    """
+    Devuelve la ruta al archivo de cache más reciente para una tienda específica.
+    """
+    archivos = sorted(glob.glob(f"data/cache_{tienda.lower()}_*.json"))
+    if not archivos:
+        return None
+    return archivos[-1]
