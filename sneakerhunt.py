@@ -104,12 +104,13 @@ def obtener_lagrieta(talla):
     return obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "lagrieta", talla)
 
 def obtener_shopify(url, tienda, talla):
-    data = get_json(url)
+    from sneakerhunt import get_json, talla_coincide, inferir_genero, inferir_marca
     productos = []
+    data = get_json(url)
     for prod in data.get("products", []):
         img = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
         for var in prod.get("variants", []):
-            if talla_coincide(talla, var.get("title", "")) and var.get("available"):
+            if (not talla or talla_coincide(talla, var.get("title", ""))) and var.get("available"):
                 try:
                     precio = float(var["price"])
                     nombre = prod["title"]
@@ -126,7 +127,7 @@ def obtener_shopify(url, tienda, talla):
                         "Imagen": img
                     })
                 except Exception as e:
-                    print(f"⚠️ Error al procesar producto {prod.get('title')}: {e}")
+                    print(f"â ï¸ Error al procesar producto {prod.get('title')}: {e}")
     return productos
 
 def obtener_adidas_estandarizado():
