@@ -653,3 +653,120 @@ def ejecutar_todo():
     print("🚀 Ejecutando scrap + generar cache...")
     scrap_raw_shopify()
     generar_cache_estandar_desde_raw()
+
+# ========== FUNCIONES INTEGRADAS ==========
+
+import requests
+
+def obtener_adidas_estandarizado():
+    productos = []
+    page = 0
+    paso = 50
+    base_url = "https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={inicio}&_to={fin}"
+
+    def get_json(url):
+        try:
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except Exception as e:
+            print(f"❌ Error GET {url}: {e}")
+            return []
+
+    def get_variaciones(product_id):
+        url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
+        try:
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except Exception as e:
+            print(f"❌ Error al obtener variaciones de {product_id}: {e}")
+            return {}
+
+    while True:
+        url = base_url.format(inicio=page * paso, fin=(page + 1) * paso - 1)
+        data = get_json(url)
+        if not data:
+            break
+
+        for producto in data:
+            product_id = producto.get("productId")
+            variaciones = get_variaciones(product_id)
+            items = producto.get("items", [])
+
+            for item in items:
+                for seller in item.get("sellers", []):
+                    offer = seller.get("commertialOffer", {})
+                    if offer.get("IsAvailable") and offer.get("Price", 0) > 0:
+                        productos.append({
+                            "sku": item.get("itemId"),
+                            "nombre": producto.get("productName"),
+                            "precio": offer["Price"],
+                            "talla": item.get("name"),
+                            "imagen": item.get("images", [{}])[0].get("imageUrl", ""),
+                            "link": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
+                            "tienda": "adidas",
+                            "marca": producto.get("brand", ""),
+                            "genero": variaciones.get("Talle", {}).get(item.get("itemId"), "")
+                        })
+        page += 1
+
+    print(f"✅ Adidas: {len(productos)} productos con stock y precio válido.")
+    return productos
+
+
+def generar_cache_estandar_desde_raw():
+    import os
+    import json
+    import glob
+    from datetime import datetime
+
+    def standardize_products(raw_products, tienda):
+        standardized = []
+        for product in raw_products:
+            for variant in product.get("variants", []):
+                if not variant.get("available"):
+                    continue
+                entry = {
+                    "sku": variant.get("sku"),
+                    "nombre": product.get("title"),
+                    "precio": float(variant.get("price")),
+                    "talla": variant.get("option1"),
+                    "imagen": product.get("images", [{}])[0].get("src"),
+                    "link": f"https://{tienda}.com/products/{product.get('handle')}",
+                    "tienda": tienda,
+                    "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
+                    "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
+                }
+                standardized.append(entry)
+        return standardized
+
+    os.makedirs("data", exist_ok=True)
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    cache_file = f"data/cache_{now}.json"
+
+    archivos_meat = sorted(glob.glob("data/raw_meatpack_*.json"))
+    archivos_grieta = sorted(glob.glob("data/raw_lagrieta_*.json"))
+
+    productos = []
+
+    if archivos_meat:
+        with open(archivos_meat[-1], encoding="utf-8") as f:
+            productos += standardize_products(json.load(f).get("products", []), "meatpack")
+
+    if archivos_grieta:
+        with open(archivos_grieta[-1], encoding="utf-8") as f:
+            productos += standardize_products(json.load(f).get("products", []), "lagrieta")
+
+    print("🔍 Scrapeando Adidas...")
+    productos += obtener_adidas_estandarizado()
+
+    with open(cache_file, "w", encoding="utf-8") as f:
+        json.dump(productos, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
+
+def ejecutar_todo():
+    print("🚀 Ejecutando scrap + generar cache...")
+    scrap_raw_shopify()
+    generar_cache_estandar_desde_raw()
