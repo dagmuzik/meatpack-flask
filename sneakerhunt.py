@@ -255,6 +255,7 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if not productos:
         return []
 
+    # Filtros
     if talla:
         talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
         productos = [p for p in productos if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")]
@@ -268,9 +269,18 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if genero:
         productos = [p for p in productos if p.get("genero", "").lower() == genero.lower()]
 
+    # ✅ Validación y conversión del campo 'precio'
+    productos_limpios = []
+    for p in productos:
+        try:
+            p["precio"] = float(p.get("precio", p.get("Precio", 0)))
+            productos_limpios.append(p)
+        except Exception:
+            continue
+
     try:
-        df = DataFrame(productos)
+        df = DataFrame(productos_limpios)
         return df.sort_values(by="precio").to_dict("records")
     except Exception as e:
-        print(f"❌ Error ordenando: {e}")
-        return productos
+        print(f"❌ Error ordenando productos: {e}")
+        return productos_limpios
