@@ -1,25 +1,17 @@
-import os
+import glob
 import json
-from datetime import datetime
-from sneakerhunt import obtener_shopify, obtener_adidas_estandarizado
+import os
 
-def guardar_resultados(nombre, productos):
-    os.makedirs("data", exist_ok=True)
-    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    filename = f"data/cache_{nombre}_{now}.json"
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(productos, f, ensure_ascii=False, indent=2)
-    print(f"✅ Cache guardado: {filename} ({len(productos)} productos)")
-    return filename
+def ver_cache_total():
+    archivos = sorted(glob.glob("data/cache_TOTAL_*.json"))
+    if not archivos:
+        return "❌ No hay archivos cache_TOTAL generados."
 
-def generar_cache_meatpack():
-    productos = obtener_shopify("https://meatpack.com/collections/special-price/products.json", "meatpack", talla="")
-    return guardar_resultados("meatpack", productos)
-
-def generar_cache_lagrieta():
-    productos = obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "lagrieta", talla="")
-    return guardar_resultados("lagrieta", productos)
-
-def generar_cache_adidas():
-    productos = obtener_adidas_estandarizado()
-    return guardar_resultados("adidas", productos)
+    ultimo = archivos[-1]
+    with open(ultimo, encoding="utf-8") as f:
+        data = json.load(f)
+        return {
+            "archivo": os.path.basename(ultimo),
+            "total": len(data),
+            "preview": data[:5]
+        }
