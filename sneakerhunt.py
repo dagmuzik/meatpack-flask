@@ -189,18 +189,23 @@ def generar_cache_estandar_desde_raw():
             for variant in product.get("variants", []):
                 if not variant.get("available"):
                     continue
-                entry = {
-                    "sku": variant.get("sku"),
-                    "nombre": product.get("title"),
-                    "precio": float(variant.get("price")),
-                    "talla": variant.get("option1"),
-                    "imagen": product.get("images", [{}])[0].get("src"),
-                    "link": f"https://{tienda}.com/products/{product.get('handle')}",
-                    "tienda": tienda,
-                    "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
-                    "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
-                }
-                standardized.append(entry)
+                try:
+                    entry = {
+                        "sku": variant.get("sku"),
+                        "nombre": product.get("title"),
+                        "precio": float(variant.get("price")),
+                        "talla": variant.get("option1"),
+                        "imagen": product.get("images", [{}])[0].get("src"),
+                        "link": f"https://{tienda}.com/products/{product.get('handle')}",
+                        "tienda": tienda,
+                        "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
+                        "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
+                    }
+                    # 🔁 Convertir claves a minúsculas
+                    entry = {k.lower(): v for k, v in entry.items()}
+                    standardized.append(entry)
+                except Exception as e:
+                    print(f"⚠️ Error procesando producto de {tienda}: {e}")
         return standardized
 
     os.makedirs("data", exist_ok=True)
@@ -227,6 +232,11 @@ def generar_cache_estandar_desde_raw():
         json.dump(productos, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
+
+# Verificación rápida de errores
+invalids = [p for p in productos if not isinstance(p.get("precio"), (int, float))]
+if invalids:
+    print(f"⚠️ {len(invalids)} productos sin precio válido.")
 
 def ejecutar_todo():
     print("🚀 Ejecutando scrap + generar cache...")
