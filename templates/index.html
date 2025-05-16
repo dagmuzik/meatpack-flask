@@ -346,6 +346,26 @@
     </button>
    </div>
    <img alt="Cargando..." id="loader" src="/static/img/sneakerhunt.gif" width="60"/>
+   {% if nuevos %}
+  <h2 style="margin-top: 40px;">🆕 Nuevos productos detectados</h2>
+  <div class="card-container">
+    {% for p in nuevos %}
+      <div class="card">
+        <img src="{{ p.Imagen or p.imagen }}" alt="{{ p.Producto or p.nombre }}">
+        <div class="card-body">
+          <strong>{{ (p.Marca or p.marca)|upper }} · {{ p.Tienda or p.tienda }}</strong>
+          <h4>{{ p.Producto or p.nombre }}</h4>
+          <p>Talla: {{ p.Talla or p.talla }}</p>
+          {% if p.get('Genero') or p.get('genero') %}
+            <p style="color: #555;">Género: {{ (p.Genero or p.genero)|string|title }}</p>
+          {% endif %}
+          <p><strong>Q{{ '%.2f' | format(p.Precio or p.precio_final) }}</strong></p>
+          <a class="btn" href="{{ p.URL or p.url }}" target="_blank">Ver producto</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
    {% if productos is not none %}
     {% if productos|length == 0 %}
    <p>
