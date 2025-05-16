@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from product_scraper import get_all_products
+from sneakerhunt import buscar_todos, ejecutar_scraping_general
 import json
 import glob
 import os
@@ -16,41 +16,38 @@ def obtener_ultimos_nuevos(path="data"):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    talla = request.values.get("talla", "9.5")
-    try:
-        min_price = float(request.values.get("min_price") or 0)
-    except ValueError:
-        min_price = 0
-    try:
-        max_price = float(request.values.get("max_price") or 99999)
-    except ValueError:
-        max_price = 99999
+    productos = None
+    talla = ""
+    tienda = ""
+    marca = ""
+    genero = ""
 
-    productos_por_tienda = get_all_products(talla, min_price, max_price)
+    if request.method == "POST":
+        talla = request.form.get("talla", "").strip()
+        tienda = request.form.get("tienda", "").strip()
+        marca = request.form.get("marca", "").strip()
+        genero = request.form.get("genero", "").strip()
+        productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero)
 
-    productos_totales = []
-    for tienda, lista in productos_por_tienda.items():
-        for p in lista:
-            p["tienda"] = tienda
-            productos_totales.append(p)
-
-    productos_ordenados = sorted(productos_totales, key=lambda x: x["precio_final"])
-
-    nuevos_productos = obtener_ultimos_nuevos()
+    nuevos = obtener_ultimos_nuevos()
 
     return render_template("index.html",
-                           productos=productos_ordenados,
+                           productos=productos,
                            talla=talla,
-                           min_price=min_price,
-                           max_price=max_price,
-                           nuevos=nuevos_productos)
+                           tienda=tienda,
+                           marca=marca,
+                           genero=genero,
+                           nuevos=nuevos)
 
-# ✅ Ruta para ejecutar el scraping desde cron
+# ✅ Ruta para ejecutar scraping desde cronjob.org
 @app.route("/cron/ejecutar-scraper")
 def ejecutar_scraper_remoto():
     try:
-        from sneakerhunt import ejecutar_scraping_general
         ejecutar_scraping_general()
         return "✅ Scraper ejecutado correctamente desde cron"
     except Exception as e:
         return f"❌ Error al ejecutar scraper: {e}"
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
