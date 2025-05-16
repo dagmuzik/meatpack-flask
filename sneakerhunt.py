@@ -337,7 +337,7 @@ def obtener_adidas(talla):
                 })
     return resultados
 
-#def obtener_kicks(talla_buscada):
+def obtener_kicks(talla_buscada):
     skus = {}
     for pagina in range(1, 3):
         url = f"https://www.kicks.com.gt/marcas.html?p={pagina}&product_list_limit=36&special_price=29.99-1749.99&tipo_1=241"
@@ -416,7 +416,8 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if tienda in ("", "Adidas"):
         agregar(obtener_adidas, "Adidas")
 
-    if tienda in ("", "Kicks"):
+    # 🔧 Temporalmente desactivado por errores de conexión
+    #if tienda in ("", "Kicks"):
         agregar(obtener_kicks, "Kicks")
 
     if tienda in ("", "Bitterheads"):
