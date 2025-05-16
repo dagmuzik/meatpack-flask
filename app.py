@@ -198,14 +198,18 @@ def ver_conteo_por_tienda():
     except Exception as e:
         return f"❌ Error leyendo el archivo: {e}"
 
+@app.route("/cron/scrap-meatpack")
+def scrap_meatpack():
+    from cache_por_tienda import generar_cache_meatpack
+    return generar_cache_meatpack()
+
+@app.route("/cron/scrap-lagrieta")
+def scrap_lagrieta():
+    from cache_por_tienda import generar_cache_lagrieta
+    return generar_cache_lagrieta()
+
 @app.route("/cron/scrap-adidas")
 def scrap_adidas():
-    try:
-        from sneakerhunt import obtener_adidas_estandarizado
-        productos = obtener_adidas_estandarizado()
-        return {
-            "total": len(productos),
-            "preview": productos[:3]
-        }
-    except Exception as e:
-        return f"❌ Error al scrapear Adidas: {e}"
+    from cache_por_tienda import generar_cache_adidas
+    return generar_cache_adidas()
+
