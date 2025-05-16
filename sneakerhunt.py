@@ -324,32 +324,63 @@ def obtener_bitterheads(talla):
 
     return resultados
 
-def obtener_adidas(talla):
+import requests
+
+def obtener_adidas_estandarizado():
     productos = []
-    keywords = ["tenis", "sneaker", "zapatilla", "forum", "ultraboost", "nmd", "rivalry", "gazelle", "campus", "samba", "run", "ozweego"]
-    for page in range(2):
-        url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={page*50}&_to={(page+1)*50-1}"
-        productos.extend(get_json(url))
-    resultados = []
-    for producto in productos:
-        nombre = producto.get("productName", "").lower()
-        if not any(k in nombre for k in keywords):
-            continue
-        product_id = producto.get("productId")
-        variaciones = get_json(f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}")
-        for sku in variaciones.get("skus", []):
-            talla_sku = sku["dimensions"].get("Talla", "")
-            if talla_coincide(talla, talla_sku) and sku.get("available", False):
-                resultados.append({
-                    "Producto": producto["productName"],
-                    "Talla": talla_sku,
-                    "Precio": sku["bestPrice"] / 100,
-                    "Marca": "adidas",
-                    "Tienda": "Adidas",
-                    "URL": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
-                    "Imagen": producto.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "https://via.placeholder.com/240x200?text=Sneaker")
-                })
-    return resultados
+    page = 0
+    paso = 50
+    base_url = "https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={inicio}&_to={fin}"
+
+    def get_json(url):
+        try:
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except Exception as e:
+            print(f"❌ Error GET {url}: {e}")
+            return []
+
+    def get_variaciones(product_id):
+        url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
+        try:
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except Exception as e:
+            print(f"❌ Error al obtener variaciones de {product_id}: {e}")
+            return {}
+
+    while True:
+        url = base_url.format(inicio=page*paso, fin=(page+1)*paso - 1)
+        data = get_json(url)
+        if not data:
+            break
+
+        for producto in data:
+            product_id = producto.get("productId")
+            variaciones = get_variaciones(product_id)
+            items = producto.get("items", [])
+
+            for item in items:
+                for seller in item.get("sellers", []):
+                    offer = seller.get("commertialOffer", {})
+                    if offer.get("IsAvailable") and offer.get("Price", 0) > 0:
+                        productos.append({
+                            "sku": item.get("itemId"),
+                            "nombre": producto.get("productName"),
+                            "precio": offer["Price"],
+                            "talla": item.get("name"),
+                            "imagen": item.get("images", [{}])[0].get("imageUrl", ""),
+                            "link": f"https://www.adidas.com.gt/{producto.get('linkText')}/p",
+                            "tienda": "adidas",
+                            "marca": producto.get("brand", ""),
+                            "genero": variaciones.get("Talle", {}).get(item.get("itemId"), "")
+                        })
+        page += 1
+
+    print(f"✅ Adidas: {len(productos)} productos con stock y precio válido.")
+    return productos
 
 def obtener_kicks(talla_buscada):
     skus = {}
