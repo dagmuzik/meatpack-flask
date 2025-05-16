@@ -28,17 +28,14 @@ def index():
 
     productos_por_tienda = get_all_products(talla, min_price, max_price)
 
-    # 🔁 Unificamos todos los productos en una lista
     productos_totales = []
     for tienda, lista in productos_por_tienda.items():
         for p in lista:
             p["tienda"] = tienda
             productos_totales.append(p)
 
-    # 🔽 Ordenamos por precio final
     productos_ordenados = sorted(productos_totales, key=lambda x: x["precio_final"])
 
-    # 🆕 Cargar productos nuevos
     nuevos_productos = obtener_ultimos_nuevos()
 
     return render_template("index.html",
@@ -47,11 +44,13 @@ def index():
                            min_price=min_price,
                            max_price=max_price,
                            nuevos=nuevos_productos)
-    
+
+# ✅ Ruta para ejecutar el scraping desde cron
 @app.route("/cron/ejecutar-scraper")
 def ejecutar_scraper_remoto():
-    import sneakerhunt
-    sneakerhunt.__name__ = "__main__"
-    exec(open("sneakerhunt.py", encoding="utf-8").read())
-    return "✅ Scraper ejecutado correctamente desde cron"
-
+    try:
+        from sneakerhunt import ejecutar_scraping_general
+        ejecutar_scraping_general()
+        return "✅ Scraper ejecutado correctamente desde cron"
+    except Exception as e:
+        return f"❌ Error al ejecutar scraper: {e}"
