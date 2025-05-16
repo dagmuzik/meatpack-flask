@@ -427,9 +427,9 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 def agregar(funcion, nombre):
     try:
         print(f"🔍 Revisando {nombre}...")
-        datos = funcion("")  # sin filtro de talla
+        datos = funcion(talla)
         print(f"🔎 {nombre} devolvió {len(datos)} productos")
-        for p in datos[:5]:  # mostrar solo los primeros 5
+        for p in datos[:5]:  # mostrar solo los primeros 5 productos
             print(f" → {p.get('Producto')}")
             print(f"   Precio: {p.get('Precio')} ({type(p.get('Precio'))})")
             print(f"   Talla: {p.get('Talla')}")
@@ -537,3 +537,36 @@ if __name__ == "__main__":
             print("🟨 Sin productos nuevos.")
     else:
         print("⚠️ Primer archivo: no hay comparación disponible.")
+
+def scrap_raw_shopify():
+    import requests
+    import json
+    import os
+    from datetime import datetime
+
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    os.makedirs("data", exist_ok=True)
+
+    def get_json(url):
+        try:
+            print(f"🌐 GET {url}")
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except Exception as e:
+            print(f"❌ Error al obtener {url}: {e}")
+            return {}
+
+    # ========== MEATPACK ==========
+    url_meatpack = "https://meatpack.com/collections/special-price/products.json"
+    data_meatpack = get_json(url_meatpack)
+    with open(f"data/raw_meatpack_{now}.json", "w", encoding="utf-8") as f:
+        json.dump(data_meatpack, f, ensure_ascii=False, indent=2)
+    print(f"✅ Guardado: data/raw_meatpack_{now}.json")
+
+    # ========== LA GRIETA ==========
+    url_grieta = "https://lagrieta.gt/collections/ultimas-tallas/products.json"
+    data_grieta = get_json(url_grieta)
+    with open(f"data/raw_lagrieta_{now}.json", "w", encoding="utf-8") as f:
+        json.dump(data_grieta, f, ensure_ascii=False, indent=2)
+    print(f"✅ Guardado: data/raw_lagrieta_{now}.json")
