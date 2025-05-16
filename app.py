@@ -101,3 +101,38 @@ def scrap_raw_remote():
         return "✅ Datos RAW de Shopify guardados correctamente"
     except Exception as e:
         return f"❌ Error al ejecutar scrap RAW: {e}"
+
+@app.route("/ver-raw")
+def ver_raw_shopify():
+    import glob
+    import json
+    import os
+
+    archivos_meatpack = sorted(glob.glob("data/raw_meatpack_*.json"))
+    archivos_lagrieta = sorted(glob.glob("data/raw_lagrieta_*.json"))
+
+    if not archivos_meatpack and not archivos_lagrieta:
+        return "❌ No hay archivos RAW disponibles."
+
+    ultimo_meat = archivos_meatpack[-1] if archivos_meatpack else None
+    ultimo_grieta = archivos_lagrieta[-1] if archivos_lagrieta else None
+
+    preview = {}
+
+    if ultimo_meat:
+        with open(ultimo_meat, encoding="utf-8") as f:
+            data = json.load(f)
+            preview["Meatpack"] = {
+                "archivo": os.path.basename(ultimo_meat),
+                "productos": data.get("products", [])[:3]
+            }
+
+    if ultimo_grieta:
+        with open(ultimo_grieta, encoding="utf-8") as f:
+            data = json.load(f)
+            preview["La Grieta"] = {
+                "archivo": os.path.basename(ultimo_grieta),
+                "productos": data.get("products", [])[:3]
+            }
+
+    return preview
