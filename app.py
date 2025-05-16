@@ -176,3 +176,27 @@ def ejecutar_todo_remoto():
         return "✅ Scrap y cache ejecutados correctamente"
     except Exception as e:
         return f"❌ Error en ejecutar_todo: {e}"
+
+@app.route("/ver-conteo-por-tienda")
+def ver_conteo_por_tienda():
+    import glob
+    import json
+    import os
+    from collections import Counter
+
+    archivos = sorted(glob.glob("data/cache_*.json"))
+    if not archivos:
+        return "❌ No hay archivos de cache disponibles."
+
+    try:
+        with open(archivos[-1], encoding="utf-8") as f:
+            data = json.load(f)
+            productos = data if isinstance(data, list) else data.get("productos", [])
+            conteo = Counter(p.get("tienda", "desconocida") for p in productos)
+            return {
+                "archivo": os.path.basename(archivos[-1]),
+                "conteo_por_tienda": dict(conteo),
+                "total": len(productos)
+            }
+    except Exception as e:
+        return f"❌ Error leyendo el archivo: {e}"
