@@ -22,14 +22,12 @@ BASE_KICKS_WEB = "https://www.kicks.com.gt"
 def get_json(url, headers=None, params=None, intentos=3):
     for intento in range(intentos):
         try:
+            print(f"🌐 GET {url} (intento {intento + 1})")
             response = requests.get(url, headers=headers or HEADERS, params=params, timeout=10)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.SSLError as ssl_error:
-            print(f"❌ Error SSL en {url}: {ssl_error}")
-            break
         except requests.exceptions.RequestException as e:
-            print(f"⚠️ Error al obtener JSON desde {url} (intento {intento + 1}/{intentos}): {e}")
+            print(f"⚠️ Error al obtener JSON desde {url}: {e}")
             time.sleep(2)
     return {}
 
@@ -414,15 +412,15 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
             print(f"❌ Error en {nombre}: {e}")
 
     #if tienda in ("", "Adidas"):
-        agregar(obtener_adidas, "Adidas")
+        #agregar(obtener_adidas, "Adidas")
 
     # 🔧 Temporalmente desactivado por errores de conexión
     #if tienda in ("", "Kicks"):
-        agregar(obtener_kicks, "Kicks")
+        #agregar(obtener_kicks, "Kicks")
 
     # 🔧 Temporalmente desactivado por errores de conexión
     #if tienda in ("", "Bitterheads"):
-        agregar(obtener_bitterheads, "Bitterheads")
+        #agregar(obtener_bitterheads, "Bitterheads")
 
     if tienda in ("", "Meatpack"):
         agregar(obtener_meatpack, "Meatpack")
@@ -432,10 +430,10 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 
     # 🔧 Temporalmente desactivado por errores de conexión
     #if tienda in ("", "Premium Trendy"):
-        agregar(obtener_premiumtrendy, "Premium Trendy")
+        #agregar(obtener_premiumtrendy, "Premium Trendy")
 
     #if tienda in ("", "Veinte Avenida"):
-        agregar(obtener_veinteavenida, "Veinte Avenida")
+        #agregar(obtener_veinteavenida, "Veinte Avenida")
 
     # Filtrar por marca si se indicó
     if marca:
