@@ -235,47 +235,37 @@ def generar_cache_estandar_desde_raw():
 
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
 
+def cargar_ultimo_cache():
+    archivos = sorted(glob.glob("data/cache_*.json"))
+    if not archivos:
+        print("❌ No hay archivos de cache disponibles.")
+        return []
+    with open(archivos[-1], encoding="utf-8") as f:
+        data = json.load(f)
+        return data if isinstance(data, list) else data.get("productos", [])
+
 def buscar_todos(talla="", tienda="", marca="", genero=""):
-    print(f"🔎 Buscando productos talla {talla or '[cualquiera]'} en tienda: {tienda or 'Todas'} con marca: {marca or 'Todas'} con género: {genero or 'Todos'}")
-    resultados = []
+    productos = cargar_ultimo_cache()
+    if not productos:
+        return []
 
-    def agregar(funcion, nombre):
-        try:
-            print(f"🔍 Revisando {nombre}...")
-            datos = funcion(talla)
-            print(f"🔎 {nombre} devolvió {len(datos)} productos")
-            resultados.extend(datos)
-        except Exception as e:
-            print(f"❌ Error en {nombre}: {e}")
+    # Filtros aplicados
+    if talla:
+        talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
+        productos = [p for p in productos if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")]
 
-    if tienda in ("", "meatpack"):
-        agregar(obtener_meatpack, "Meatpack")
-    if tienda in ("", "lagrieta"):
-        agregar(obtener_lagrieta, "La Grieta")
-    if tienda in ("", "adidas"):
-        agregar(obtener_adidas_estandarizado, "Adidas")
+    if tienda:
+        productos = [p for p in productos if p.get("tienda", "").lower() == tienda.lower()]
 
     if marca:
-        marca = marca.strip().lower()
-        resultados = [p for p in resultados if p.get("Marca", "").lower() == marca]
+        productos = [p for p in productos if p.get("marca", "").lower() == marca.lower()]
 
     if genero:
-        genero = genero.strip().lower()
-        resultados = [p for p in resultados if p.get("Genero", "").lower() == genero]
+        productos = [p for p in productos if p.get("genero", "").lower() == genero.lower()]
 
     try:
-        productos_sin_precio = [p for p in resultados if not isinstance(p.get("Precio"), (int, float))]
-        if productos_sin_precio:
-            print(f"⚠️ {len(productos_sin_precio)} productos sin precio válido detectados")
-
-        resultados_validos = [p for p in resultados if isinstance(p.get("Precio"), (int, float))]
-        if not resultados_validos:
-            print("⚠️ No hay productos válidos para mostrar.")
-            return []
-
-        df = DataFrame(resultados_validos)
-        return df.sort_values(by="Precio").to_dict("records")
-
+        df = DataFrame(productos)
+        return df.sort_values(by="precio").to_dict("records")
     except Exception as e:
-        print("❌ Error al ordenar/convertir:", str(e))
-        return resultados
+        print(f"❌ Error ordenando: {e}")
+        return productos
