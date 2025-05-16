@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from sneakerhunt import buscar_todos, ejecutar_scraping_general
+from sneakerhunt import buscar_todos, ejecutar_todo
 import json
 import glob
 import os
@@ -43,13 +43,10 @@ def index():
 @app.route("/cron/ejecutar-scraper")
 def ejecutar_scraper_remoto():
     try:
-        ejecutar_scraping_general()
+        ejecutar_todo()
         return "✅ Scraper ejecutado correctamente desde cron"
     except Exception as e:
         return f"❌ Error al ejecutar scraper: {e}"
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 @app.route("/ver-cache")
 def ver_ultimo_cache():
