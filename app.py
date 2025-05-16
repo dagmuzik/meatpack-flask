@@ -48,7 +48,7 @@ def index():
                            max_price=max_price,
                            nuevos=nuevos_productos)
     
-    @app.route("/cron/ejecutar-scraper")
+@app.route("/cron/ejecutar-scraper")
 def ejecutar_scraper_remoto():
     import sneakerhunt
     sneakerhunt.__name__ = "__main__"
