@@ -349,69 +349,62 @@
    {% if nuevos %}
   <h2 style="margin-top: 40px;">🆕 Nuevos productos detectados</h2>
   <div class="card-container">
+{% if nuevos %}
+  <h2 style="margin-top: 40px;">🆕 Nuevos productos detectados</h2>
+  <div class="card-container">
     {% for p in nuevos %}
       <div class="card">
-        <img src="{{ p.Imagen or p.imagen }}" alt="{{ p.Producto or p.nombre }}">
+        <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
         <div class="card-body">
-          <strong>{{ (p.Marca or p.marca)|upper }} · {{ p.Tienda or p.tienda }}</strong>
-          <h4>{{ p.Producto or p.nombre }}</h4>
-          <p>Talla: {{ p.Talla or p.talla }}</p>
-          {% if p.get('Genero') or p.get('genero') %}
-            <p style="color: #555;">Género: {{ (p.Genero or p.genero)|string|title }}</p>
+          <strong>{{ p.marca.upper() }} · {{ p.tienda }}</strong>
+          <h4>{{ p.nombre }}</h4>
+          <p>Talla: {{ p.talla }}</p>
+          {% if p.genero %}
+            <p style="color: #555;">Género: {{ p.genero|string|title }}</p>
           {% endif %}
-          <p><strong>Q{{ '%.2f' | format(p.Precio or p.precio_final) }}</strong></p>
-          <a class="btn" href="{{ p.URL or p.url }}" target="_blank">Ver producto</a>
+          <p><strong>Q{{ '%.2f' | format(p.precio) }}</strong></p>
+          <a class="btn" href="{{ p.link }}" target="_blank">Ver producto</a>
         </div>
       </div>
     {% endfor %}
   </div>
 {% endif %}
-   {% if productos is not none %}
-    {% if productos|length == 0 %}
-   <p>
-    ❌ No se encontraron resultados con esos filtros
-   </p>
-   {% else %}
-   <div class="card-container">
-    {% for p in productos %}
-    <div class="card">
-     <img alt="{{ p.Producto }}" src="{{ p.Imagen }}">
-      <div class="card-body">
-       <strong>
-        {{ p.Marca.upper() }} · {{ p.Tienda }}
-       </strong>
-       <h4>
-        {{ p.Producto }}
-       </h4>
-       <p>
-        Talla: {{ p.Talla }}
-       </p>
-       {% if p.get('Genero') %}
-       <p style="color: #555;">
-        Género: {{ p.Genero|string|title }}
-       </p>
-       {% endif %}
-       <p>
-        <strong>
-         Q{{ '%.2f' | format(p.Precio) }}
-        </strong>
-       </p>
-       <a class="btn" href="{{ p.URL }}" target="_blank">
-        Ver producto
-       </a>
-       <div style="margin-top: 8px;">
-        <label>
-         <input class="compare-check" data-img="{{ p.Imagen }}" data-nombre="{{ p.Producto }}" data-precio="{{ p.Precio }}" data-tienda="{{ p.Tienda }}" data-url="{{ p.URL }}" type="checkbox"/>
-         Comparar
-        </label>
-       </div>
-      </div>
-     </img>
+
+{% if productos is not none %}
+  {% if productos|length == 0 %}
+    <p>❌ No se encontraron resultados con esos filtros</p>
+  {% else %}
+    <div class="card-container">
+      {% for p in productos %}
+        <div class="card">
+          <img alt="{{ p.nombre }}" src="{{ p.imagen }}">
+          <div class="card-body">
+            <strong>{{ p.marca.upper() }} · {{ p.tienda }}</strong>
+            <h4>{{ p.nombre }}</h4>
+            <p>Talla: {{ p.talla }}</p>
+            {% if p.genero %}
+              <p style="color: #555;">Género: {{ p.genero|string|title }}</p>
+            {% endif %}
+            <p><strong>Q{{ '%.2f' | format(p.precio) }}</strong></p>
+            <a class="btn" href="{{ p.link }}" target="_blank">Ver producto</a>
+            <div style="margin-top: 8px;">
+              <label>
+                <input class="compare-check"
+                       data-img="{{ p.imagen }}"
+                       data-nombre="{{ p.nombre }}"
+                       data-precio="{{ p.precio }}"
+                       data-tienda="{{ p.tienda }}"
+                       data-url="{{ p.link }}"
+                       type="checkbox"/>
+                Comparar
+              </label>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-   </div>
-   {% endif %}
   {% endif %}
+{% endif %}
   </main>
   <!-- Agregar al final del body del archivo index.html antes del cierre de </body> -->
   <!-- Footer actualizado -->
