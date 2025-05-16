@@ -55,17 +55,24 @@ if __name__ == "__main__":
 def ver_ultimo_cache():
     import glob
     import json
+    import os
 
     archivos = sorted(glob.glob("data/cache_*.json"))
     if not archivos:
-        return "No hay archivos de cache disponibles."
+        return "❌ No hay archivos de cache disponibles."
 
-    with open(archivos[-1], encoding="utf-8") as f:
-        contenido = json.load(f)
-        return {
-            "archivo": archivos[-1],
-            "productos": contenido.get("productos", [])[:5]  # solo muestra los primeros 5
-        }
+    ultimo = archivos[-1]
+    try:
+        with open(ultimo, encoding="utf-8") as f:
+            data = json.load(f)
+            productos = data.get("productos") or []
+            return {
+                "archivo": os.path.basename(ultimo),
+                "total": len(productos),
+                "preview": productos[:5]
+            }
+    except Exception as e:
+        return f"❌ Error leyendo el archivo: {e}"
 
 @app.route("/ver-errores")
 def ver_errores_sin_precio():
