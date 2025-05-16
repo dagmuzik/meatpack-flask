@@ -19,6 +19,22 @@ MAPA_TALLAS = {
 BASE_KICKS_API = "https://www.kicks.com.gt/rest/V1"
 BASE_KICKS_WEB = "https://www.kicks.com.gt"
 
+def guardar_en_cache_local(resultados, folder="data"):
+    import os
+    from datetime import datetime
+    import json
+
+    os.makedirs(folder, exist_ok=True)
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    filename = os.path.join(folder, f"cache_{now}.json")
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump({
+            "timestamp": datetime.now().isoformat(),
+            "productos": resultados
+        }, f, ensure_ascii=False, indent=2)
+    print(f"📝 Archivo guardado: {filename}")
+    return filename
+
 def get_json(url, headers=None, params=None, intentos=3):
     for intento in range(intentos):
         try:
