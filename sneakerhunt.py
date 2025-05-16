@@ -457,14 +457,18 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
         genero = genero.strip().lower()
         resultados = [p for p in resultados if p.get("Genero", "").lower() == genero]
 
-    # ✅ Convertir a DataFrame y ordenar
+        # ✅ Convertir a DataFrame y ordenar solo productos con precio válido
     try:
-        df = DataFrame(resultados)
-        df = df[df["Precio"].notna()]  # eliminar productos sin precio
+        resultados_validos = [p for p in resultados if isinstance(p.get("Precio"), (int, float))]
+        if not resultados_validos:
+            print("⚠️ No se encontraron productos con precios válidos.")
+            return []
+        df = DataFrame(resultados_validos)
         return df.sort_values(by="Precio").to_dict("records")
     except Exception as e:
         print("❌ Error al convertir y ordenar resultados:", e)
         return resultados
+
 
 import os
 import json
