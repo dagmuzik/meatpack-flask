@@ -412,15 +412,13 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
             print(f"❌ Error en {nombre}: {e}")
 
     #if tienda in ("", "Adidas"):
-        #agregar(obtener_adidas, "Adidas")
+    #    agregar(obtener_adidas, "Adidas")
 
-    # 🔧 Temporalmente desactivado por errores de conexión
     #if tienda in ("", "Kicks"):
-        #agregar(obtener_kicks, "Kicks")
+    #    agregar(obtener_kicks, "Kicks")
 
-    # 🔧 Temporalmente desactivado por errores de conexión
     #if tienda in ("", "Bitterheads"):
-        #agregar(obtener_bitterheads, "Bitterheads")
+    #    agregar(obtener_bitterheads, "Bitterheads")
 
     if tienda in ("", "Meatpack"):
         agregar(obtener_meatpack, "Meatpack")
@@ -428,30 +426,29 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if tienda in ("", "La Grieta"):
         agregar(obtener_lagrieta, "La Grieta")
 
-    # 🔧 Temporalmente desactivado por errores de conexión
     #if tienda in ("", "Premium Trendy"):
-        #agregar(obtener_premiumtrendy, "Premium Trendy")
+    #    agregar(obtener_premiumtrendy, "Premium Trendy")
 
     #if tienda in ("", "Veinte Avenida"):
-        #agregar(obtener_veinteavenida, "Veinte Avenida")
+    #    agregar(obtener_veinteavenida, "Veinte Avenida")
 
-    # Filtrar por marca si se indicó
+    # 🔍 Filtros adicionales
     if marca:
         marca = marca.strip().lower()
         resultados = [p for p in resultados if p.get("Marca", "").lower() == marca]
 
-    # Filtrar por género si se indicó
     if genero:
         genero = genero.strip().lower()
         resultados = [p for p in resultados if p.get("Genero", "").lower() == genero]
 
-try:
-    df = DataFrame(resultados)
-    df = df[df["Precio"].notna()]  # eliminar productos sin precio
-    return df.sort_values(by="Precio").to_dict("records")
-except Exception as e:
-    print("❌ Error al convertir y ordenar resultados:", e)
-    return resultados  # devolvé sin ordenar si falla
+    # ✅ Convertir a DataFrame y ordenar
+    try:
+        df = DataFrame(resultados)
+        df = df[df["Precio"].notna()]  # eliminar productos sin precio
+        return df.sort_values(by="Precio").to_dict("records")
+    except Exception as e:
+        print("❌ Error al convertir y ordenar resultados:", e)
+        return resultados
 
 import os
 import json
