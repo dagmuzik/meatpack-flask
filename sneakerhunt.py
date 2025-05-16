@@ -638,21 +638,11 @@ def generar_cache_estandar_desde_raw():
         with open(archivos_grieta[-1], encoding="utf-8") as f:
             productos += standardize_products(json.load(f).get("products", []), "lagrieta")
 
-    # ✅ Agregar Adidas estandarizado
-    print("🔍 Scrapeando Adidas...")
-    adidas = obtener_adidas("")
-    for p in adidas:
-        productos.append({
-            "sku": p.get("sku", ""),
-            "nombre": p["Producto"],
-            "precio": p["Precio"],
-            "talla": p["Talla"],
-            "imagen": p["Imagen"],
-            "link": p["URL"],
-            "tienda": "adidas",
-            "marca": "adidas",
-            "genero": ""
-        })
+# ✅ Agregar Adidas usando nueva función estandarizada
+from obtener_adidas_estandarizado import obtener_adidas_estandarizado
+
+print("🔍 Scrapeando Adidas...")
+productos += obtener_adidas_estandarizado()
 
     with open(cache_file, "w", encoding="utf-8") as f:
         json.dump(productos, f, ensure_ascii=False, indent=2)
