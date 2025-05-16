@@ -130,9 +130,11 @@ def obtener_shopify(url, tienda, talla):
     return productos
 
 def obtener_adidas_estandarizado():
+    import requests
     productos = []
     page = 0
     paso = 50
+    MAX_PAGES = 6  # Limitar a 300 productos aprox
     base_url = "https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={inicio}&_to={fin}"
 
     def get_variaciones(product_id):
@@ -146,6 +148,9 @@ def obtener_adidas_estandarizado():
             return {}
 
     while True:
+        if page >= MAX_PAGES:
+            break
+
         url = base_url.format(inicio=page * paso, fin=(page + 1) * paso - 1)
         data = get_json(url)
         if not data:
