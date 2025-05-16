@@ -201,7 +201,6 @@ def generar_cache_estandar_desde_raw():
                         "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
                         "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
                     }
-                    # 🔁 Convertir claves a minúsculas
                     entry = {k.lower(): v for k, v in entry.items()}
                     standardized.append(entry)
                 except Exception as e:
@@ -228,15 +227,18 @@ def generar_cache_estandar_desde_raw():
     print("🔍 Scrapeando Adidas...")
     productos += obtener_adidas_estandarizado()
 
+    # 🔎 Verificación rápida de errores de precio
+    invalids = [p for p in productos if not isinstance(p.get("precio"), (int, float))]
+    if invalids:
+        print(f"⚠️ {len(invalids)} productos sin precio válido.")
+        for p in invalids[:5]:
+            print(" -", p.get("nombre") or p.get("sku"), "| Precio:", p.get("precio"))
+
     with open(cache_file, "w", encoding="utf-8") as f:
         json.dump(productos, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
 
-# Verificación rápida de errores
-invalids = [p for p in productos if not isinstance(p.get("precio"), (int, float))]
-if invalids:
-    print(f"⚠️ {len(invalids)} productos sin precio válido.")
 
 def ejecutar_todo():
     print("🚀 Ejecutando scrap + generar cache...")
