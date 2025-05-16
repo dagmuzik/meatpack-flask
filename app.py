@@ -214,3 +214,14 @@ def scrap_adidas():
     from cache_por_tienda import generar_cache_adidas
     return generar_cache_adidas()
 
+@app.route("/descargar-cache")
+def descargar_cache():
+    tienda = request.args.get("tienda", "").lower()
+    if not tienda:
+        return "❌ Debes especificar una tienda con ?tienda=meatpack, lagrieta o adidas"
+
+    archivo = obtener_ultimo_cache_tienda(tienda)
+    if not archivo or not os.path.exists(archivo):
+        return f"❌ No se encontró archivo cache para '{tienda}'"
+
+    return send_file(archivo, as_attachment=True)
