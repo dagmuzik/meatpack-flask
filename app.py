@@ -47,3 +47,11 @@ def index():
                            min_price=min_price,
                            max_price=max_price,
                            nuevos=nuevos_productos)
+    
+    @app.route("/cron/ejecutar-scraper")
+def ejecutar_scraper_remoto():
+    import sneakerhunt
+    sneakerhunt.__name__ = "__main__"
+    exec(open("sneakerhunt.py", encoding="utf-8").read())
+    return "✅ Scraper ejecutado correctamente desde cron"
+
