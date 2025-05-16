@@ -92,3 +92,12 @@ def ver_errores_sin_precio():
             "total_errores": len(data),
             "preview": data[:5]
         }
+
+@app.route("/cron/scrap-raw")
+def scrap_raw_remote():
+    try:
+        from sneakerhunt import scrap_raw_shopify
+        scrap_raw_shopify()
+        return "✅ Datos RAW de Shopify guardados correctamente"
+    except Exception as e:
+        return f"❌ Error al ejecutar scrap RAW: {e}"
