@@ -234,13 +234,21 @@ def ejecutar_todo():
     generar_cache_estandar_desde_raw()
 
 def cargar_ultimo_cache():
-    archivos = sorted(glob.glob("data/cache_*.json"))
+    import glob
+    import json
+
+    archivos = sorted(glob.glob("data/cache_TOTAL_*.json"))
     if not archivos:
-        print("❌ No hay archivos de cache disponibles.")
+        print("❌ No se encontró ningún archivo cache_TOTAL_*.json")
         return []
-    with open(archivos[-1], encoding="utf-8") as f:
-        data = json.load(f)
-        return data if isinstance(data, list) else data.get("productos", [])
+
+    try:
+        with open(archivos[-1], encoding="utf-8") as f:
+            data = json.load(f)
+            return data if isinstance(data, list) else data.get("productos", [])
+    except Exception as e:
+        print(f"❌ Error al leer el cache: {e}")
+        return []
 
 def buscar_todos(talla="", tienda="", marca="", genero=""):
     productos = cargar_ultimo_cache()
