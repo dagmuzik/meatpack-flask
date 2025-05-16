@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
+import time
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
@@ -18,14 +19,19 @@ MAPA_TALLAS = {
 BASE_KICKS_API = "https://www.kicks.com.gt/rest/V1"
 BASE_KICKS_WEB = "https://www.kicks.com.gt"
 
-def get_json(url, headers=None, params=None):
-    try:
-        response = requests.get(url, headers=headers or HEADERS, params=params, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"⚠️ Error al obtener JSON desde {url}: {e}")
-        return {}
+def get_json(url, headers=None, params=None, intentos=3):
+    for intento in range(intentos):
+        try:
+            response = requests.get(url, headers=headers or HEADERS, params=params, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.SSLError as ssl_error:
+            print(f"❌ Error SSL en {url}: {ssl_error}")
+            break
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ Error al obtener JSON desde {url} (intento {intento + 1}/{intentos}): {e}")
+            time.sleep(2)
+    return {}
 
 def normalizar_talla(t):
     return re.sub(r"[^\d]", "", str(t))
@@ -331,7 +337,7 @@ def obtener_adidas(talla):
                 })
     return resultados
 
-def obtener_kicks(talla_buscada):
+#def obtener_kicks(talla_buscada):
     skus = {}
     for pagina in range(1, 3):
         url = f"https://www.kicks.com.gt/marcas.html?p={pagina}&product_list_limit=36&special_price=29.99-1749.99&tipo_1=241"
