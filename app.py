@@ -66,3 +66,22 @@ def ver_ultimo_cache():
             "archivo": archivos[-1],
             "productos": contenido.get("productos", [])[:5]  # solo muestra los primeros 5
         }
+
+@app.route("/ver-errores")
+def ver_errores_sin_precio():
+    import glob
+    import json
+    import os
+
+    archivos = sorted(glob.glob("data/errores_sin_precio_*.json"))
+    if not archivos:
+        return "✅ No hay errores registrados."
+
+    ultimo = archivos[-1]
+    with open(ultimo, encoding="utf-8") as f:
+        data = json.load(f)
+        return {
+            "archivo": os.path.basename(ultimo),
+            "total_errores": len(data),
+            "preview": data[:5]
+        }
