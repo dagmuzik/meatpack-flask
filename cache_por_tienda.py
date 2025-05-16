@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from sneakerhunt import obtener_meatpack, obtener_lagrieta, obtener_adidas_estandarizado
+from sneakerhunt import obtener_shopify, obtener_adidas_estandarizado
 
 def guardar_resultados(nombre, productos):
     os.makedirs("data", exist_ok=True)
@@ -13,11 +13,11 @@ def guardar_resultados(nombre, productos):
     return filename
 
 def generar_cache_meatpack():
-    productos = obtener_meatpack("")
+    productos = obtener_shopify("https://meatpack.com/collections/special-price/products.json", "meatpack", talla="")
     return guardar_resultados("meatpack", productos)
 
 def generar_cache_lagrieta():
-    productos = obtener_lagrieta("")
+    productos = obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "lagrieta", talla="")
     return guardar_resultados("lagrieta", productos)
 
 def generar_cache_adidas():
