@@ -457,18 +457,36 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
         genero = genero.strip().lower()
         resultados = [p for p in resultados if p.get("Genero", "").lower() == genero]
 
-        # ✅ Convertir a DataFrame y ordenar solo productos con precio válido
     try:
+        from datetime import datetime
+
+        # 🔍 Diagnóstico: detectar productos sin Precio válido
+        productos_sin_precio = [p for p in resultados if not isinstance(p.get("Precio"), (int, float))]
+        if productos_sin_precio:
+            print(f"⚠️ {len(productos_sin_precio)} productos sin Precio válido:")
+            for p in productos_sin_precio[:5]:  # mostramos solo los primeros 5
+                print(f" → {p.get('Producto')} (Tienda: {p.get('Tienda')}, Precio: {p.get('Precio')})")
+
+            # 💾 Guardar para inspección web
+            os.makedirs("data", exist_ok=True)
+            now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+            ruta_error = f"data/errores_sin_precio_{now}.json"
+            with open(ruta_error, "w", encoding="utf-8") as f:
+                json.dump(productos_sin_precio, f, ensure_ascii=False, indent=2)
+            print(f"🛠 Archivo con errores guardado en: {ruta_error}")
+
+        # ✅ Usamos solo los que sí tienen precio
         resultados_validos = [p for p in resultados if isinstance(p.get("Precio"), (int, float))]
         if not resultados_validos:
             print("⚠️ No se encontraron productos con precios válidos.")
             return []
+
         df = DataFrame(resultados_validos)
         return df.sort_values(by="Precio").to_dict("records")
+
     except Exception as e:
         print("❌ Error al convertir y ordenar resultados:", e)
         return resultados
-
 
 import os
 import json
