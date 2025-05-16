@@ -413,7 +413,7 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
         except Exception as e:
             print(f"❌ Error en {nombre}: {e}")
 
-    if tienda in ("", "Adidas"):
+    #if tienda in ("", "Adidas"):
         agregar(obtener_adidas, "Adidas")
 
     # 🔧 Temporalmente desactivado por errores de conexión
@@ -434,7 +434,7 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     #if tienda in ("", "Premium Trendy"):
         agregar(obtener_premiumtrendy, "Premium Trendy")
 
-    if tienda in ("", "Veinte Avenida"):
+    #if tienda in ("", "Veinte Avenida"):
         agregar(obtener_veinteavenida, "Veinte Avenida")
 
     # Filtrar por marca si se indicó
