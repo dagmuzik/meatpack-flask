@@ -11,7 +11,8 @@ def unificar_caches_por_tienda():
     "data/cache_adidas_*.json",
     "data/cache_premiumtrendy_*.json",
     "data/cache_kicks_*.json",
-    "data/cache_bitterheads_*.json"
+    "data/cache_bitterheads_*.json",
+    "data/cache_veinteavenida_*.json"
     ]
     productos_totales = []
 
