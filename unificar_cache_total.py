@@ -6,9 +6,10 @@ def unificar_caches_por_tienda():
 
     os.makedirs("data", exist_ok=True)
     patrones = [
-        "data/cache_meatpack_*.json",
-        "data/cache_lagrieta_*.json",
-        "data/cache_adidas_*.json"
+    "data/cache_meatpack_*.json",
+    "data/cache_lagrieta_*.json",
+    "data/cache_adidas_*.json",
+    "data/cache_kicks_*.json"
     ]
     productos_totales = []
 
