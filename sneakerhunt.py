@@ -190,28 +190,32 @@ def obtener_adidas_estandarizado():
 
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
-        standardized = []
-        for product in raw_products:
-            for variant in product.get("variants", []):
-                if not variant.get("available"):
+    standardized = []
+    for product in raw_products:
+        for variant in product.get("variants", []):
+            if not variant.get("available"):
+                continue
+            try:
+                entry = {
+                    "sku": variant.get("sku"),
+                    "nombre": product.get("title"),
+                    "precio": float(variant.get("price") or 0),
+                    "talla": variant.get("option1"),
+                    "imagen": product.get("images", [{}])[0].get("src"),
+                    "link": f"https://{tienda}.com/products/{product.get('handle')}",
+                    "tienda": tienda,
+                    "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
+                    "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
+                }
+                # Validación de precio
+                if entry["precio"] <= 0:
                     continue
-                try:
-                    entry = {
-                        "sku": variant.get("sku"),
-                        "nombre": product.get("title"),
-                        "precio": float(variant.get("price")),
-                        "talla": variant.get("option1"),
-                        "imagen": product.get("images", [{}])[0].get("src"),
-                        "link": f"https://{tienda}.com/products/{product.get('handle')}",
-                        "tienda": tienda,
-                        "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
-                        "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
-                    }
-                    entry = {k.lower(): v for k, v in entry.items()}
-                    standardized.append(entry)
-                except Exception as e:
-                    print(f"⚠️ Error procesando producto de {tienda}: {e}")
-        return standardized
+                # Unificar claves
+                entry = {k.lower(): v for k, v in entry.items()}
+                standardized.append(entry)
+            except Exception as e:
+                print(f"⚠️ Error procesando producto de {tienda}: {e}")
+    return standardized
 
     os.makedirs("data", exist_ok=True)
     now = datetime.now().strftime("%Y-%m-%d_%H-%M")
