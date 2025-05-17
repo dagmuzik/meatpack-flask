@@ -233,6 +233,12 @@ def scrap_veinteavenida():
     from cache_por_tienda import generar_cache_veinteavenida
     return generar_cache_veinteavenida()
 
+@app.route("/cron/scrap-deportesdelcentro")
+def scrap_deportesdelcentro():
+    from cache_por_tienda import generar_cache_deportesdelcentro
+    return generar_cache_deportesdelcentro()
+
+
 @app.route("/descargar-cache")
 def descargar_cache():
     tienda = request.args.get("tienda", "").lower()
