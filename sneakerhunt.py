@@ -465,12 +465,14 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     productos_limpios = []
     for p in productos_normalizados:
         try:
-            precio = float(p.get("precio", p.get("Precio", 0)))
+            precio_raw = p.get("precio") or p.get("Precio") or 0
+            precio = float(precio_raw)
             if precio <= 0:
                 continue
             p["precio"] = precio
             productos_limpios.append(p)
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ Producto con error de precio: {p.get('nombre', 'sin nombre')} | Error: {e}")
             continue
 
     try:
