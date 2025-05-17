@@ -223,6 +223,11 @@ def scrap_premiumtrendy():
     from cache_por_tienda import generar_cache_premiumtrendy
     return generar_cache_premiumtrendy()
 
+@app.route("/cron/scrap-bitterheads")
+def scrap_bitterheads():
+    from cache_por_tienda import generar_cache_bitterheads
+    return generar_cache_bitterheads()
+
 @app.route("/descargar-cache")
 def descargar_cache():
     tienda = request.args.get("tienda", "").lower()
