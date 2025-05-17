@@ -69,6 +69,7 @@ def generar_cache_veinteavenida():
     return unificar_caches_por_tienda()
     
 def generar_cache_deportesdelcentro():
+    from sneakerhunt import obtener_deportesdelcentro
     productos = obtener_deportesdelcentro()
     guardar_resultados("deportesdelcentro", productos)
     return unificar_caches_por_tienda()
