@@ -276,69 +276,107 @@ def obtener_kicks(talla_buscada=""):
     print(f"✅ Kicks: {len(resultados)} productos válidos.")
     return resultados
 
-def obtener_premiumtrendy(talla_buscada=""):
+def obtener_premiumtrendy(talla_objetivo="9.5"):
     import requests
+    from bs4 import BeautifulSoup
+    import time
+    import json
+    from datetime import datetime
+    import os
 
-    headers = {"User-Agent": "Mozilla/5.0"}
-    base_url = "https://premiumtrendygt.com"
-    api_url = f"{base_url}/wp-json/wc/store/products"
+    BASE_URL = "https://premiumtrendygt.com"
+    PRODUCTS_API = f"{BASE_URL}/wp-json/wc/store/products"
+    HEADERS = {"User-Agent": "Mozilla/5.0"}
+    PARAMS = {"on_sale": "true", "per_page": 100, "page": 1}
     productos_disponibles = []
-    page = 1
+
+    def detectar_atributo_talla(html):
+        soup = BeautifulSoup(html, "html.parser")
+        select = soup.find("select", {"name": lambda x: x and "attribute_pa_talla" in x})
+        return select["name"] if select else None
+
+    def verificar_disponibilidad(product_url, atributo_talla, talla):
+        url_con_talla = f"{product_url}?{atributo_talla}={talla}"
+        try:
+            r = requests.get(url_con_talla, headers=HEADERS, timeout=10)
+            if r.status_code != 200:
+                return False
+            soup = BeautifulSoup(r.text, "html.parser")
+            boton = soup.select_one("button.single_add_to_cart_button")
+            if boton and "disabled" not in boton.get("class", []):
+                return True
+            return False
+        except:
+            return False
 
     while True:
-        print(f"📦 Premium Trendy - Página {page}")
+        print(f"📦 Premium Trendy - Página {PARAMS['page']}")
         try:
-            response = requests.get(api_url, headers=headers, params={
-                "on_sale": "true",
-                "per_page": 100,
-                "page": page
-            }, timeout=10)
-
-            if response.status_code != 200:
+            resp = requests.get(PRODUCTS_API, headers=HEADERS, params=PARAMS, timeout=10)
+            if resp.status_code != 200:
+                print(f"❌ Error HTTP {resp.status_code}")
                 break
-
-            productos = response.json()
-            if not isinstance(productos, list) or not productos:
+            productos = resp.json()
+            if not productos:
                 break
-
         except Exception as e:
-            print(f"❌ Error obteniendo datos: {e}")
+            print(f"❌ Error en Premium Trendy página {PARAMS['page']}: {e}")
             break
 
         for prod in productos:
             try:
-                nombre = prod.get("name", "")
-                url = prod.get("permalink", "")
-                imagen = prod.get("images", [{}])[0].get("src", "")
+                nombre = prod.get("name")
+                url = prod.get("permalink")
+                etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
+                if "sneakers" not in etiquetas or any(b in etiquetas for b in ["clothing", "true"]):
+                    continue
+                imagenes = prod.get("images", [])
+                imagen = imagenes[0]["src"] if imagenes else ""
                 precios = prod.get("prices", {})
-
                 regular = int(precios.get("regular_price", 0)) / 100
                 oferta = int(precios.get("sale_price", 0)) / 100
-                precio_final = oferta if oferta > 0 else regular
-
-                if precio_final == 0 or not imagen:
+                precio = oferta if oferta > 0 else regular
+                if precio == 0:
                     continue
-
-                productos_disponibles.append({
-                    "sku": prod.get("sku", ""),
-                    "nombre": nombre,
-                    "precio": precio_final,
-                    "talla": "",  # no hay info de talla en la API
-                    "imagen": imagen,
-                    "link": url,
-                    "tienda": "premiumtrendy",
-                    "marca": inferir_marca(nombre),
-                    "genero": ""
-                })
-
+                try:
+                    html_prod = requests.get(url, headers=HEADERS, timeout=10).text
+                    atributo = detectar_atributo_talla(html_prod)
+                except:
+                    atributo = None
+                if not atributo:
+                    continue
+                disponible = verificar_disponibilidad(url, atributo, talla_objetivo)
+                if disponible:
+                    productos_disponibles.append({
+                        "sku": "",
+                        "nombre": nombre,
+                        "precio": precio,
+                        "talla": talla_objetivo,
+                        "imagen": imagen,
+                        "link": url,
+                        "tienda": "premiumtrendy",
+                        "marca": "",  # Se puede inferir con inferir_marca(nombre)
+                        "genero": ""
+                    })
             except Exception as e:
                 print(f"⚠️ Error procesando producto Premium Trendy: {e}")
                 continue
 
-        page += 1
+        PARAMS["page"] += 1
+        time.sleep(0.5)
 
     print(f"✅ Premium Trendy: {len(productos_disponibles)} productos disponibles.")
+
+    if productos_disponibles:
+        os.makedirs("data", exist_ok=True)
+        now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+        cache_file = f"data/cache_premiumtrendy_{now}.json"
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump(productos_disponibles, f, ensure_ascii=False, indent=2)
+        print(f"✅ Cache guardado: {cache_file} ({len(productos_disponibles)} productos)")
+
     return productos_disponibles
+
 
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
