@@ -463,10 +463,14 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
         ]
 
     # Validación y conversión del campo 'precio'
+    # ✅ Validación y conversión del campo 'precio'
     productos_limpios = []
-    for p in productos_normalizados:
-        try:
-            p["precio"] = float(p.get("precio", p.get("Precio", 0)))
+    for p in productos:
+       try:
+            precio = float(p.get("precio", p.get("Precio", 0)))
+            if precio <= 0:
+                continue
+            p["precio"] = precio
             productos_limpios.append(p)
         except Exception:
             continue
