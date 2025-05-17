@@ -188,6 +188,61 @@ def obtener_adidas_estandarizado():
     print(f"✅ Adidas: {len(productos)} productos con stock y precio válido.")
     return productos
 
+def obtener_kicks(talla_buscada):
+    from bs4 import BeautifulSoup
+    import requests
+
+    BASE_KICKS_API = "https://www.kicks.com.gt/rest/V1"
+    BASE_KICKS_WEB = "https://www.kicks.com.gt"
+    HEADERS = {"User-Agent": "Mozilla/5.0"}
+    resultados = []
+
+    listado_url = f"{BASE_KICKS_API}/products/specialprice?storeCode=kicks_gt"
+    data = get_json(listado_url)
+    if not data:
+        return []
+
+    for sku_padre, href in data.items():
+        padre_url = f"{BASE_KICKS_API}/products/{sku_padre}?storeCode=kicks_gt"
+        info = get_json(padre_url)
+        if not info or info.get("type_id") != "configurable":
+            continue
+
+        atributos = {a["attribute_code"]: a.get("value") for a in info.get("custom_attributes", [])}
+        nombre = info.get("name", "")
+        url_key = atributos.get("url_key")
+        url_producto = f"{BASE_KICKS_WEB}/{url_key}.html" if url_key else href
+
+        imagen = "https://via.placeholder.com/240x200?text=Sneaker"
+        for attr in info.get("custom_attributes", []):
+            if attr.get("attribute_code") == "image":
+                imagen = f"https://www.kicks.com.gt/media/catalog/product{attr.get('value')}"
+                break
+
+        variantes_url = f"{BASE_KICKS_API}/configurable-products/{sku_padre}/children?storeCode=kicks_gt"
+        variantes = get_json(variantes_url)
+        for var in variantes:
+            attr = {a["attribute_code"]: a.get("value") for a in var.get("custom_attributes", [])}
+            talla_id = attr.get("talla_calzado")
+            talla_texto = MAPA_TALLAS.get(talla_id, talla_id)
+            if not talla_coincide(talla_buscada, talla_texto):
+                continue
+            special_price = attr.get("special_price")
+            if not special_price:
+                continue
+            precio = float(special_price)
+            resultados.append({
+                "Producto": nombre,
+                "Talla": talla_texto,
+                "Precio": precio,
+                "Marca": inferir_marca(nombre),
+                "Tienda": "Kicks",
+                "URL": url_producto,
+                "Imagen": imagen
+            })
+
+    return resultados
+
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
         standardized = []
@@ -277,23 +332,42 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     if not productos:
         return []
 
+    # Normalizar nombres si algunos productos tienen claves en mayúscula
+    productos_normalizados = []
+    for p in productos:
+        if "Producto" in p:
+            p = {k.lower(): v for k, v in p.items()}
+        productos_normalizados.append(p)
+
     # Filtros
     if talla:
         talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
-        productos = [p for p in productos if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")]
+        productos_normalizados = [
+            p for p in productos_normalizados
+            if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")
+        ]
 
     if tienda:
-        productos = [p for p in productos if p.get("tienda", "").lower() == tienda.lower()]
+        productos_normalizados = [
+            p for p in productos_normalizados
+            if p.get("tienda", "").lower() == tienda.lower()
+        ]
 
     if marca:
-        productos = [p for p in productos if p.get("marca", "").lower() == marca.lower()]
+        productos_normalizados = [
+            p for p in productos_normalizados
+            if p.get("marca", "").lower() == marca.lower()
+        ]
 
     if genero:
-        productos = [p for p in productos if p.get("genero", "").lower() == genero.lower()]
+        productos_normalizados = [
+            p for p in productos_normalizados
+            if p.get("genero", "").lower() == genero.lower()
+        ]
 
-    # ✅ Validación y conversión del campo 'precio'
+    # Validación y conversión del campo 'precio'
     productos_limpios = []
-    for p in productos:
+    for p in productos_normalizados:
         try:
             p["precio"] = float(p.get("precio", p.get("Precio", 0)))
             productos_limpios.append(p)
@@ -306,7 +380,7 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     except Exception as e:
         print(f"❌ Error ordenando productos: {e}")
         return productos_limpios
-
+        
 import glob
 import os
 
@@ -317,7 +391,8 @@ def obtener_ultimo_cache_tienda(tienda):
     patrones = {
         "meatpack": "data/cache_meatpack_*.json",
         "lagrieta": "data/cache_lagrieta_*.json",
-        "adidas": "data/cache_adidas_*.json"
+        "adidas": "data/cache_adidas_*.json",
+        "kicks": "data/cache_kicks_*.json"
     }
 
     patron = patrones.get(tienda.lower())
