@@ -213,6 +213,11 @@ def scrap_adidas():
     from cache_por_tienda import generar_cache_adidas
     return generar_cache_adidas()
 
+@app.route("/cron/scrap-kicks")
+def scrap_kicks():
+    from cache_por_tienda import generar_cache_kicks
+    return generar_cache_kicks()
+
 @app.route("/descargar-cache")
 def descargar_cache():
     tienda = request.args.get("tienda", "").lower()
