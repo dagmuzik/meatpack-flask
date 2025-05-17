@@ -55,3 +55,9 @@ def generar_cache_premiumtrendy():
     productos = obtener_premiumtrendy()  # Vacío para traer todos
     guardar_resultados("premiumtrendy", productos)
     return unificar_caches_por_tienda()
+
+def generar_cache_bitterheads():
+    from sneakerhunt import obtener_bitterheads
+    productos = obtener_bitterheads()
+    guardar_resultados("bitterheads", productos)
+    return unificar_caches_por_tienda()
