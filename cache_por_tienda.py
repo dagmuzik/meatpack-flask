@@ -42,3 +42,10 @@ def generar_cache_adidas():
     productos = obtener_adidas_estandarizado()
     guardar_resultados("adidas", productos)
     return unificar_caches_por_tienda()
+    
+def generar_cache_kicks():
+    from sneakerhunt import obtener_kicks
+    productos = obtener_kicks("")
+    from cache_por_tienda import guardar_resultados, unificar_caches_por_tienda
+    guardar_resultados("kicks", productos)
+    return unificar_caches_por_tienda()
