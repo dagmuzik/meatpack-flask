@@ -276,9 +276,8 @@ def obtener_kicks(talla_buscada=""):
     print(f"✅ Kicks: {len(resultados)} productos válidos.")
     return resultados
 
-def obtener_premiumtrendy(talla_objetivo="9.5"):
+def obtener_premiumtrendy():
     import requests
-    from bs4 import BeautifulSoup
     import time
 
     BASE_URL = "https://premiumtrendygt.com"
@@ -287,69 +286,31 @@ def obtener_premiumtrendy(talla_objetivo="9.5"):
     productos_disponibles = []
     page = 1
 
-    def detectar_atributo_talla(html):
-        soup = BeautifulSoup(html, "html.parser")
-        select = soup.find("select", {"name": lambda x: x and "attribute_pa_talla" in x})
-        return select["name"] if select else None
-
-    def verificar_disponibilidad(product_url, atributo_talla, talla):
-        url_con_talla = f"{product_url}?{atributo_talla}={talla}"
-        try:
-            r = requests.get(url_con_talla, headers=HEADERS, timeout=10)
-            if r.status_code != 200:
-                return False
-            soup = BeautifulSoup(r.text, "html.parser")
-            boton = soup.select_one("button.single_add_to_cart_button")
-            if boton and "disabled" not in boton.get("class", []):
-                return True
-            return False
-        except:
-            return False
-
-    def inferir_marca(nombre):
-        nombre = nombre.lower()
-        if "sl 72" in nombre or "forum" in nombre or "gazelle" in nombre or "stan smith" in nombre:
-            return "adidas"
-        if "slip-on" in nombre or "sk8-hi" in nombre or "ultrarange" in nombre or "old skool" in nombre:
-            return "vans"
-        if "chuck" in nombre:
-            return "converse"
-        if "nike" in nombre or "air" in nombre or "kobe" in nombre or "jelly ma" in nombre:
-            return "nike"
-        if "new balance" in nombre:
-            return "new balance"
-        if "dellow" in nombre or "amiel" in nombre or "straye" in nombre:
-            return "stepney workers club"
-        if "shadow" in nombre or "grid azura" in nombre:
-            return "saucony"
-        if "nitro" in nombre:
-            return "puma"
-        return ""
-
     while True:
         print(f"📦 Premium Trendy - Página {page}")
         try:
             r = requests.get(API_URL, headers=HEADERS, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=10)
             if r.status_code != 200:
                 break
-
             productos = r.json()
             if not productos:
                 break
         except Exception as e:
-            print(f"❌ Error Premium Trendy página {page}: {e}")
+            print(f"❌ Error en Premium Trendy página {page}: {e}")
             break
 
         for prod in productos:
             try:
                 nombre = prod.get("name", "")
                 url = prod.get("permalink", "")
-                etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
+                sku = prod.get("sku", "")
+                imagen = prod.get("images", [{}])[0].get("src", "")
+                etiquetas = [tag.get("name", "").lower() for tag in prod.get("tags", [])]
 
-                if "sneakers" not in etiquetas or any(b in etiquetas for b in ["clothing", "true"]):
+                # Filtrar solo sneakers y evitar ropa
+                if "sneakers" not in etiquetas or any(e in etiquetas for e in ["clothing", "true"]):
                     continue
 
-                imagen = prod.get("images", [{}])[0].get("src", "")
                 precios = prod.get("prices", {})
                 regular = int(precios.get("regular_price", 0)) / 100
                 oferta = int(precios.get("sale_price", 0)) / 100
@@ -357,28 +318,37 @@ def obtener_premiumtrendy(talla_objetivo="9.5"):
                 if precio == 0:
                     continue
 
-                html = requests.get(url, headers=HEADERS, timeout=10).text
-                soup = BeautifulSoup(html, "html.parser")
+                # Extraer marca de atributos
+                marca = ""
+                for attr in prod.get("attributes", []):
+                    if attr.get("name", "").lower() == "marca":
+                        terms = attr.get("terms", [])
+                        if terms:
+                            marca = terms[0].get("name", "").strip().lower()
+                            break
 
-                atributo_talla = detectar_atributo_talla(html)
-                sku_tag = soup.find("span", class_="sku")
-                sku = sku_tag.text.strip() if sku_tag else ""
+                # Extraer todas las tallas disponibles
+                tallas_disponibles = set()
+                for var in prod.get("variations", []):
+                    for a in var.get("attributes", []):
+                        if "talla" in a.get("name", "").lower():
+                            valor = a.get("value", "").strip()
+                            if valor:
+                                tallas_disponibles.add(valor)
 
-                if not atributo_talla:
-                    continue
-
-                if verificar_disponibilidad(url, atributo_talla, talla_objetivo):
+                for talla in tallas_disponibles:
                     productos_disponibles.append({
                         "sku": sku,
                         "nombre": nombre,
                         "precio": precio,
-                        "talla": talla_objetivo,
+                        "talla": talla,
                         "imagen": imagen,
                         "link": url,
                         "tienda": "premiumtrendy",
-                        "marca": inferir_marca(nombre),
-                        "genero": ""  # No proporcionado
+                        "marca": marca,
+                        "genero": ""  # No provee género
                     })
+
             except Exception as e:
                 print(f"⚠️ Error procesando producto Premium Trendy: {e}")
                 continue
@@ -388,8 +358,6 @@ def obtener_premiumtrendy(talla_objetivo="9.5"):
 
     print(f"✅ Premium Trendy: {len(productos_disponibles)} productos disponibles.")
     return productos_disponibles
-
-
 
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
