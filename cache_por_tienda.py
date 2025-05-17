@@ -68,3 +68,7 @@ def generar_cache_veinteavenida():
     guardar_resultados("veinteavenida", productos)
     return unificar_caches_por_tienda()
     
+def generar_cache_deportesdelcentro():
+    productos = obtener_deportesdelcentro()
+    guardar_resultados("deportesdelcentro", productos)
+    return unificar_caches_por_tienda()
