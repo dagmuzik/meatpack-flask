@@ -278,80 +278,64 @@ def obtener_kicks(talla_buscada=""):
 
 def obtener_premiumtrendy(talla_buscada=""):
     import requests
-    from bs4 import BeautifulSoup
-    import time
 
-    BASE_URL = "https://premiumtrendygt.com"
-    API_URL = f"{BASE_URL}/wp-json/wc/store/products"
-    HEADERS = {"User-Agent": "Mozilla/5.0"}
+    headers = {"User-Agent": "Mozilla/5.0"}
+    base_url = "https://premiumtrendygt.com"
+    api_url = f"{base_url}/wp-json/wc/store/products"
     productos_disponibles = []
     page = 1
 
     while True:
         print(f"📦 Premium Trendy - Página {page}")
         try:
-            r = requests.get(API_URL, headers=HEADERS, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=10)
-            if r.status_code != 200:
+            response = requests.get(api_url, headers=headers, params={
+                "on_sale": "true",
+                "per_page": 100,
+                "page": page
+            }, timeout=10)
+
+            if response.status_code != 200:
                 break
-            productos = r.json()
-            if not productos:
+
+            productos = response.json()
+            if not isinstance(productos, list) or not productos:
                 break
+
         except Exception as e:
-            print(f"❌ Error en Premium Trendy página {page}: {e}")
+            print(f"❌ Error obteniendo datos: {e}")
             break
 
         for prod in productos:
             try:
                 nombre = prod.get("name", "")
                 url = prod.get("permalink", "")
-                etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
-
-                # Solo sneakers
-                if "sneakers" not in etiquetas or any(b in etiquetas for b in ["clothing", "true"]):
-                    continue
-
                 imagen = prod.get("images", [{}])[0].get("src", "")
                 precios = prod.get("prices", {})
+
                 regular = int(precios.get("regular_price", 0)) / 100
                 oferta = int(precios.get("sale_price", 0)) / 100
-                precio = oferta if oferta > 0 else regular
-                if precio == 0:
+                precio_final = oferta if oferta > 0 else regular
+
+                if precio_final == 0 or not imagen:
                     continue
 
-                # Verificar si la talla está disponible cargando HTML
-                html = requests.get(url, headers=HEADERS, timeout=10).text
-                soup = BeautifulSoup(html, "html.parser")
-                selects = soup.find_all("select")
-                talla_disponible = False
+                productos_disponibles.append({
+                    "sku": prod.get("sku", ""),
+                    "nombre": nombre,
+                    "precio": precio_final,
+                    "talla": "",  # no hay info de talla en la API
+                    "imagen": imagen,
+                    "link": url,
+                    "tienda": "premiumtrendy",
+                    "marca": inferir_marca(nombre),
+                    "genero": ""
+                })
 
-                for s in selects:
-                    if "talla" in s.get("name", "").lower():
-                        opciones = s.find_all("option")
-                        for opt in opciones:
-                            if talla_buscada in opt.text:
-                                talla_disponible = True
-                                break
-                    if talla_disponible:
-                        break
-
-                if talla_disponible:
-                    productos_disponibles.append({
-                        "sku": "",  # No proporcionado
-                        "nombre": nombre,
-                        "precio": precio,
-                        "talla": talla_buscada,
-                        "imagen": imagen,
-                        "link": url,
-                        "tienda": "premium trendy",
-                        "marca": "",  # No hay marca explícita
-                        "genero": ""  # No hay género explícito
-                    })
             except Exception as e:
                 print(f"⚠️ Error procesando producto Premium Trendy: {e}")
                 continue
 
         page += 1
-        time.sleep(0.5)
 
     print(f"✅ Premium Trendy: {len(productos_disponibles)} productos disponibles.")
     return productos_disponibles
