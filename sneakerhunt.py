@@ -443,6 +443,90 @@ def obtener_bitterheads():
     print(f"✅ Bitterheads: {len(productos_data)} productos disponibles con stock.")
     return productos_data
 
+def obtener_veinteavenida():
+    import requests
+    from bs4 import BeautifulSoup
+    import time
+
+    productos = []
+    base_url = "https://veinteavenida.com/product-category/sale/page/"
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    for page in range(1, 4):
+        print(f"📦 Veinte Avenida - Página {page}")
+        url = f"{base_url}{page}/"
+        try:
+            res = requests.get(url, headers=headers, timeout=10)
+            if res.status_code != 200:
+                break
+
+            soup = BeautifulSoup(res.text, "html.parser")
+            items = soup.select("li.product")
+            if not items:
+                break
+        except Exception as e:
+            print(f"❌ Error cargando página {page}: {e}")
+            break
+
+        for item in items:
+            try:
+                nombre_tag = item.select_one("a.product-loop-title h3.woocommerce-loop-product__title")
+                url_tag = item.select_one("a.product-loop-title")
+                img_tag = item.select_one("img.wp-post-image")
+
+                if not (nombre_tag and url_tag and img_tag):
+                    continue
+
+                nombre = nombre_tag.text.strip()
+                url_producto = url_tag["href"]
+                imagen = img_tag["src"]
+
+                # Enriquecer producto
+                detalle = requests.get(url_producto, headers=headers, timeout=10)
+                soup_detalle = BeautifulSoup(detalle.text, "html.parser")
+
+                precios = soup_detalle.select("p.price span.woocommerce-Price-amount")
+                if len(precios) >= 2:
+                    precio_final = precios[1].text.strip().replace("Q", "").replace(",", "")
+                elif len(precios) == 1:
+                    precio_final = precios[0].text.strip().replace("Q", "").replace(",", "")
+                else:
+                    continue
+
+                try:
+                    precio = float(precio_final)
+                    if precio <= 0:
+                        continue
+                except:
+                    continue
+
+                tallas = []
+                for div in soup_detalle.select(".tfwctool-varation-swatch-preview"):
+                    talla_html = div.get("data-bs-original-title") or div.text.strip()
+                    if talla_html:
+                        tallas.append(talla_html)
+
+                productos.append({
+                    "sku": "",
+                    "nombre": nombre,
+                    "precio": precio,
+                    "talla": ", ".join(tallas),
+                    "imagen": imagen,
+                    "link": url_producto,
+                    "tienda": "veinte avenida",
+                    "marca": inferir_marca(nombre),
+                    "genero": inferir_genero(nombre)
+                })
+
+            except Exception as e:
+                print(f"⚠️ Error procesando producto: {e}")
+                continue
+
+        time.sleep(0.5)
+
+    print(f"✅ Veinte Avenida: {len(productos)} productos disponibles.")
+    return productos
+
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
         standardized = []
@@ -599,7 +683,8 @@ def obtener_ultimo_cache_tienda(tienda):
         "adidas": "data/cache_adidas_*.json",
         "premiumtrendy": "data/cache_premiumtrendy_*.json",
         "kicks": "data/cache_kicks_*.json",
-        "bitterheads": "data/cache_bitterheads_*.json"
+        "bitterheads": "data/cache_bitterheads_*.json",
+        "veinteavenida": "data/cache_veinteavenida_*.json"
     }
 
     patron = patrones.get(tienda.lower())
