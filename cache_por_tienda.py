@@ -61,3 +61,10 @@ def generar_cache_bitterheads():
     productos = obtener_bitterheads()
     guardar_resultados("bitterheads", productos)
     return unificar_caches_por_tienda()
+
+def generar_cache_veinteavenida():
+    from sneakerhunt import obtener_veinteavenida
+    productos = obtener_veinteavenida()
+    guardar_resultados("veinteavenida", productos)
+    return unificar_caches_por_tienda()
+    
