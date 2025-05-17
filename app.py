@@ -218,6 +218,11 @@ def scrap_kicks():
     from cache_por_tienda import generar_cache_kicks
     return generar_cache_kicks()
 
+@app.route("/cron/scrap-premiumtrendy")
+def scrap_premiumtrendy():
+    from cache_por_tienda import generar_cache_premiumtrendy
+    return generar_cache_premiumtrendy()
+
 @app.route("/descargar-cache")
 def descargar_cache():
     tienda = request.args.get("tienda", "").lower()
