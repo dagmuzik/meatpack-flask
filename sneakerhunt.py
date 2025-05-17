@@ -188,100 +188,94 @@ def obtener_adidas_estandarizado():
     print(f"✅ Adidas: {len(productos)} productos con stock y precio válido.")
     return productos
 
-def obtener_kicks(talla_buscada):
-    import requests
+def obtener_kicks(talla_buscada=""):
     import re
     from bs4 import BeautifulSoup
-    import time
 
-    HEADERS = {"User-Agent": "Mozilla/5.0"}
-    BASE_URL = "https://www.kicks.com.gt/rest/V1"
-    WEB_BASE = "https://www.kicks.com.gt"
-    MAPA_TALLAS = {
-        "139": "5.5", "142": "5.75", "145": "6", "148": "6.5", "151": "7", "154": "7.5",
-        "157": "8", "160": "8.5", "163": "9", "166": "9.5", "169": "10", "172": "10.5",
-        "175": "11", "178": "11.5", "181": "12", "184": "12.5", "187": "13", "190": "13.5",
-        "193": "14", "196": "14.5", "199": "15", "752": "15.5?"
+    BASE_KICKS_API = "https://www.kicks.com.gt/rest/V1"
+    BASE_KICKS_WEB = "https://www.kicks.com.gt"
+    HEADERS = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json"
     }
 
-    def obtener_custom(attrs, clave):
-        for attr in attrs:
-            if attr.get("attribute_code") == clave:
-                return attr.get("value")
-        return ""
+    MAPA_GENERO = {
+        "286": "hombre",
+        "289": "mujer",
+        "644": "niños"
+    }
 
-    def extraer_skus():
-        pagina = 1
-        skus = {}
-        while True:
+    # Paso 1: obtener SKUs desde la web
+    skus = {}
+    for pagina in range(1, 3):
+        try:
             url = f"https://www.kicks.com.gt/marcas.html?p={pagina}&product_list_limit=36&special_price=29.99-1749.99&tipo_1=241"
-            res = requests.get(url, headers=HEADERS)
+            res = requests.get(url, headers=HEADERS, timeout=10)
             soup = BeautifulSoup(res.text, "html.parser")
             links = soup.select(".product-item-info a")
             hrefs = {a.get("href") for a in links if a.get("href", "").endswith(".html")}
-            if not hrefs:
-                break
             for href in hrefs:
                 match = re.search(r"(\d{8})", href)
                 if match:
                     skus[match.group(1)] = href
-            pagina += 1
-        return skus
-
-    resultados = []
-    skus = extraer_skus()
-
-    for sku_padre, href in skus.items():
-        time.sleep(0.2)
-        padre_url = f"{BASE_URL}/products/{sku_padre}?storeCode=kicks_gt"
-        try:
-            data = requests.get(padre_url, headers=HEADERS).json()
-            if data.get("type_id") != "configurable":
-                continue
-            attrs = data.get("custom_attributes", [])
-            nombre = data.get("name", "")
-            genero = obtener_custom(attrs, "genero")
-            url_key = obtener_custom(attrs, "url_key")
-            url_producto = f"{WEB_BASE}/{url_key}.html" if url_key else href
-
-            imagen = ""
-            for attr in attrs:
-                if attr.get("attribute_code") == "image":
-                    imagen = f"https://www.kicks.com.gt/media/catalog/product{attr.get('value')}"
-                    break
-            if not imagen:
-                imagen = "https://via.placeholder.com/240x200?text=Sneaker"
-
-            hijos_url = f"{BASE_URL}/configurable-products/{sku_padre}/children?storeCode=kicks_gt"
-            hijos = requests.get(hijos_url, headers=HEADERS).json()
-
-            for hijo in hijos:
-                custom = hijo.get("custom_attributes", [])
-                special_price = obtener_custom(custom, "special_price")
-                talla_id = obtener_custom(custom, "talla_calzado")
-                talla_txt = MAPA_TALLAS.get(talla_id, talla_id)
-
-                if not special_price or (talla_buscada and talla_buscada != talla_txt):
-                    continue
-
-                resultados.append({
-                    "sku": hijo.get("sku"),
-                    "nombre": nombre,
-                    "precio": float(special_price),
-                    "talla": talla_txt,
-                    "imagen": imagen,
-                    "link": url_producto,
-                    "tienda": "kicks",
-                    "marca": "",  # Se puede inferir si se desea
-                    "genero": genero
-                })
-
         except Exception as e:
-            print(f"❌ Error en SKU {sku_padre}: {e}")
+            print(f"⚠️ Error leyendo página {pagina}: {e}")
             continue
 
-    print(f"✅ Kicks: {len(resultados)} productos encontrados.")
+    resultados = []
+    for i, (sku_padre, href) in enumerate(skus.items()):
+        padre_url = f"{BASE_KICKS_API}/products/{sku_padre}?storeCode=kicks_gt"
+        data = get_json(padre_url)
+        if not data or data.get("type_id") != "configurable":
+            continue
+
+        atributos = {attr["attribute_code"]: attr.get("value") for attr in data.get("custom_attributes", [])}
+        nombre = data.get("name", "")
+        url_key = atributos.get("url_key")
+        url_producto = f"{BASE_KICKS_WEB}/{url_key}.html" if url_key else href
+
+        imagen = None
+        for attri in data.get("custom_attributes", []):
+            if attri.get("attribute_code") == "image":
+                imagen = f"https://www.kicks.com.gt/media/catalog/product{attri.get('value')}"
+                break
+        if not imagen:
+            imagen = "https://via.placeholder.com/240x200?text=Sneaker"
+
+        genero_id = atributos.get("genero")
+        genero = MAPA_GENERO.get(genero_id, "")
+
+        # Variantes
+        variantes_url = f"{BASE_KICKS_API}/configurable-products/{sku_padre}/children?storeCode=kicks_gt"
+        variantes = get_json(variantes_url)
+        for var in variantes:
+            attr = {a["attribute_code"]: a.get("value") for a in var.get("custom_attributes", [])}
+            talla_id = attr.get("talla_calzado")
+            talla_texto = MAPA_TALLAS.get(talla_id, talla_id)
+            if talla_buscada and talla_buscada != talla_texto:
+                continue
+            special_price = attr.get("special_price")
+            if not special_price:
+                continue
+            try:
+                precio = float(special_price)
+            except:
+                continue
+            resultados.append({
+                "sku": var.get("sku"),
+                "nombre": nombre,
+                "precio": precio,
+                "talla": talla_texto,
+                "imagen": imagen,
+                "link": url_producto,
+                "tienda": "kicks",
+                "marca": inferir_marca(nombre),
+                "genero": genero
+            })
+
+    print(f"✅ Kicks: {len(resultados)} productos válidos.")
     return resultados
+
 
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
