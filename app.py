@@ -228,6 +228,11 @@ def scrap_bitterheads():
     from cache_por_tienda import generar_cache_bitterheads
     return generar_cache_bitterheads()
 
+@app.route("/cron/scrap-veinteavenida")
+def scrap_veinteavenida():
+    from cache_por_tienda import generar_cache_veinteavenida
+    return generar_cache_veinteavenida()
+
 @app.route("/descargar-cache")
 def descargar_cache():
     tienda = request.args.get("tienda", "").lower()
