@@ -742,7 +742,8 @@ def obtener_ultimo_cache_tienda(tienda):
         "premiumtrendy": "data/cache_premiumtrendy_*.json",
         "kicks": "data/cache_kicks_*.json",
         "bitterheads": "data/cache_bitterheads_*.json",
-        "veinteavenida": "data/cache_veinteavenida_*.json"
+        "veinteavenida": "data/cache_veinteavenida_*.json",
+        "deportesdelcentro": "data/cache_deportesdelcentro_*.json"
     }
 
     patron = patrones.get(tienda.lower())
