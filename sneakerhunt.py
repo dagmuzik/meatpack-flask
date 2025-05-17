@@ -310,7 +310,11 @@ def obtener_premiumtrendy(talla_buscada=""):
                 nombre = prod.get("name", "")
                 url = prod.get("permalink", "")
                 variaciones = prod.get("variations", [])
-                imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
+
+                # 🖼️ Imagen segura
+                imagenes = prod.get("images", [])
+                imagen = imagenes[0]["src"] if imagenes else "https://via.placeholder.com/240x200?text=Sneaker"
+
                 etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
 
                 precios = prod.get("prices", {})
