@@ -527,6 +527,64 @@ def obtener_veinteavenida():
     print(f"✅ Veinte Avenida: {len(productos)} productos disponibles.")
     return productos
 
+def obtener_deportesdelcentro():
+    import requests
+    from datetime import datetime
+
+    base_url = "https://deporteselcentro.com/wp-json/wc/store/v1/products"
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json"
+    }
+
+    productos = []
+    pagina = 1
+    while True:
+        print(f"📦 Deportes del Centro - Página {pagina}")
+        try:
+            res = requests.get(base_url, headers=headers, params={"page": pagina, "per_page": 100}, timeout=10)
+            if res.status_code != 200:
+                break
+            data = res.json()
+            if not data:
+                break
+        except Exception as e:
+            print(f"❌ Error al obtener productos: {e}")
+            break
+
+        for prod in data:
+            try:
+                tallas = []
+                for attr in prod.get("attributes", []):
+                    if attr.get("name", "").lower() == "talla":
+                        tallas = [t.get("name") for t in attr.get("terms", [])]
+
+                sale_price = int(prod["prices"]["sale_price"])
+                regular_price = int(prod["prices"]["regular_price"])
+                if not prod.get("on_sale") or sale_price >= regular_price:
+                    continue
+
+                if not any(talla_buscada in t for t in tallas):
+                    continue
+
+                productos.append({
+                    "sku": "",  # No disponible
+                    "nombre": prod.get("name"),
+                    "precio": sale_price / 100,
+                    "talla": talla_buscada,
+                    "imagen": prod.get("images", [{}])[0].get("src", ""),
+                    "link": prod.get("permalink"),
+                    "tienda": "deportesdelcentro",
+                    "marca": "",
+                    "genero": ""
+                })
+            except Exception as e:
+                print(f"⚠️ Error procesando producto Deportes del Centro: {e}")
+        pagina += 1
+
+    print(f"✅ Deportes del Centro: {len(productos)} productos disponibles.")
+    return productos
+
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
         standardized = []
