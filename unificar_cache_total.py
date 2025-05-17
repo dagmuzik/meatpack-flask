@@ -5,7 +5,11 @@ def unificar_caches_por_tienda():
     from datetime import datetime
 
     os.makedirs("data", exist_ok=True)
-    patrones = ["data/cache_meatpack_*.json", "data/cache_lagrieta_*.json", "data/cache_adidas_*.json"]
+    patrones = [
+        "data/cache_meatpack_*.json",
+        "data/cache_lagrieta_*.json",
+        "data/cache_adidas_*.json"
+    ]
     productos_totales = []
 
     for patron in patrones:
@@ -18,19 +22,21 @@ def unificar_caches_por_tienda():
                     if not isinstance(datos, list):
                         continue
                     for p in datos:
-                        # 🔁 Normalizar claves y valores
-                        prod = {
-                            "sku": p.get("sku") or "",
-                            "nombre": p.get("nombre") or p.get("Producto", ""),
-                            "precio": float(p.get("precio") or p.get("Precio", 0)),
-                            "talla": p.get("talla") or p.get("Talla", ""),
-                            "imagen": p.get("imagen") or p.get("Imagen", ""),
-                            "link": p.get("link") or p.get("URL", ""),
-                            "tienda": p.get("tienda") or p.get("Tienda", "").lower(),
-                            "marca": (p.get("marca") or p.get("Marca", "")).replace("MARCA-", "").lower(),
-                            "genero": (p.get("genero") or p.get("Genero", "")).lower()
-                        }
-                        productos_totales.append(prod)
+                        try:
+                            producto = {
+                                "sku": p.get("sku") or "",
+                                "nombre": p.get("nombre") or p.get("Producto", ""),
+                                "precio": float(p.get("precio") or p.get("Precio")),
+                                "talla": p.get("talla") or p.get("Talla", ""),
+                                "imagen": p.get("imagen") or p.get("Imagen", ""),
+                                "link": p.get("link") or p.get("URL", ""),
+                                "tienda": (p.get("tienda") or p.get("Tienda", "")).lower(),
+                                "marca": (p.get("marca") or p.get("Marca", "")).replace("MARCA-", "").lower(),
+                                "genero": (p.get("genero") or p.get("Genero", "")).lower()
+                            }
+                            productos_totales.append(producto)
+                        except Exception as e:
+                            print(f"⚠️ Producto con error en {ultimo}: {e}")
             except Exception as e:
                 print(f"⚠️ Error leyendo {ultimo}: {e}")
 
