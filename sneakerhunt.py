@@ -462,11 +462,9 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
             if p.get("genero", "").lower() == genero.lower()
         ]
 
-    # Validación y conversión del campo 'precio'
-    # ✅ Validación y conversión del campo 'precio'
     productos_limpios = []
-    for p in productos:
-       try:
+    for p in productos_normalizados:
+        try:
             precio = float(p.get("precio", p.get("Precio", 0)))
             if precio <= 0:
                 continue
@@ -481,6 +479,7 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     except Exception as e:
         print(f"❌ Error ordenando productos: {e}")
         return productos_limpios
+
         
 import glob
 import os
