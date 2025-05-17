@@ -49,3 +49,9 @@ def generar_cache_kicks():
     from cache_por_tienda import guardar_resultados, unificar_caches_por_tienda
     guardar_resultados("kicks", productos)
     return unificar_caches_por_tienda()
+
+def generar_cache_premiumtrendy():
+    from sneakerhunt import obtener_premiumtrendy
+    productos = obtener_premiumtrendy("")  # Vacío para traer todos
+    guardar_resultados("premiumtrendy", productos)
+    return unificar_caches_por_tienda()
