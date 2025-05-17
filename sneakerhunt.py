@@ -363,58 +363,85 @@ def obtener_bitterheads():
     import requests
     import time
 
-    url_base = "https://www.bitterheads.com"
-    search_url = f"{url_base}/api/catalog_system/pub/products/search?fq=specificationFilter_43:*&fq=specificationFilter_110:*&_from=0&_to=299"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    productos = []
-    
-    try:
-        res = requests.get(search_url, headers=headers, timeout=10)
-        data = res.json()
-    except Exception as e:
-        print(f"❌ Error al obtener productos de Bitterheads: {e}")
-        return []
+    BASE_URL = "https://www.bitterheads.com"
+    HEADERS = {"User-Agent": "Mozilla/5.0"}
+    PAGE_SIZE = 24
+    MAX_PAGES = 80
 
-    for prod in data:
-        try:
-            product_id = prod.get("productId")
-            variaciones_url = f"{url_base}/api/catalog_system/pub/products/variations/{product_id}"
-            res_var = requests.get(variaciones_url, headers=headers, timeout=10)
-            variaciones = res_var.json()
-            time.sleep(0.2)
+    productos_data = []
+    productos_vistos = set()
 
-            tallas_disponibles = []
-            for sku in variaciones.get("skus", []):
-                stock = sku.get("availableQuantity", 0)
-                talla = sku.get("dimensions", {}).get("Talla")
-                if stock > 0 and talla:
+    def get_available_tallas(product_id):
+        url = f"{BASE_URL}/api/catalog_system/pub/products/variations/{product_id}"
+        response = requests.get(url, headers=HEADERS)
+        if response.status_code != 200:
+            return []
+
+        data = response.json()
+        tallas_disponibles = []
+
+        for sku in data.get("skus", []):
+            if sku.get("available") and sku.get("availablequantity", 0) > 0:
+                talla = sku.get("dimensions", {}).get("Talla", "")
+                if talla:
                     tallas_disponibles.append(talla)
 
-            if not tallas_disponibles:
+        return tallas_disponibles
+
+    for page in range(1, MAX_PAGES + 1):
+        url = f"{BASE_URL}/api/catalog_system/pub/products/search?fq=productClusterIds:159&ps={PAGE_SIZE}&pg={page}"
+        response = requests.get(url, headers=HEADERS)
+
+        if response.status_code not in [200, 206]:
+            break
+
+        productos = response.json()
+        if not productos:
+            break
+
+        for p in productos:
+            link_text = p.get("linkText")
+            product_id = p.get("productId")
+
+            if not link_text or not product_id or link_text in productos_vistos:
                 continue
+            productos_vistos.add(link_text)
 
-            nombre = prod.get("productName", "")
-            imagen = prod.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "")
-            precio = prod.get("items", [{}])[0].get("sellers", [{}])[0].get("commertialOffer", {}).get("Price", 0)
+            nombre = p.get("productName", "")
+            marca = p.get("brand", "")
+            link = f"{BASE_URL}/{link_text}/p"
 
-            productos.append({
-                "sku": prod.get("items", [{}])[0].get("itemId", ""),
-                "nombre": nombre,
-                "precio": float(precio),
-                "talla": ", ".join(tallas_disponibles),
-                "imagen": imagen,
-                "link": f"{url_base}/{prod.get('linkText', '')}/p",
-                "tienda": "bitterheads",
-                "marca": inferir_marca(nombre),
-                "genero": inferir_genero(nombre)
-            })
+            precio = None
+            imagen = ""
+            if p.get("items"):
+                item = p["items"][0]
+                if item.get("sellers"):
+                    oferta = item["sellers"][0]["commertialOffer"]
+                    precio = oferta.get("Price")
+                if item.get("images"):
+                    imagen = item["images"][0].get("imageUrl", "")
 
-        except Exception as e:
-            print(f"⚠️ Error procesando producto Bitterheads: {e}")
-            continue
+            if precio and precio > 0:
+                tallas_disponibles = get_available_tallas(product_id)
+                if not tallas_disponibles:
+                    continue
 
-    print(f"✅ Bitterheads: {len(productos)} productos con stock y precio válido.")
-    return productos
+                productos_data.append({
+                    "sku": "",  # No expuesto por la API
+                    "nombre": nombre,
+                    "precio": float(precio),
+                    "talla": ", ".join(tallas_disponibles),
+                    "imagen": imagen,
+                    "link": link,
+                    "tienda": "bitterheads",
+                    "marca": marca.lower(),
+                    "genero": ""  # No definido por ahora
+                })
+
+        time.sleep(0.5)
+
+    print(f"✅ Bitterheads: {len(productos_data)} productos disponibles con stock.")
+    return productos_data
 
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
