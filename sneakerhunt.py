@@ -505,6 +505,7 @@ def obtener_ultimo_cache_tienda(tienda):
         "meatpack": "data/cache_meatpack_*.json",
         "lagrieta": "data/cache_lagrieta_*.json",
         "adidas": "data/cache_adidas_*.json",
+        "premiumtrendy": "data/cache_premiumtrendy_*.json",
         "kicks": "data/cache_kicks_*.json"
     }
 
