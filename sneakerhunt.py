@@ -280,15 +280,12 @@ def obtener_premiumtrendy(talla_objetivo="9.5"):
     import requests
     from bs4 import BeautifulSoup
     import time
-    import json
-    from datetime import datetime
-    import os
 
     BASE_URL = "https://premiumtrendygt.com"
-    PRODUCTS_API = f"{BASE_URL}/wp-json/wc/store/products"
+    API_URL = f"{BASE_URL}/wp-json/wc/store/products"
     HEADERS = {"User-Agent": "Mozilla/5.0"}
-    PARAMS = {"on_sale": "true", "per_page": 100, "page": 1}
     productos_disponibles = []
+    page = 1
 
     def detectar_atributo_talla(html):
         soup = BeautifulSoup(html, "html.parser")
@@ -309,73 +306,89 @@ def obtener_premiumtrendy(talla_objetivo="9.5"):
         except:
             return False
 
+    def inferir_marca(nombre):
+        nombre = nombre.lower()
+        if "sl 72" in nombre or "forum" in nombre or "gazelle" in nombre or "stan smith" in nombre:
+            return "adidas"
+        if "slip-on" in nombre or "sk8-hi" in nombre or "ultrarange" in nombre or "old skool" in nombre:
+            return "vans"
+        if "chuck" in nombre:
+            return "converse"
+        if "nike" in nombre or "air" in nombre or "kobe" in nombre or "jelly ma" in nombre:
+            return "nike"
+        if "new balance" in nombre:
+            return "new balance"
+        if "dellow" in nombre or "amiel" in nombre or "straye" in nombre:
+            return "stepney workers club"
+        if "shadow" in nombre or "grid azura" in nombre:
+            return "saucony"
+        if "nitro" in nombre:
+            return "puma"
+        return ""
+
     while True:
-        print(f"📦 Premium Trendy - Página {PARAMS['page']}")
+        print(f"📦 Premium Trendy - Página {page}")
         try:
-            resp = requests.get(PRODUCTS_API, headers=HEADERS, params=PARAMS, timeout=10)
-            if resp.status_code != 200:
-                print(f"❌ Error HTTP {resp.status_code}")
+            r = requests.get(API_URL, headers=HEADERS, params={"on_sale": "true", "per_page": 100, "page": page}, timeout=10)
+            if r.status_code != 200:
                 break
-            productos = resp.json()
+
+            productos = r.json()
             if not productos:
                 break
         except Exception as e:
-            print(f"❌ Error en Premium Trendy página {PARAMS['page']}: {e}")
+            print(f"❌ Error Premium Trendy página {page}: {e}")
             break
 
         for prod in productos:
             try:
-                nombre = prod.get("name")
-                url = prod.get("permalink")
+                nombre = prod.get("name", "")
+                url = prod.get("permalink", "")
                 etiquetas = [tag["name"].lower() for tag in prod.get("tags", [])]
+
                 if "sneakers" not in etiquetas or any(b in etiquetas for b in ["clothing", "true"]):
                     continue
-                imagenes = prod.get("images", [])
-                imagen = imagenes[0]["src"] if imagenes else ""
+
+                imagen = prod.get("images", [{}])[0].get("src", "")
                 precios = prod.get("prices", {})
                 regular = int(precios.get("regular_price", 0)) / 100
                 oferta = int(precios.get("sale_price", 0)) / 100
                 precio = oferta if oferta > 0 else regular
                 if precio == 0:
                     continue
-                try:
-                    html_prod = requests.get(url, headers=HEADERS, timeout=10).text
-                    atributo = detectar_atributo_talla(html_prod)
-                except:
-                    atributo = None
-                if not atributo:
+
+                html = requests.get(url, headers=HEADERS, timeout=10).text
+                soup = BeautifulSoup(html, "html.parser")
+
+                atributo_talla = detectar_atributo_talla(html)
+                sku_tag = soup.find("span", class_="sku")
+                sku = sku_tag.text.strip() if sku_tag else ""
+
+                if not atributo_talla:
                     continue
-                disponible = verificar_disponibilidad(url, atributo, talla_objetivo)
-                if disponible:
+
+                if verificar_disponibilidad(url, atributo_talla, talla_objetivo):
                     productos_disponibles.append({
-                        "sku": "",
+                        "sku": sku,
                         "nombre": nombre,
                         "precio": precio,
                         "talla": talla_objetivo,
                         "imagen": imagen,
                         "link": url,
                         "tienda": "premiumtrendy",
-                        "marca": "",  # Se puede inferir con inferir_marca(nombre)
-                        "genero": ""
+                        "marca": inferir_marca(nombre),
+                        "genero": ""  # No proporcionado
                     })
             except Exception as e:
                 print(f"⚠️ Error procesando producto Premium Trendy: {e}")
                 continue
 
-        PARAMS["page"] += 1
+        page += 1
         time.sleep(0.5)
 
     print(f"✅ Premium Trendy: {len(productos_disponibles)} productos disponibles.")
-
-    if productos_disponibles:
-        os.makedirs("data", exist_ok=True)
-        now = datetime.now().strftime("%Y-%m-%d_%H-%M")
-        cache_file = f"data/cache_premiumtrendy_{now}.json"
-        with open(cache_file, "w", encoding="utf-8") as f:
-            json.dump(productos_disponibles, f, ensure_ascii=False, indent=2)
-        print(f"✅ Cache guardado: {cache_file} ({len(productos_disponibles)} productos)")
-
     return productos_disponibles
+
 
 
 def generar_cache_estandar_desde_raw():
