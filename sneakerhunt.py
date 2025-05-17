@@ -310,7 +310,7 @@ def obtener_premiumtrendy(talla_buscada=""):
                 nombre = prod.get("name", "")
                 url = prod.get("permalink", "")
                 variaciones = prod.get("variations", [])
-                imagen = prod.get("images", [{}])[0].get("src", "")
+                imagen = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
                 etiquetas = {tag.get("name", "").lower() for tag in prod.get("tags", [])}
 
                 precios = prod.get("prices", {})
@@ -321,7 +321,6 @@ def obtener_premiumtrendy(talla_buscada=""):
                 if precio_final <= 0:
                     continue
 
-                # Buscar tallas dentro de las variaciones
                 tallas = []
                 for var_id in variaciones:
                     var_url = f"{base_url}/wp-json/wc/store/products/{var_id}"
@@ -330,16 +329,17 @@ def obtener_premiumtrendy(talla_buscada=""):
                         for attr in var_data.get("attributes", []):
                             if "talla" in attr.get("name", "").lower():
                                 talla_valor = attr.get("value", "").strip()
-                                if talla_valor:
+                                if talla_valor and talla_valor not in tallas:
                                     tallas.append(talla_valor)
-                    except:
+                    except Exception as e:
+                        print(f"⚠️ Error cargando variación {var_id}: {e}")
                         continue
 
                 if not tallas:
                     continue
 
                 productos_disponibles.append({
-                    "sku": "",  # No disponible desde la API
+                    "sku": "",
                     "nombre": nombre,
                     "precio": precio_final,
                     "talla": ", ".join(tallas),
