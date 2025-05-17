@@ -359,6 +359,63 @@ def obtener_premiumtrendy():
     print(f"✅ Premium Trendy: {len(productos_disponibles)} productos disponibles.")
     return productos_disponibles
 
+def obtener_bitterheads():
+    import requests
+    import time
+
+    url_base = "https://www.bitterheads.com"
+    search_url = f"{url_base}/api/catalog_system/pub/products/search?fq=specificationFilter_43:*&fq=specificationFilter_110:*&_from=0&_to=299"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    productos = []
+    
+    try:
+        res = requests.get(search_url, headers=headers, timeout=10)
+        data = res.json()
+    except Exception as e:
+        print(f"❌ Error al obtener productos de Bitterheads: {e}")
+        return []
+
+    for prod in data:
+        try:
+            product_id = prod.get("productId")
+            variaciones_url = f"{url_base}/api/catalog_system/pub/products/variations/{product_id}"
+            res_var = requests.get(variaciones_url, headers=headers, timeout=10)
+            variaciones = res_var.json()
+            time.sleep(0.2)
+
+            tallas_disponibles = []
+            for sku in variaciones.get("skus", []):
+                stock = sku.get("availableQuantity", 0)
+                talla = sku.get("dimensions", {}).get("Talla")
+                if stock > 0 and talla:
+                    tallas_disponibles.append(talla)
+
+            if not tallas_disponibles:
+                continue
+
+            nombre = prod.get("productName", "")
+            imagen = prod.get("items", [{}])[0].get("images", [{}])[0].get("imageUrl", "")
+            precio = prod.get("items", [{}])[0].get("sellers", [{}])[0].get("commertialOffer", {}).get("Price", 0)
+
+            productos.append({
+                "sku": prod.get("items", [{}])[0].get("itemId", ""),
+                "nombre": nombre,
+                "precio": float(precio),
+                "talla": ", ".join(tallas_disponibles),
+                "imagen": imagen,
+                "link": f"{url_base}/{prod.get('linkText', '')}/p",
+                "tienda": "bitterheads",
+                "marca": inferir_marca(nombre),
+                "genero": inferir_genero(nombre)
+            })
+
+        except Exception as e:
+            print(f"⚠️ Error procesando producto Bitterheads: {e}")
+            continue
+
+    print(f"✅ Bitterheads: {len(productos)} productos con stock y precio válido.")
+    return productos
+
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
         standardized = []
@@ -514,7 +571,8 @@ def obtener_ultimo_cache_tienda(tienda):
         "lagrieta": "data/cache_lagrieta_*.json",
         "adidas": "data/cache_adidas_*.json",
         "premiumtrendy": "data/cache_premiumtrendy_*.json",
-        "kicks": "data/cache_kicks_*.json"
+        "kicks": "data/cache_kicks_*.json",
+        "bitterheads": "data/cache_bitterheads_*.json"
     }
 
     patron = patrones.get(tienda.lower())
