@@ -88,6 +88,22 @@ def guardar_en_cache_local(resultados, folder="data"):
     print(f"📝 Archivo guardado: {filename}")
     return filename
 
+def scrap_raw_shopify():
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    os.makedirs("data", exist_ok=True)
+
+    urls = {
+        "meatpack": "https://meatpack.com/collections/special-price/products.json",
+        "lagrieta": "https://lagrieta.gt/collections/ultimas-tallas/products.json"
+    }
+
+    for tienda, url in urls.items():
+        data = get_json(url)
+        file_path = f"data/raw_{tienda}_{now}.json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"✅ Guardado: {file_path}")
+
 def obtener_meatpack(talla):
     return obtener_shopify("https://meatpack.com/collections/special-price/products.json", "meatpack", talla)
 
@@ -655,8 +671,7 @@ def ejecutar_todo():
     print("🚀 Ejecutando scrap + generar cache...")
 
     # Shopify stores
-    obtener_meatpack()
-    obtener_lagrieta()
+    scrap_raw_shopify()
 
     # Otras tiendas (VTEX, Woo, etc.)
     tiendas = {
