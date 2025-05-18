@@ -767,7 +767,11 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 
     try:
         df = DataFrame(productos_limpios)
-        return df.sort_values(by="precio").to_dict("records")
+        if "precio" in df.columns:
+            return df.sort_values(by="precio").to_dict("records")
+        else:
+            print("⚠️ No se encontró la columna 'precio' en el DataFrame.")
+            return productos_limpios
     except Exception as e:
         print(f"❌ Error ordenando productos: {e}")
         return productos_limpios
