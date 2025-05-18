@@ -619,14 +619,11 @@ def generar_cache_estandar_desde_raw():
                         "imagen": product.get("images", [{}])[0].get("src"),
                         "link": f"https://{tienda}.com/products/{product.get('handle')}",
                         "tienda": tienda,
-                        "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), ""),
-                        "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "")
+                        "marca": next((tag for tag in product.get("tags", []) if tag.startswith("MARCA-")), "").replace("MARCA-", "").lower(),
+                        "genero": next((tag for tag in product.get("tags", []) if tag.startswith("HOMBRE") or tag.startswith("MUJER") or tag.startswith("UNISEX")), "").lower()
                     }
-                    # Validación de precio
                     if entry["precio"] <= 0:
                         continue
-                    # Unificar claves
-                    entry = {k.lower(): v for k, v in entry.items()}
                     standardized.append(entry)
                 except Exception as e:
                     print(f"⚠️ Error procesando producto de {tienda}: {e}")
@@ -636,10 +633,11 @@ def generar_cache_estandar_desde_raw():
     now = datetime.now().strftime("%Y-%m-%d_%H-%M")
     cache_file = f"data/cache_{now}.json"
 
+    productos = []
+
+    # 📦 Leer JSON raw de Meatpack y La Grieta
     archivos_meat = sorted(glob.glob("data/raw_meatpack_*.json"))
     archivos_grieta = sorted(glob.glob("data/raw_lagrieta_*.json"))
-
-    productos = []
 
     if archivos_meat:
         with open(archivos_meat[-1], encoding="utf-8") as f:
@@ -649,10 +647,27 @@ def generar_cache_estandar_desde_raw():
         with open(archivos_grieta[-1], encoding="utf-8") as f:
             productos += standardize_products(json.load(f).get("products", []), "lagrieta")
 
+    # 📦 Adidas – aplicar transformación equivalente
     print("🔍 Scrapeando Adidas...")
-    productos += obtener_adidas_estandarizado()
+    adidas_raw = obtener_adidas_estandarizado()
+    for p in adidas_raw:
+        try:
+            productos.append({
+                "sku": p.get("sku", ""),
+                "nombre": p.get("nombre", ""),
+                "precio": float(p.get("precio", 0)),
+                "talla": p.get("talla", ""),
+                "imagen": p.get("imagen", ""),
+                "link": p.get("link", ""),
+                "tienda": "adidas",
+                "marca": p.get("marca", "").lower(),
+                "genero": p.get("genero", "").lower()
+            })
+        except Exception as e:
+            print(f"⚠️ Error estandarizando producto de adidas: {e}")
+            continue
 
-    # 🔎 Verificación rápida de errores de precio
+    # 🔍 Validación de errores de precio
     invalids = [p for p in productos if not isinstance(p.get("precio"), (int, float))]
     if invalids:
         print(f"⚠️ {len(invalids)} productos sin precio válido.")
@@ -663,6 +678,7 @@ def generar_cache_estandar_desde_raw():
         json.dump(productos, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
+    return cache_file
 
 
 from unificar_cache_total import unificar_caches_por_tienda
