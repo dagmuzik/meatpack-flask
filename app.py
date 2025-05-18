@@ -71,14 +71,20 @@ def descargar_cache():
 
     return send_file(archivo, as_attachment=True)
 
-from flask import send_file
 
-@app.route("/descargar-cache-estandar")
-def descargar_cache_estandar():
-    import glob
-    archivos = sorted(glob.glob("data/cache_*.json"))
+from flask import send_file
+import glob
+import os
+
+@app.route("/descargar-cache-total")
+def descargar_cache_total():
+    archivos = sorted(glob.glob("data/cache_TOTAL_*.json"))
     if not archivos:
-        return "❌ No se encontró ningún archivo de cache estandar."
+        return "❌ No se encontró ningún archivo cache_TOTAL_*.json"
 
     ultimo = archivos[-1]
+    if not os.path.exists(ultimo):
+        return f"❌ Archivo no encontrado: {ultimo}"
+
     return send_file(ultimo, as_attachment=True)
+
