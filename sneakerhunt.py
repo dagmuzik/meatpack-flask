@@ -529,75 +529,68 @@ def obtener_veinteavenida():
 
 def obtener_deportesdelcentro():
     import requests
-    import os
-    import json
     from datetime import datetime
 
-    url = "https://deporteselcentro.com/wp-json/wc/store/products"
+    base_url = "https://deporteselcentro.com/wp-json/wc/store/v1/products"
     headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     "Accept": "application/json, text/javascript, */*; q=0.01",
     "Referer": "https://deporteselcentro.com/",
     "X-Requested-With": "XMLHttpRequest",
     "Accept-Language": "es-ES,es;q=0.9"
-}
+    }
 
-    page = 1
-    productos = []
+    productos_filtrados = []
+    pagina = 1
+    talla_filtrada = "9.5"
+    max_pages = 10
 
-    while True:
-        print(f"📦 Deportes del Centro - Página {page}")
+    while pagina <= max_pages:
         try:
-            r = requests.get(url, headers=headers, params={"per_page": 100, "page": page}, timeout=15)
-            if r.status_code != 200:
-                print(f"❌ Error HTTP {r.status_code}")
+            response = requests.get(base_url, params={"page": pagina, "per_page": 100}, headers=headers, timeout=10)
+            if response.status_code != 200:
+                print(f"❌ Error HTTP {response.status_code} en página {pagina}")
                 break
-            data = r.json()
-            if not data:
-                break
+            productos = response.json()
         except Exception as e:
-            print(f"❌ Error página {page}: {e}")
+            print(f"❌ Error conectando: {e}")
             break
 
-        for p in data:
+        if not productos:
+            break
+
+        for producto in productos:
             try:
-                nombre = p.get("name", "")
-                precio = int(p.get("prices", {}).get("sale_price", 0)) / 100
-                if precio == 0:
-                    continue
-                imagen = p.get("images", [{}])[0].get("src", "")
-                link = p.get("permalink", "")
-                sku = p.get("sku", "")
-                tags = [t["name"].lower() for t in p.get("tags", [])]
-                genero = "hombre" if "hombre" in tags else "mujer" if "mujer" in tags else ""
-                marca = "nike" if "nike" in nombre.lower() else ""
-
+                # Validar tallas
                 tallas = []
-                for attr in p.get("attributes", []):
-                    if attr.get("name", "").lower() == "talla":
-                        tallas = [term.get("name") for term in attr.get("terms", [])]
+                for atributo in producto.get("attributes", []):
+                    if atributo.get("name", "").lower() == "talla":
+                        tallas = [term.get("name") for term in atributo.get("terms", [])]
 
-                for talla in tallas:
-                    productos.append({
-                        "sku": sku,
-                        "nombre": nombre,
-                        "precio": precio,
-                        "talla": talla,
-                        "imagen": imagen,
-                        "link": link,
+                sale_price = int(producto["prices"]["sale_price"])
+                regular_price = int(producto["prices"]["regular_price"])
+                on_sale = producto.get("on_sale", False)
+
+                if any(talla_filtrada in t for t in tallas) and (on_sale and sale_price < regular_price):
+                    productos_filtrados.append({
+                        "sku": producto.get("sku", ""),
+                        "nombre": producto.get("name", ""),
+                        "precio": sale_price / 100,
+                        "talla": talla_filtrada,
+                        "imagen": producto.get("images", [{}])[0].get("src", ""),
+                        "link": producto.get("permalink", ""),
                         "tienda": "deportesdelcentro",
-                        "marca": marca,
-                        "genero": genero
+                        "marca": producto.get("brands", [{}])[0].get("name", "") if producto.get("brands") else "",
+                        "genero": ""
                     })
-
             except Exception as e:
-                print(f"⚠️ Error procesando producto Deportes del Centro: {e}")
+                print(f"⚠️ Error procesando producto: {e}")
                 continue
 
-        page += 1
+        pagina += 1
 
-    print(f"✅ Deportes del Centro: {len(productos)} productos disponibles.")
-    return productos
+    print(f"✅ Deportes del Centro: {len(productos_filtrados)} productos disponibles.")
+    return productos_filtrados
 
 
 def generar_cache_estandar_desde_raw():
