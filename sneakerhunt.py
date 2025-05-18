@@ -639,20 +639,26 @@ def generar_cache_estandar_desde_raw():
     archivos_meat = sorted(glob.glob("data/raw_meatpack_*.json"))
     archivos_grieta = sorted(glob.glob("data/raw_lagrieta_*.json"))
 
+    productos_meatpack = []
+    productos_lagrieta = []
+    productos_adidas = []
+
     if archivos_meat:
         with open(archivos_meat[-1], encoding="utf-8") as f:
-            productos += standardize_products(json.load(f).get("products", []), "meatpack")
+            productos_meatpack = standardize_products(json.load(f).get("products", []), "meatpack")
+            productos += productos_meatpack
 
     if archivos_grieta:
         with open(archivos_grieta[-1], encoding="utf-8") as f:
-            productos += standardize_products(json.load(f).get("products", []), "lagrieta")
+            productos_lagrieta = standardize_products(json.load(f).get("products", []), "lagrieta")
+            productos += productos_lagrieta
 
-    # 📦 Adidas – aplicar transformación equivalente
+    # 📦 Adidas
     print("🔍 Scrapeando Adidas...")
     adidas_raw = obtener_adidas_estandarizado()
     for p in adidas_raw:
         try:
-            productos.append({
+            estandarizado = {
                 "sku": p.get("sku", ""),
                 "nombre": p.get("nombre", ""),
                 "precio": float(p.get("precio", 0)),
@@ -662,7 +668,9 @@ def generar_cache_estandar_desde_raw():
                 "tienda": "adidas",
                 "marca": p.get("marca", "").lower(),
                 "genero": p.get("genero", "").lower()
-            })
+            }
+            productos_adidas.append(estandarizado)
+            productos.append(estandarizado)
         except Exception as e:
             print(f"⚠️ Error estandarizando producto de adidas: {e}")
             continue
@@ -674,10 +682,16 @@ def generar_cache_estandar_desde_raw():
         for p in invalids[:5]:
             print(" -", p.get("nombre") or p.get("sku"), "| Precio:", p.get("precio"))
 
+    # Guardar cache total
     with open(cache_file, "w", encoding="utf-8") as f:
         json.dump(productos, f, ensure_ascii=False, indent=2)
-
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
+
+    # Guardar por tienda para que unificar los recoja
+    guardar_resultados("meatpack", productos_meatpack)
+    guardar_resultados("lagrieta", productos_lagrieta)
+    guardar_resultados("adidas", productos_adidas)
+
     return cache_file
 
 
