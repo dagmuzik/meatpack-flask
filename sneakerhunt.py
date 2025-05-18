@@ -677,7 +677,7 @@ def ejecutar_todo():
     
     # Otras tiendas (VTEX, Woo, etc.)
     tiendas = {
-        "adidas": obtener_adidas_estandarizado,
+        #"adidas": obtener_adidas_estandarizado,
         "kicks": obtener_kicks,
         "bitterheads": obtener_bitterheads,
         "veinteavenida": obtener_veinteavenida,
