@@ -655,8 +655,8 @@ def ejecutar_todo():
     print("🚀 Ejecutando scrap + generar cache...")
 
     # Shopify stores
-    scrap_raw_shopify()
-    generar_cache_estandar_desde_raw()
+    obtener_meatpack()
+    obtener_lagrieta()
 
     # Otras tiendas (VTEX, Woo, etc.)
     tiendas = {
