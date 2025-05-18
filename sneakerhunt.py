@@ -529,7 +529,6 @@ def obtener_veinteavenida():
 
 def obtener_deportesdelcentro():
     import requests
-    from datetime import datetime
 
     base_url = "https://deporteselcentro.com/wp-json/wc/store/v1/products"
     headers = {
@@ -540,9 +539,8 @@ def obtener_deportesdelcentro():
     "Accept-Language": "es-ES,es;q=0.9"
     }
 
-    productos_filtrados = []
+    productos_disponibles = []
     pagina = 1
-    talla_filtrada = "9.5"
     max_pages = 10
 
     while pagina <= max_pages:
@@ -561,22 +559,25 @@ def obtener_deportesdelcentro():
 
         for producto in productos:
             try:
-                # Validar tallas
+                precios = producto.get("prices", {})
+                regular = int(precios.get("regular_price", 0))
+                oferta = int(precios.get("sale_price", 0))
+                on_sale = producto.get("on_sale", False)
+
+                if not on_sale or oferta <= 0 or oferta >= regular:
+                    continue
+
                 tallas = []
                 for atributo in producto.get("attributes", []):
                     if atributo.get("name", "").lower() == "talla":
                         tallas = [term.get("name") for term in atributo.get("terms", [])]
 
-                sale_price = int(producto["prices"]["sale_price"])
-                regular_price = int(producto["prices"]["regular_price"])
-                on_sale = producto.get("on_sale", False)
-
-                if any(talla_filtrada in t for t in tallas) and (on_sale and sale_price < regular_price):
-                    productos_filtrados.append({
+                for talla in tallas:
+                    productos_disponibles.append({
                         "sku": producto.get("sku", ""),
                         "nombre": producto.get("name", ""),
-                        "precio": sale_price / 100,
-                        "talla": talla_filtrada,
+                        "precio": oferta / 100,
+                        "talla": talla,
                         "imagen": producto.get("images", [{}])[0].get("src", ""),
                         "link": producto.get("permalink", ""),
                         "tienda": "deportesdelcentro",
@@ -589,9 +590,8 @@ def obtener_deportesdelcentro():
 
         pagina += 1
 
-    print(f"✅ Deportes del Centro: {len(productos_filtrados)} productos disponibles.")
-    return productos_filtrados
-
+    print(f"✅ Deportes del Centro: {len(productos_disponibles)} productos en promoción.")
+    return productos_disponibles
 
 def generar_cache_estandar_desde_raw():
     def standardize_products(raw_products, tienda):
