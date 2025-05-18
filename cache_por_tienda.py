@@ -1,7 +1,6 @@
 import glob
 import json
 import os
-from sneakerhunt import obtener_shopify, obtener_adidas_estandarizado
 from unificar_cache_total import unificar_caches_por_tienda
 
 def guardar_resultados(nombre, productos):
@@ -29,16 +28,19 @@ def ver_cache_total():
         }
 
 def generar_cache_meatpack():
+    from sneakerhunt import obtener_shopify
     productos = obtener_shopify("https://meatpack.com/collections/special-price/products.json", "meatpack", talla="")
     guardar_resultados("meatpack", productos)
     return unificar_caches_por_tienda()
 
 def generar_cache_lagrieta():
+    from sneakerhunt import obtener_shopify
     productos = obtener_shopify("https://lagrieta.gt/collections/ultimas-tallas/products.json", "lagrieta", talla="")
     guardar_resultados("lagrieta", productos)
     return unificar_caches_por_tienda()
 
 def generar_cache_adidas():
+    from sneakerhunt import obtener_adidas_estandarizado
     productos = obtener_adidas_estandarizado()
     guardar_resultados("adidas", productos)
     return unificar_caches_por_tienda()
