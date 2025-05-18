@@ -672,7 +672,8 @@ def ejecutar_todo():
 
     # Shopify stores
     scrap_raw_shopify()
-
+    obtener_shopify(url, tienda, talla)
+    
     # Otras tiendas (VTEX, Woo, etc.)
     tiendas = {
         "adidas": obtener_adidas_estandarizado,
