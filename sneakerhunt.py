@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from pandas import DataFrame
+from cache_por_tienda import guardar_resultados
 
 __all__ = [
     "buscar_todos",
