@@ -655,10 +655,36 @@ def generar_cache_estandar_desde_raw():
     print(f"✅ Cache generado: {cache_file} ({len(productos)} productos)")
 
 
+from unificar_cache_total import unificar_caches_por_tienda
+
 def ejecutar_todo():
     print("🚀 Ejecutando scrap + generar cache...")
+
+    # Shopify stores
     scrap_raw_shopify()
     generar_cache_estandar_desde_raw()
+
+    # Otras tiendas (VTEX, Woo, etc.)
+    tiendas = {
+        "adidas": obtener_adidas_estandarizado,
+        "kicks": obtener_kicks,
+        "bitterheads": obtener_bitterheads,
+        "veinteavenida": obtener_veinteavenida,
+        "deportesdelcentro": obtener_deportesdelcentro,
+        "premiumtrendy": obtener_premiumtrendy
+    }
+
+    for tienda, funcion in tiendas.items():
+        try:
+            print(f"📦 Scrapeando {tienda.title()}...")
+            productos = funcion()
+            guardar_resultados(tienda, productos)
+        except Exception as e:
+            print(f"❌ Error en {tienda}: {e}")
+
+    # Cache total unificado
+    unificar_caches_por_tienda()
+
 
 def cargar_ultimo_cache():
     import glob
