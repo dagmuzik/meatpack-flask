@@ -738,11 +738,11 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     # Normalizar nombres si algunos productos tienen claves en mayúscula
     productos_normalizados = []
     for p in productos:
-        if "Producto" in p:  # Vienen de Meatpack / La Grieta
+        if "Producto" in p or "Precio" in p:  # detecta formatos de Shopify
             p = {k.lower(): v for k, v in p.items()}
         productos_normalizados.append(p)
 
-    # Filtros
+    # Aplicar filtros
     if talla:
         talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
         productos_normalizados = [
@@ -768,21 +768,27 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
             if p.get("genero", "").lower() == genero.lower()
         ]
 
-    # Limpieza de precios
+    # Limpieza y validación de precios
     productos_limpios = []
     for p in productos_normalizados:
         try:
-            precio_raw = p.get("precio") or p.get("Precio") or 0
+            precio_raw = (
+                p.get("precio") or
+                p.get("precio_final") or
+                p.get("precio_original") or
+                p.get("Precio") or
+                0
+            )
             precio = float(precio_raw)
             if precio <= 0:
                 continue
-            p["precio"] = precio  # fuerza la clave estandarizada
+            p["precio"] = precio  # clave estandarizada para ordenar
             productos_limpios.append(p)
         except Exception as e:
             print(f"⚠️ Producto con error de precio: {p.get('nombre', 'sin nombre')} | Error: {e}")
             continue
 
-    # Ordenar por precio si es posible
+    # Ordenar si es posible
     try:
         df = DataFrame(productos_limpios)
         if "precio" in df.columns:
@@ -793,7 +799,6 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     except Exception as e:
         print(f"❌ Error ordenando productos: {e}")
         return productos_limpios
-
 
         
 import glob
