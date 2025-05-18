@@ -145,23 +145,23 @@ def obtener_adidas_estandarizado():
     MAX_PAGES = 6  # Limitar a 300 productos aprox
     base_url = "https://www.adidas.com.gt/api/catalog_system/pub/products/search?fq=productClusterIds:138&_from={inicio}&_to={fin}"
 
-def get_variaciones(product_id):
-    url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
-    try:
-        res = requests.get(url, timeout=10)
-        res.raise_for_status()
-        return res.json()
-    except requests.exceptions.SSLError as e:
-        print(f"❌ Error SSL al obtener variaciones para producto {product_id}: {e}")
-    except requests.exceptions.ConnectionError as e:
-        print(f"❌ Error de conexión para {url}: {e}")
-    except requests.exceptions.Timeout:
-        print(f"⏱️ Timeout al obtener variaciones para producto {product_id}")
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error HTTP inesperado en {url}: {e}")
-    except Exception as e:
-        print(f"💥 Error general al obtener variaciones para producto {product_id}: {e}")
-    return {}
+    def get_variaciones(product_id):
+        url = f"https://www.adidas.com.gt/api/catalog_system/pub/products/variations/{product_id}"
+        try:
+            res = requests.get(url, timeout=10)
+            res.raise_for_status()
+            return res.json()
+        except requests.exceptions.SSLError as e:
+            print(f"❌ Error SSL al obtener variaciones para producto {product_id}: {e}")
+        except requests.exceptions.ConnectionError as e:
+            print(f"❌ Error de conexión para {url}: {e}")
+        except requests.exceptions.Timeout:
+            print(f"⏱️ Timeout al obtener variaciones para producto {product_id}")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error HTTP inesperado en {url}: {e}")
+        except Exception as e:
+            print(f"💥 Error general al obtener variaciones para producto {product_id}: {e}")
+        return {}
 
 
     while True:
