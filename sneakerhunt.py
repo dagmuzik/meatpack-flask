@@ -672,7 +672,8 @@ def ejecutar_todo():
 
     # Shopify stores
     scrap_raw_shopify()
-    obtener_shopify(url, tienda, talla)
+    generar_cache_estandar_desde_raw()
+
     
     # Otras tiendas (VTEX, Woo, etc.)
     tiendas = {
