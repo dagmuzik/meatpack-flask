@@ -3,7 +3,7 @@ from scraping_tiendas import (
     obtener_kicks, obtener_bitterheads, obtener_premiumtrendy,
     obtener_veinteavenida, obtener_deportesdelcentro
 )
-from utils import guardar_en_cache_local, guardar_en_cache_por_tienda
+from utils import guardar_en_cache_local, guardar_en_cache_por_tienda, cargar_ultimo_cache
 
 def buscar_todos(talla="", tienda="", marca="", genero=""):
     productos = cargar_ultimo_cache()
