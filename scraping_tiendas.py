@@ -1,6 +1,6 @@
 # scraping_tiendas.py
 
-from utils import get_json, talla_coincide, inferir_marca, inferir_genero, MAPA_TALLAS, HEADERS
+from utils import get_json, talla_coincide, inferir_marca, inferir_genero, MAPA_TALLAS, headers
 import requests
 import time
 import re
