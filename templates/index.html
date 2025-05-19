@@ -82,41 +82,23 @@
 </div>
 </div>
 <style>
-
-   main {
-     width: 100%;
-     padding: 40px 20px 20px;
-     box-sizing: border-box;
-     text-align: center;
-   }
-   
-   * {
-      box-sizing: border-box;
-   }
-   
-   body, html {
-     margin: 0;
-     padding: 0;
-     width: 100%;
-     font-family: Arial, sans-serif;
-     background-color: #f0f0f0;
-   }
+   body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
 
     header {
-      flex-wrap: wrap;
-      gap: 10px;
       background: #fff;
       padding: 15px 20px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       border-bottom: 1px solid #ddd;
-      width: 100%;
-      box-sizing: border-box;
+      flex-wrap: wrap;
     }
 
     header img {
-      height: 30px;
+      height: 40px;
       margin-right: 10px;
     }
 
@@ -133,6 +115,11 @@
     .title-container span {
       font-size: 14px;
       color: #666;
+    }
+
+    main {
+      padding: 20px;
+      text-align: center;
     }
 
     #loader {
@@ -155,13 +142,12 @@
     }
 
     form button {
-     background: #000;
-     color: white;
-     border: none;
-     padding: 10px 20px;
-     font-size: 16px;
-     cursor: pointer;
-   }
+      background: #000;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
 
     .card-container {
       display: flex;
@@ -293,28 +279,6 @@
       z-index:9999;
     }
 
-    .logo-animado {
-      max-width: 210px;
-      width: 100%;
-      height: auto;
-      display: block;
-      opacity: 0;
-      transform: scale(0.98);
-      animation: fadeInLogo 1s ease-out forwards;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .logo-animado:hover {
-      transform: scale(1.04);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-   @keyframes fadeInLogo {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-   
     @media (max-width: 600px) {
       form {
         flex-direction: column;
@@ -326,7 +290,6 @@
         padding: 20px 10px;
       }
     }
-
   </style>
 </head>
 <body>
