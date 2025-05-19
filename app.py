@@ -13,7 +13,7 @@ from scraping_tiendas import (
     obtener_deportesdelcentro
 )
 from utils import guardar_en_cache_local
-from search import buscar_todos
+from search import buscar_todos, ejecutar_todo
 from utils import obtener_ultimos_nuevos
 
 app = Flask(__name__)
