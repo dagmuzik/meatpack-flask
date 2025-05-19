@@ -1,8 +1,18 @@
 from flask import Flask, render_template, request
-from sneakerhunt import buscar_todos, obtener_ultimo_cache_tienda
 import json
 import glob
 import os
+from scraping_tiendas import (
+    obtener_meatpack,
+    obtener_lagrieta,
+    obtener_adidas_estandarizado,
+    obtener_kicks,
+    obtener_bitterheads,
+    obtener_premiumtrendy,
+    obtener_veinteavenida,
+    obtener_deportesdelcentro
+)
+from utils import guardar_en_cache_local
 
 app = Flask(__name__)
 
