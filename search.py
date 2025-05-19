@@ -4,6 +4,7 @@ from scraping_tiendas import (
     obtener_veinteavenida, obtener_deportesdelcentro
 )
 from utils import guardar_en_cache_local, guardar_en_cache_por_tienda, cargar_ultimo_cache
+import re
 
 def es_sneaker(nombre):
     nombre = nombre.lower()
