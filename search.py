@@ -29,10 +29,22 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 
     # Filtros básicos
     if talla:
-        talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
+        talla = talla.strip().lower()
+        def talla_exacta(talla_input, talla_producto):
+            # Normaliza y compara sin afectar tallas similares como 5.5 vs 5
+            t1 = talla_input.replace("us", "").strip().lower()
+            t2 = talla_producto.strip().lower()
+            return (
+                t2 == t1 or
+                t2.startswith(t1 + " ") or
+                t2.endswith(t1) or
+                t2 == t1 + "m" or
+                t2 == t1 + "w"
+            )
+
         productos_normalizados = [
             p for p in productos_normalizados
-            if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")
+            if talla_exacta(talla, p.get("talla", ""))
         ]
 
     if tienda:
