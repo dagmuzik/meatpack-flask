@@ -9,6 +9,10 @@ from bs4 import BeautifulSoup
 def obtener_shopify(url, tienda, talla):
     productos = []
     data = get_json(url)
+    if not data:
+        print(f"❌ {tienda} no devolvió datos desde {url}")
+        return []
+
     for prod in data.get("products", []):
         img = prod.get("images", [{}])[0].get("src", "https://via.placeholder.com/240x200?text=Sneaker")
         for var in prod.get("variants", []):
@@ -29,6 +33,8 @@ def obtener_shopify(url, tienda, talla):
                     })
                 except Exception as e:
                     print(f"⚠️ Error al procesar producto {prod.get('title')}: {e}")
+
+    print(f"✅ {tienda}: {len(productos)} productos válidos.")
     return productos
 
 def obtener_meatpack(talla):
