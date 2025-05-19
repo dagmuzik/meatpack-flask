@@ -41,7 +41,7 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
             p for p in productos_normalizados
             if talla_valida(talla, p.get("talla", ""))
         ]
-
+        
     if tienda:
         productos_normalizados = [
             p for p in productos_normalizados
