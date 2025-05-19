@@ -91,3 +91,4 @@ def ejecutar_todo():
     productos += obtener_veinteavenida()
     productos += obtener_deportesdelcentro()
     guardar_en_cache_local(productos)
+    guardar_en_cache_por_tienda(productos)
