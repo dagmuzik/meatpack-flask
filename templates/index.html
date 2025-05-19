@@ -310,7 +310,8 @@
 </div>
 <header></header>
 <main>
-  <img alt="Logo Central" src="/static/img/sneakerhunter_logo.png" style="width: 210px; margin-top: 30px;"/>
+  <img alt="Logo Central" src="/static/img/sneakerhunter_logo.png"
+     style="max-width: 210px; width: 100%; height: auto; margin-top: 30px; display: block;"/>
   <form method="post" onsubmit="mostrarLoader()">
     <label for="talla">Talla:</label>
     <input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
