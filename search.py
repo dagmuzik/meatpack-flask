@@ -31,10 +31,10 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 
     # Filtros básicos
     if talla:
-        talla = talla.strip().lower().replace("us", "").replace(" ", "")
+        talla = talla.strip().lower().replace("us", "").replace(" ", "").replace("talla:", "").replace("-", ".")
 
         def talla_valida(talla_input, talla_producto):
-            t = talla_producto.lower().strip().replace("us", "").replace(" ", "")
+            t = talla_producto.lower().strip().replace("us", "").replace(" ", "").replace("talla:", "").replace("-", ".")
             return t == talla_input or t == talla_input + "m" or t == talla_input + "w"
 
         productos_normalizados = [
