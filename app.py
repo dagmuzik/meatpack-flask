@@ -9,15 +9,18 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    talla = request.values.get("talla", "").strip()
-    tienda = request.values.get("tienda", "").strip()
-    marca = request.values.get("marca", "").strip()
-    genero = request.values.get("genero", "").strip()
+    productos = None
+    talla = ""
+    tienda = ""
+    marca = ""
+    genero = ""
 
-    print(f"🎯 FILTROS => talla: {talla}, tienda: {tienda}, marca: {marca}, genero: {genero}")
-
-    filtros_activos = any([talla, tienda, marca, genero])
-    productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero) if filtros_activos else []
+    if request.method == "POST":
+        talla = request.form.get("talla", "").strip()
+        tienda = request.form.get("tienda", "").strip()
+        marca = request.form.get("marca", "").strip()
+        genero = request.form.get("genero", "").strip()
+        productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero)
 
     nuevos = obtener_ultimos_nuevos()
 
