@@ -28,6 +28,11 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     # Filtrar solo sneakers
     productos_normalizados = [p for p in productos_normalizados if es_sneaker(p.get("nombre", p.get("producto", "")).lower())]
 
+    # Inferir género "infantil" si la talla termina en K o Y
+    for p in productos_normalizados:
+        talla = p.get("talla", "").strip().upper()
+        if not p.get("genero") and re.search(r"[KY]$", talla):
+            p["genero"] = "infantil"
 
     # Filtros básicos
     if talla:
