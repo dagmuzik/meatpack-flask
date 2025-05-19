@@ -9,19 +9,12 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    productos = None
-    talla = ""
-    tienda = ""
-    marca = ""
-    genero = ""
+    talla = request.values.get("talla", "").strip()
+    tienda = request.values.get("tienda", "").strip()
+    marca = request.values.get("marca", "").strip()
+    genero = request.values.get("genero", "").strip()
 
-    if request.method == "POST":
-        talla = request.form.get("talla", "").strip()
-        tienda = request.form.get("tienda", "").strip()
-        marca = request.form.get("marca", "").strip()
-        genero = request.form.get("genero", "").strip()
-        productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero)
-
+    productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero)
     nuevos = obtener_ultimos_nuevos()
 
     return render_template("index.html",
