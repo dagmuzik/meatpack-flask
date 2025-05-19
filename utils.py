@@ -77,13 +77,12 @@ def inferir_genero(nombre):
         return "unisex"
     return ""
 
-def guardar_en_cache_local(resultados, folder="data"):
-    """Guarda resultados en un archivo JSON timestamped"""
+def guardar_en_cache_local(productos, folder="data"):
     os.makedirs(folder, exist_ok=True)
     now = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    filename = os.path.join(folder, f"cache_{now}.json")
+    filename = os.path.join(folder, f"cache_TOTAL_{now}.json")  # <-- el nombre que espera app.py
     with open(filename, "w", encoding="utf-8") as f:
-        json.dump(resultados, f, ensure_ascii=False, indent=2)
+        json.dump(productos, f, ensure_ascii=False, indent=2)
     print(f"📝 Archivo guardado: {filename}")
     return filename
 
