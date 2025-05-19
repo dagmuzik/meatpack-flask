@@ -16,7 +16,9 @@ def index():
 
     print(f"🎯 FILTROS => talla: {talla}, tienda: {tienda}, marca: {marca}, genero: {genero}")
 
-    productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero)
+    filtros_activos = any([talla, tienda, marca, genero])
+    productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero) if filtros_activos else []
+
     nuevos = obtener_ultimos_nuevos()
 
     return render_template("index.html",
