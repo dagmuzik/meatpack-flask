@@ -375,6 +375,14 @@ def obtener_veinteavenida():
 
 def obtener_deportesdelcentro():
     base_url = "https://deporteselcentro.com/wp-json/wc/store/v1/products"
+    headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "Referer": "https://deporteselcentro.com/",
+    "X-Requested-With": "XMLHttpRequest",
+    "Accept-Language": "es-ES,es;q=0.9"
+    }
+    
     productos_disponibles = []
     pagina = 1
     max_pages = 10
