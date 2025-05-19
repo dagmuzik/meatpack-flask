@@ -48,7 +48,7 @@ def talla_coincide(talla_buscada, talla_encontrada):
 def inferir_marca(nombre):
     """Intenta inferir la marca del producto desde su nombre"""
     nombre = nombre.lower()
-    if any(m in nombre for m in ["sl 72", "forum", "gazelle", "stan smith"]):
+    if any(m in nombre for m in ["sl 72", "forum", "gazelle", "stan smith", "nmd", "superstar"]):
         return "adidas"
     if any(m in nombre for m in ["slip-on", "sk8-hi", "ultrarange", "old skool"]):
         return "vans"
@@ -62,7 +62,7 @@ def inferir_marca(nombre):
         return "stepney workers club"
     if any(m in nombre for m in ["shadow", "grid azura"]):
         return "saucony"
-    if "nitro" in nombre:
+    if any(m in nombre for m in ["nitro", "puma", "suede"]):
         return "puma"
     return ""
 
