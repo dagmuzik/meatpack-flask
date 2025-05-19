@@ -83,15 +83,24 @@
 </div>
 <style>
 
+   main {
+     width: 100%;
+     padding: 40px 20px 20px;
+     box-sizing: border-box;
+     text-align: center;
+   }
+   
    * {
       box-sizing: border-box;
    }
    
-   body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-    }
+   body, html {
+     margin: 0;
+     padding: 0;
+     width: 100%;
+     font-family: Arial, sans-serif;
+     background-color: #f9f9f9;
+   }
 
     header {
       flex-wrap: wrap;
@@ -126,11 +135,6 @@
       color: #666;
     }
 
-    main {
-      padding: 20px;
-      text-align: center;
-    }
-
     #loader {
       display: none;
       margin: 20px auto;
@@ -151,12 +155,13 @@
     }
 
     form button {
-      background: #000;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      cursor: pointer;
-    }
+     background: #000;
+     color: white;
+     border: none;
+     padding: 10px 20px;
+     font-size: 16px;
+     cursor: pointer;
+   }
 
     .card-container {
       display: flex;
@@ -322,15 +327,6 @@
       }
     }
 
-        form button {
-          font-size: 16px;
-          padding: 10px 20px;
-        }
-
-        main {
-          padding-top: 40px;
-        }
-      }
   </style>
 </head>
 <body>
@@ -1136,24 +1132,25 @@
     }
   }
   </script>
-<hr style="margin-top: 40px;"/>
-<footer style="text-align: center; font-size: 14px; color: #777; padding-bottom: 20px;">
-  <p style="margin-top: 10px; font-weight: bold; color: #444;">
+<hr style="margin-top: 40px; border: none; border-top: 1px solid #ccc; width: 100%;" />
+
+<footer style="text-align: center; font-size: 14px; color: #777; padding: 20px 0;">
+  <p style="margin: 0; font-weight: bold; color: #444;">
     Buscá, compará y Cazá tu próximo par
   </p>
-  <p>
+  <p style="margin: 8px 0 0;">
     © 2025 SneakersHunter. Todos los derechos reservados.
   </p>
-  <p>
-    <a href="#" onclick="mostrarDisclaimer()" style="margin: 0 10px; color:#555; text-decoration:underline;">
+  <p style="margin: 8px 0 0;">
+    <a href="#" onclick="mostrarDisclaimer()" style="color:#555; text-decoration:underline; margin: 0 8px;">
       Aviso Legal
     </a>
     |
-    <a href="#" onclick="mostrarModal('modal-privacidad')" style="margin: 0 10px; color:#555; text-decoration:underline;">
+    <a href="#" onclick="mostrarModal('modal-privacidad')" style="color:#555; text-decoration:underline; margin: 0 8px;">
       Política de Privacidad
     </a>
     |
-    <a href="#" onclick="mostrarModal('modal-uso')" style="margin: 0 10px; color:#555; text-decoration:underline;">
+    <a href="#" onclick="mostrarModal('modal-uso')" style="color:#555; text-decoration:underline; margin: 0 8px;">
       Términos de Uso
     </a>
   </p>
