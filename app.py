@@ -1,20 +1,9 @@
-from flask import Flask, render_template, request
-import json
-import glob
-import os
-from scraping_tiendas import (
-    obtener_meatpack,
-    obtener_lagrieta,
-    obtener_adidas_estandarizado,
-    obtener_kicks,
-    obtener_bitterheads,
-    obtener_premiumtrendy,
-    obtener_veinteavenida,
-    obtener_deportesdelcentro
-)
-from utils import guardar_en_cache_local
+from flask import Flask, render_template, request, send_file
 from search import buscar_todos, ejecutar_todo
 from utils import obtener_ultimos_nuevos, obtener_ultimo_cache_tienda
+import glob
+import os
+import json
 
 app = Flask(__name__)
 
@@ -43,7 +32,6 @@ def index():
                            genero=genero,
                            nuevos=nuevos)
 
-# ✅ Ruta para ejecutar scraping desde cronjob.org
 @app.route("/cron/ejecutar-scraper")
 def ejecutar_scraper_remoto():
     try:
@@ -52,16 +40,13 @@ def ejecutar_scraper_remoto():
     except Exception as e:
         return f"❌ Error al ejecutar scraper: {e}"
 
-
 @app.route("/cron/ejecutar-todo")
 def ejecutar_todo_remoto():
     try:
-        from sneakerhunt import ejecutar_todo
         ejecutar_todo()
         return "✅ Scrap y cache ejecutados correctamente"
     except Exception as e:
         return f"❌ Error en ejecutar_todo: {e}"
-
 
 @app.route("/descargar-cache")
 def descargar_cache():
@@ -74,11 +59,6 @@ def descargar_cache():
         return f"❌ No se encontró archivo cache para '{tienda}'"
 
     return send_file(archivo, as_attachment=True)
-
-
-from flask import send_file
-import glob
-import os
 
 @app.route("/descargar-cache-total")
 def descargar_cache_total():
