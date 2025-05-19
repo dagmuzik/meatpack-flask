@@ -53,9 +53,14 @@ def unificar_caches_por_tienda():
     print(f"✅ Cache total generado: {salida} ({len(productos_totales)} productos)")
     return salida
 
-# al final de unificar_cache_total.py
-from comparar_cache_total import comparar_caches_y_generar_nuevos
 
 if __name__ == "__main__":
     archivo_generado = unificar_caches_por_tienda()
-    comparar_caches_y_generar_nuevos()
+
+    # ✅ Ejecutar la detección de productos nuevos automáticamente
+    try:
+        from comparar_cache_total import comparar_caches_y_generar_nuevos
+        comparar_caches_y_generar_nuevos()
+    except Exception as e:
+        print(f"⚠️ Error al generar productos nuevos: {e}")
+
