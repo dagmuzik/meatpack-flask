@@ -14,7 +14,7 @@ from scraping_tiendas import (
 )
 from utils import guardar_en_cache_local
 from search import buscar_todos, ejecutar_todo
-from utils import obtener_ultimos_nuevos
+from utils import obtener_ultimos_nuevos, obtener_ultimo_cache_tienda
 
 app = Flask(__name__)
 
