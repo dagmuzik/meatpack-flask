@@ -299,6 +299,7 @@ def obtener_premiumtrendy():
 def obtener_veinteavenida():
     productos = []
     base_url = "https://veinteavenida.com/product-category/sale/page/"
+    headers = {"User-Agent": "Mozilla/5.0"}
 
     for page in range(1, 4):
         print(f"📦 Veinte Avenida - Página {page}")
