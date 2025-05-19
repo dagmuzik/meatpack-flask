@@ -30,21 +30,15 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     # Filtros básicos
     if talla:
         talla = talla.strip().lower()
-        def talla_exacta(talla_input, talla_producto):
-            # Normaliza y compara sin afectar tallas similares como 5.5 vs 5
-            t1 = talla_input.replace("us", "").strip().lower()
-            t2 = talla_producto.strip().lower()
-            return (
-                t2 == t1 or
-                t2.startswith(t1 + " ") or
-                t2.endswith(t1) or
-                t2 == t1 + "m" or
-                t2 == t1 + "w"
-            )
+
+        def talla_valida(talla_input, talla_producto):
+            t = talla_producto.lower().strip().replace("us", "")
+            # Acepta 5, 5m, 5w, 5 m, 5 w
+            return re.fullmatch(rf"{talla}(m|w)?", t)
 
         productos_normalizados = [
             p for p in productos_normalizados
-            if talla_exacta(talla, p.get("talla", ""))
+            if talla_valida(talla, p.get("talla", ""))
         ]
 
     if tienda:
