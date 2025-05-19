@@ -279,6 +279,28 @@
       z-index:9999;
     }
 
+    .logo-animado {
+      max-width: 210px;
+      width: 100%;
+      height: auto;
+      display: block;
+      opacity: 0;
+      transform: scale(0.98);
+      animation: fadeInLogo 1s ease-out forwards;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .logo-animado:hover {
+      transform: scale(1.04);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+   @keyframes fadeInLogo {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+   
     @media (max-width: 600px) {
       form {
         flex-direction: column;
@@ -325,11 +347,11 @@
 </div>
 <header></header>
 <main>
-  <div style="display: flex; justify-content: center; margin-top: 30px;">
-    <img alt="Logo Central"
-         src="/static/img/sneakerhunter_logo.png"
-         style="max-width: 210px; width: 100%; height: auto; display: block;" />
-  </div>
+   <div style="display: flex; justify-content: center; margin-top: 30px;">
+      <img alt="Logo Central"
+            src="/static/img/sneakerhunter_logo.png"
+            class="logo-animado"/>
+   </div>
   <form method="post" onsubmit="mostrarLoader()">
     <label for="talla">Talla:</label>
     <input name="talla" placeholder="Ej. 9.5" type="text" value="{{ talla or '' }}"/>
