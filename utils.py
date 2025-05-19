@@ -38,12 +38,13 @@ def get_json(url, headers=None, params=None, intentos=3):
     return {}
 
 def normalizar_talla(valor):
-    """Extrae tallas como '7', '9.5', '7m', '9.5w' desde texto sucio como 'Talla: 9.5 US W'"""
+    """Extrae tallas como '9.5', '7', '7m', '9.5w' desde texto sucio como 'Talla: 9.5 US W'"""
     valor = str(valor).lower().replace("us", "").replace("-", ".").replace(" ", "").replace("talla:", "")
     match = re.search(r"(\d{1,2}(?:\.5)?)([mw]?)$", valor)
     if match:
         return match.group(1) + match.group(2)
     return ""
+
 
 def talla_coincide(talla_buscada, talla_encontrada):
     """Compara tallas ignorando puntos, letras u otros caracteres"""
