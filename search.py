@@ -3,7 +3,7 @@ from scraping_tiendas import (
     obtener_kicks, obtener_bitterheads, obtener_premiumtrendy,
     obtener_veinteavenida, obtener_deportesdelcentro
 )
-from utils import guardar_en_cache_local, guardar_en_cache_por_tienda, cargar_ultimo_cache, normalizar_talla
+from utils import guardar_en_cache_local, guardar_en_cache_por_tienda, cargar_ultimo_cache, normalizar_talla, talla_coincide
 from pandas import DataFrame
 import re
 
@@ -30,10 +30,9 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
 
    # Filtros básicos
     if talla:
-        talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
         productos_normalizados = [
             p for p in productos_normalizados
-            if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")
+            if talla_coincide(talla, p.get("talla", ""))
         ]
 
     if tienda:
