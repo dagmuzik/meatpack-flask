@@ -87,6 +87,17 @@ def guardar_en_cache_local(resultados, folder="data"):
     print(f"📝 Archivo guardado: {filename}")
     return filename
 
+def guardar_en_cache_por_tienda(productos, folder="data"):
+    os.makedirs(folder, exist_ok=True)
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    tiendas = set(p["tienda"] for p in productos if "tienda" in p)
+    for tienda in tiendas:
+        filtrados = [p for p in productos if p.get("tienda") == tienda]
+        filename = os.path.join(folder, f"cache_{now}_{tienda.lower()}.json")
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(filtrados, f, ensure_ascii=False, indent=2)
+        print(f"📦 Guardado: {filename}")
+
 def obtener_ultimos_nuevos(path="data"):
     archivos = sorted(glob.glob(f"{path}/nuevos_*.json"))
     if not archivos:
