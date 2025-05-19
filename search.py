@@ -23,6 +23,8 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     for p in productos:
         if "Producto" in p or "Precio" in p or "precio_final" in p:
             p = {k.lower(): v for k, v in p.items()}
+            if "producto" in p and "nombre" not in p:
+                p["nombre"] = p["producto"]
         productos_normalizados.append(p)
         
     # Filtrar solo sneakers
