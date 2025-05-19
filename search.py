@@ -28,25 +28,14 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
     # Filtrar solo sneakers
     productos_normalizados = [p for p in productos_normalizados if es_sneaker(p.get("nombre", p.get("producto", "")).lower())]
 
-    # Inferir género "infantil" si la talla termina en K o Y
-    for p in productos_normalizados:
-        talla = str(p.get("talla", "")).strip().upper()
-        genero_actual = p.get("genero", "").strip().lower()
-
-        if genero_actual in {"niño", "niña", "niños", "niñas"}:
-            p["genero"] = "infantil"
-        elif re.search(r"[KY]$", talla) and not genero_actual:
-            p["genero"] = "infantil"
-
-    # Filtros básicos
+   # Filtros básicos
     if talla:
-        talla = normalizar_talla(talla)
-
+        talla_norm = talla.strip().lower().replace(".", "").replace("us", "")
         productos_normalizados = [
             p for p in productos_normalizados
-            if normalizar_talla(p.get("talla", "")) == talla
+            if talla_norm in p.get("talla", "").lower().replace(".", "").replace("us", "")
         ]
-        
+
     if tienda:
         productos_normalizados = [
             p for p in productos_normalizados
@@ -113,4 +102,3 @@ def ejecutar_todo():
     productos += obtener_veinteavenida()
     productos += obtener_deportesdelcentro()
     guardar_en_cache_local(productos)
-    guardar_en_cache_por_tienda(productos)
