@@ -5,6 +5,12 @@ from scraping_tiendas import (
 )
 from utils import guardar_en_cache_local, guardar_en_cache_por_tienda, cargar_ultimo_cache
 
+def es_sneaker(nombre):
+    nombre = nombre.lower()
+    keywords = ["sneaker", "zapatilla", "tenis", "runner", "air", "jordan", "yeezy", "forum", "ultraboost", "nmd", "suede", "nb", "sl 72", "gazelle", "stan smith", "vomero", "sk8", "old skool"]
+    exclude = ["polo", "camiseta", "playera", "jersey", "short", "pantalón", "gorra", "guante", "calceta", "mochila", "bolsa", "protector", "balón", "sandalias"]
+    return any(k in nombre for k in keywords) and not any(e in nombre for e in exclude)
+
 def buscar_todos(talla="", tienda="", marca="", genero=""):
     productos = cargar_ultimo_cache()
     if not productos:
@@ -16,6 +22,9 @@ def buscar_todos(talla="", tienda="", marca="", genero=""):
         if "Producto" in p or "Precio" in p or "precio_final" in p:
             p = {k.lower(): v for k, v in p.items()}
         productos_normalizados.append(p)
+        # Filtrar solo sneakers
+        productos_normalizados = [p for p in productos_normalizados if es_sneaker(p.get("nombre", p.get("producto", "")).lower())]
+
 
     # Filtros básicos
     if talla:
