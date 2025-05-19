@@ -107,3 +107,11 @@ def obtener_ultimos_nuevos(path="data"):
 def obtener_ultimo_cache_tienda(tienda, path="data"):
     archivos = sorted(glob.glob(f"{path}/cache_*_{tienda}.json"))
     return archivos[-1] if archivos else None
+
+def cargar_ultimo_cache(path="data"):
+    archivos = sorted(glob.glob(f"{path}/cache_TOTAL_*.json"))
+    if not archivos:
+        print("⚠️ No se encontró ningún archivo cache_TOTAL.")
+        return []
+    with open(archivos[-1], encoding="utf-8") as f:
+        return json.load(f)
