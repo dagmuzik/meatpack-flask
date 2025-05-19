@@ -14,6 +14,8 @@ def index():
     marca = request.values.get("marca", "").strip()
     genero = request.values.get("genero", "").strip()
 
+    print(f"🎯 FILTROS => talla: {talla}, tienda: {tienda}, marca: {marca}, genero: {genero}")
+
     productos = buscar_todos(talla=talla, tienda=tienda, marca=marca, genero=genero)
     nuevos = obtener_ultimos_nuevos()
 
@@ -24,6 +26,7 @@ def index():
                            marca=marca,
                            genero=genero,
                            nuevos=nuevos)
+
 
 @app.route("/cron/ejecutar-scraper")
 def ejecutar_scraper_remoto():
